@@ -1,0 +1,22 @@
+# For now this is our docker compose file.
+# To start it, move to the man folder, and run "docker-compose up".
+# SQL Server was a nightmare as UT8 doesnt convert properly over to a password in SQL Server.
+# You can use SQL Server Managment or Azure Data Studio to do direct connections.
+# Settings:
+#   Server Name: localhost
+#   Authentication: SQL Authentication
+#   Login: sa
+#   Password: Password1_HOLDER
+
+version: "3.9"
+
+services:
+  sql-server-db:
+    container_name: LinuxMetricsCollectorDB
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    ports:
+      - "1433:1433"
+    environment:
+      SA_PASSWORD: "Password1_HOLDER"
+      ACCEPT_EULA: "Y"
+      # username: "sa"
