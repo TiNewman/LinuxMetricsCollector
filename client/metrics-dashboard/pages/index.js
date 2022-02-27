@@ -4,6 +4,6 @@ import styles from '../styles/Home.module.css'
 
 export default function Home() {
   return (
-    <h1>Welcome to Linux Metrics Dashboard!</h1>
+    <h1 className="text-3xl font-bold underline">Welcome to Linux Metrics Dashboard!</h1>
   )
 }
