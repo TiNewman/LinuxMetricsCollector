@@ -17,6 +17,7 @@ type Process struct {
 
 func Collect() {
 	currentTime := time.Now()
+	processList := []Process{}
 	p, err := procfs.AllProcs()
 	if err != nil {
 		fmt.Printf("Could not get all processes: %v\n", err)
@@ -41,7 +42,9 @@ func Collect() {
 	// resident memory in bytes
 	mem := procstat.ResidentMemory()
 
-	fmt.Printf("Current Time: %v, Process: %v, CPU Time: %v, Mem Usage: %v, Status: %v\n", currentTime, firstProcess.PID, cputime, mem, status)
+	fmt.Printf("Current Time: %v\n", currentTime)
+	fmt.Printf("Process: %v, CPU Time: %v, Mem Usage: %v, Status: %v\n", firstProcess.PID, cputime, float64(mem)/1000000, status)
+	processList = append(processList, Process{PID: firstProcess.PID, CPUUtilization: float32(cputime), RAMUtilization: float32(mem) / 1000000, Status: status, TimeStamp: currentTime})
 
 }
 
