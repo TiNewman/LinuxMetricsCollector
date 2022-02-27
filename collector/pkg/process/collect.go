@@ -2,6 +2,7 @@ package process
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/prometheus/procfs"
 )
@@ -11,9 +12,11 @@ type Process struct {
 	CPUUtilization float32
 	RAMUtilization float32
 	Status         string
+	TimeStamp      time.Time
 }
 
 func Collect() {
+	currentTime := time.Now()
 	p, err := procfs.AllProcs()
 	if err != nil {
 		fmt.Printf("Could not get all processes: %v\n", err)
@@ -38,11 +41,18 @@ func Collect() {
 	// resident memory in bytes
 	mem := procstat.ResidentMemory()
 
-	fmt.Printf("Process: %v, CPU Time: %v, Mem Usage: %v, Status: %v\n", firstProcess.PID, cputime, mem, status)
+	fmt.Printf("Current Time: %v, Process: %v, CPU Time: %v, Mem Usage: %v, Status: %v\n", currentTime, firstProcess.PID, cputime, mem, status)
 
 }
 
+// use cpu times to calculate the percent utilization of a given process
 func calcCPUUtilization() {
-	// use cpu times to calculate the percent utilization of a given process
-
+	// total time = utime + stime -> cputime
+	/*
+		sysinfo = &syscall.Sysinfo_t{}
+		err := syscall.Sysinfo(sysinfo)
+	*/
+	// uptime -> sysinfo.Uptime
+	// seconds = uptime - (starttime / hertz) -> uptime - procstat.StartTime()
+	// usage = 100 * ((totaltime / hertz) / seconds)
 }
