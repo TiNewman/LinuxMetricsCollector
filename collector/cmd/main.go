@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 
+	"github.com/TiNewman/LinuxMetricsCollector/pkg/process"
 	"github.com/gorilla/websocket"
 )
 
@@ -18,8 +18,9 @@ func main() {
 	// initialize storage
 
 	// initialize collectors
+	process.Collect()
 
 	// serve endpoints
-	fmt.Println("Starting Service")
-	http.ListenAndServe(":8080", nil)
+	//fmt.Println("Starting Service")
+	//http.ListenAndServe(":8080", nil)
 }
