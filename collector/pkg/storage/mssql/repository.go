@@ -3,9 +3,9 @@ For now I have main left as a comment, as it allows for easy testing.
 Will need to change function names etc, but for now we can see that a connection
 to the SQL Server works.
 */
-package mssql
+//package mssql
 
-//package main
+package main
 
 import (
 	"context"
@@ -16,7 +16,7 @@ import (
 	_ "github.com/denisenkom/go-mssqldb"
 )
 
-var db *sql.DB
+var DB_CONNECTION *sql.DB
 
 // Database connection variables.
 var server = "127.0.0.1"
@@ -24,6 +24,10 @@ var port = 1433
 var user = "sa"
 var password = "Password1_HOLDER"
 var database = "MetricsCollectorDB"
+
+type Storage struct {
+	DB_CONNECTION *sql.DB
+}
 
 func main() {
 
@@ -36,7 +40,7 @@ func main() {
 	var err error
 
 	// Create connection pool
-	db, err = sql.Open("sqlserver", connString)
+	DB_CONNECTION, err = sql.Open("sqlserver", connString)
 
 	if err != nil {
 
@@ -44,7 +48,7 @@ func main() {
 	}
 
 	ctx := context.Background()
-	err = db.PingContext(ctx)
+	err = DB_CONNECTION.PingContext(ctx)
 
 	if err != nil {
 
@@ -57,7 +61,7 @@ func main() {
 	tsql := fmt.Sprintf("SELECT * FROM CPU;")
 
 	// Execute query
-	rows, err := db.QueryContext(ctx, tsql)
+	rows, err := DB_CONNECTION.QueryContext(ctx, tsql)
 
 	if err != nil {
 
@@ -88,7 +92,7 @@ func main() {
 
 	// For now I am closing it manually.
 	// Not sure if we want it to stay open......
-	db.Close()
+	DB_CONNECTION.Close()
 
 	fmt.Print("Look, im done!")
 }

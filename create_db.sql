@@ -1,9 +1,13 @@
 /*
 Author: Titan Newman
-Date: 2/24/2022
+Date: 2/28/2022
 
 Creation Script for the MetricsCollectorDB.
 */
+
+DROP DATABASE IF EXISTS MetricsCollectorDB;
+
+GO
 
 CREATE DATABASE MetricsCollectorDB;
 
@@ -15,7 +19,7 @@ GO
 
 CREATE TABLE CPU (
 	cpuID BIGINT NOT NULL IDENTITY(0,1),
-    usage FLOAT NOT NULL,
+  usage FLOAT NOT NULL,
 	availability FLOAT NOT NULL,
 
 	CONSTRAINT pk_cpu_cpuID PRIMARY KEY (cpuID)
@@ -23,7 +27,7 @@ CREATE TABLE CPU (
 
 CREATE TABLE MEMORY (
 	memoryID BIGINT NOT NULL IDENTITY(0,1),
-    usage FLOAT NOT NULL,
+  usage FLOAT NOT NULL,
 	availability FLOAT NOT NULL,
 
 	CONSTRAINT pk_memory_memoryID PRIMARY KEY (memoryID)
@@ -31,7 +35,7 @@ CREATE TABLE MEMORY (
 
 CREATE TABLE DISK (
 	diskID BIGINT NOT NULL IDENTITY(0,1),
-    usage FLOAT NOT NULL,
+  usage FLOAT NOT NULL,
 	availability FLOAT NOT NULL,
 
 	CONSTRAINT pk_disk_diskID PRIMARY KEY (diskID)
@@ -40,9 +44,10 @@ CREATE TABLE DISK (
 CREATE TABLE COLLECTOR (
 	collectorID BIGINT NOT NULL IDENTITY(0,1),
 	timeCollected DATETIME2 NOT NULL, -- Pay attention to how the data needs to be formatted here!
-    cpuID BIGINT NOT NULL,
-	memoryID BIGINT NOT NULL,
-	diskID BIGINT NOT NULL,
+	-- For now this arent used as we are only working with Process.
+  cpuID BIGINT, -- NOT NULL
+	memoryID BIGINT, -- NOT NULL
+	diskID BIGINT, -- NOT NULL
 
 	CONSTRAINT pk_collector_collectorID PRIMARY KEY (collectorID),
 	CONSTRAINT fk_collector_cpu_cpuID FOREIGN KEY (cpuID) REFERENCES CPU(cpuID),
@@ -52,8 +57,9 @@ CREATE TABLE COLLECTOR (
 
 CREATE TABLE PROCESS (
 	processID BIGINT NOT NULL IDENTITY(0,1),
+	PID BIGINT NOT NULL, -- This is the actual PID of the process from PROCFS.
 	collectorID BIGINT NOT NULL,
-	name VARCHAR(100) NOT NULL,
+	name VARCHAR(100),
 	status VARCHAR(20) NOT NULL,
 	cpuUsage FLOAT,
 	memoryUsage FLOAT,
