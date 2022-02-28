@@ -11,8 +11,9 @@ type Process struct {
 	PID            int
 	CPUUtilization float32
 	RAMUtilization float32
-	Status         string
-	TimeStamp      time.Time
+	// Disk Utilization
+	Status    string
+	TimeStamp time.Time
 }
 
 func Collect() {
