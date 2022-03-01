@@ -4,9 +4,9 @@ Will need to change function names etc, but for now we can see that a connection
 to the SQL Server works.
 To start the connection, call 'databaseConnection'.
 */
-//package mssql
+package mssql
 
-package main
+//package main
 
 import (
 	"context"
