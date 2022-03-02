@@ -4,9 +4,9 @@ Will need to change function names etc, but for now we can see that a connection
 to the SQL Server works.
 To start the connection, call 'databaseConnection'.
 */
-package mssql
+//package mssql
 
-//package main
+package main
 
 import (
 	"context"
@@ -32,6 +32,7 @@ type Storage struct {
 }
 
 type Process struct {
+	processID     int
 	PID           int
 	collectorID   int
 	name          string
@@ -39,7 +40,7 @@ type Process struct {
 	cpuUsage      float32
 	memoryUsage   float32
 	diskUsage     float32
-	executionTime time.Time
+	executionTime float32
 }
 
 type Collector struct {
@@ -89,7 +90,7 @@ func closeDBConnection() {
 	DB_CONNECTION.Close()
 }
 
-func getAllCPU() []Cpu {
+func getCPUs() []Cpu {
 
 	ctx := context.Background()
 
@@ -129,6 +130,311 @@ func getAllCPU() []Cpu {
 	return toReturn
 }
 
+func getProcesses() []Process {
+
+	ctx := context.Background()
+
+	// Get all Processes.
+	singleQuery := fmt.Sprintf("SELECT * FROM PROCESS;")
+
+	// Execute query
+	rows, err := DB_CONNECTION.QueryContext(ctx, singleQuery)
+
+	if err != nil {
+
+		log.Fatal(err.Error())
+	}
+
+	defer rows.Close()
+
+	var toReturn []Process
+
+	// Iterate through the result set.
+	for rows.Next() {
+
+		var processID, PID, collectorID int
+		var name, status string
+		var cpuUsage, memoryUsage, diskUsage, executionTime float32
+
+		// Get values from row.
+		err := rows.Scan(&processID, &PID, &collectorID, &name, &status, &cpuUsage,
+			&memoryUsage, &diskUsage, &executionTime)
+
+		if err != nil {
+
+			log.Fatal(err.Error())
+		}
+
+		singleInput := Process{processID, PID, collectorID, name, status, cpuUsage,
+			memoryUsage, diskUsage, executionTime}
+		toReturn = append(toReturn, singleInput)
+	}
+
+	return toReturn
+}
+
+func getProcessesByCollector(collectorID int) []Process {
+
+	ctx := context.Background()
+
+	// Based off of a collectorID (which is where the timeStamp is held),
+	// get PROCESSES.
+	singleQuery := fmt.Sprintf("SELECT * FROM PROCESS WHERE collectorID = %d;", collectorID)
+
+	// Execute query
+	rows, err := DB_CONNECTION.QueryContext(ctx, singleQuery)
+
+	if err != nil {
+
+		log.Fatal(err.Error())
+	}
+
+	defer rows.Close()
+
+	var toReturn []Process
+
+	// Iterate through the result set.
+	for rows.Next() {
+
+		var processID, PID, collectorID int
+		var name, status string
+		var cpuUsage, memoryUsage, diskUsage, executionTime float32
+
+		// Get values from row.
+		err := rows.Scan(&processID, &PID, &collectorID, &name, &status, &cpuUsage,
+			&memoryUsage, &diskUsage, &executionTime)
+
+		if err != nil {
+
+			log.Fatal(err.Error())
+		}
+
+		singleInput := Process{processID, PID, collectorID, name, status, cpuUsage,
+			memoryUsage, diskUsage, executionTime}
+		toReturn = append(toReturn, singleInput)
+	}
+
+	return toReturn
+}
+
+func getProcessesByNewest() []Process {
+
+	ctx := context.Background()
+
+	// Get newsest Processes, based off collectorID.
+	singleQuery := fmt.Sprintf("SELECT * FROM PROCESS WHERE collectorID IN " +
+		"(SELECT TOP 1 collectorID FROM COLLECTOR ORDER BY timeCollected DESC);")
+
+	// Execute query
+	rows, err := DB_CONNECTION.QueryContext(ctx, singleQuery)
+
+	if err != nil {
+
+		log.Fatal(err.Error())
+	}
+
+	defer rows.Close()
+
+	var toReturn []Process
+
+	// Iterate through the result set.
+	for rows.Next() {
+
+		var processID, PID, collectorID int
+		var name, status string
+		var cpuUsage, memoryUsage, diskUsage, executionTime float32
+
+		// Get values from row.
+		err := rows.Scan(&processID, &PID, &collectorID, &name, &status, &cpuUsage,
+			&memoryUsage, &diskUsage, &executionTime)
+
+		if err != nil {
+
+			log.Fatal(err.Error())
+		}
+
+		singleInput := Process{processID, PID, collectorID, name, status, cpuUsage,
+			memoryUsage, diskUsage, executionTime}
+		toReturn = append(toReturn, singleInput)
+	}
+
+	return toReturn
+}
+
+func getProcessesByPID(PID int) []Process {
+
+	ctx := context.Background()
+
+	// Get processes based off PID.
+	singleQuery := fmt.Sprintf("SELECT * FROM PROCESS WHERE PID = %d;", PID)
+
+	// Execute query
+	rows, err := DB_CONNECTION.QueryContext(ctx, singleQuery)
+
+	if err != nil {
+
+		log.Fatal(err.Error())
+	}
+
+	defer rows.Close()
+
+	var toReturn []Process
+
+	// Iterate through the result set.
+	for rows.Next() {
+
+		var processID, PID, collectorID int
+		var name, status string
+		var cpuUsage, memoryUsage, diskUsage, executionTime float32
+
+		// Get values from row.
+		err := rows.Scan(&processID, &PID, &collectorID, &name, &status, &cpuUsage,
+			&memoryUsage, &diskUsage, &executionTime)
+
+		if err != nil {
+
+			log.Fatal(err.Error())
+		}
+
+		singleInput := Process{processID, PID, collectorID, name, status, cpuUsage,
+			memoryUsage, diskUsage, executionTime}
+		toReturn = append(toReturn, singleInput)
+	}
+
+	return toReturn
+}
+
+// Given a column name, test it against a string field.
+func getProcessesByCustomStringField(column string, field string) []Process {
+
+	ctx := context.Background()
+
+	// Get processes based custom column and string field.
+	singleQuery := fmt.Sprintf("SELECT * FROM PROCESS WHERE %s = '%s';", column, field)
+
+	// Execute query
+	rows, err := DB_CONNECTION.QueryContext(ctx, singleQuery)
+
+	if err != nil {
+
+		log.Fatal(err.Error())
+	}
+
+	defer rows.Close()
+
+	var toReturn []Process
+
+	// Iterate through the result set.
+	for rows.Next() {
+
+		var processID, PID, collectorID int
+		var name, status string
+		var cpuUsage, memoryUsage, diskUsage, executionTime float32
+
+		// Get values from row.
+		err := rows.Scan(&processID, &PID, &collectorID, &name, &status, &cpuUsage,
+			&memoryUsage, &diskUsage, &executionTime)
+
+		if err != nil {
+
+			log.Fatal(err.Error())
+		}
+
+		singleInput := Process{processID, PID, collectorID, name, status, cpuUsage,
+			memoryUsage, diskUsage, executionTime}
+		toReturn = append(toReturn, singleInput)
+	}
+
+	return toReturn
+}
+
+// Given a column name, test it against a float field.
+func getProcessesByCustomFloatField(column string, field float32) []Process {
+
+	ctx := context.Background()
+
+	// Get processes based custom column and float field.
+	singleQuery := fmt.Sprintf("SELECT * FROM PROCESS WHERE %s = %.2f;", column, field)
+
+	// Execute query
+	rows, err := DB_CONNECTION.QueryContext(ctx, singleQuery)
+
+	if err != nil {
+
+		log.Fatal(err.Error())
+	}
+
+	defer rows.Close()
+
+	var toReturn []Process
+
+	// Iterate through the result set.
+	for rows.Next() {
+
+		var processID, PID, collectorID int
+		var name, status string
+		var cpuUsage, memoryUsage, diskUsage, executionTime float32
+
+		// Get values from row.
+		err := rows.Scan(&processID, &PID, &collectorID, &name, &status, &cpuUsage,
+			&memoryUsage, &diskUsage, &executionTime)
+
+		if err != nil {
+
+			log.Fatal(err.Error())
+		}
+
+		singleInput := Process{processID, PID, collectorID, name, status, cpuUsage,
+			memoryUsage, diskUsage, executionTime}
+		toReturn = append(toReturn, singleInput)
+	}
+
+	return toReturn
+}
+
+func getProcessesByStatus(field string) []Process {
+
+	ctx := context.Background()
+
+	// Get processes based off status string.
+	singleQuery := fmt.Sprintf("SELECT * FROM PROCESS WHERE status = '%s';", field)
+
+	// Execute query
+	rows, err := DB_CONNECTION.QueryContext(ctx, singleQuery)
+
+	if err != nil {
+
+		log.Fatal(err.Error())
+	}
+
+	defer rows.Close()
+
+	var toReturn []Process
+
+	// Iterate through the result set.
+	for rows.Next() {
+
+		var processID, PID, collectorID int
+		var name, status string
+		var cpuUsage, memoryUsage, diskUsage, executionTime float32
+
+		// Get values from row.
+		err := rows.Scan(&processID, &PID, &collectorID, &name, &status, &cpuUsage,
+			&memoryUsage, &diskUsage, &executionTime)
+
+		if err != nil {
+
+			log.Fatal(err.Error())
+		}
+
+		singleInput := Process{processID, PID, collectorID, name, status, cpuUsage,
+			memoryUsage, diskUsage, executionTime}
+		toReturn = append(toReturn, singleInput)
+	}
+
+	return toReturn
+}
+
 func main() {
 
 	fmt.Printf("Repository Implementation for mssql (Microsoft SQL Server)\n")
@@ -136,18 +442,85 @@ func main() {
 	// To start the connection, call 'databaseConnection'.
 	openDBConnection()
 
-	/*
-		var answer []Cpu = getAllCPU()
+	// Test CPUs Get
+	/*var answer []Cpu = getCPUs()
 
-		for _, cpu := range answer {
+	for _, cpu := range answer {
 
-			fmt.Printf("cpuID: %d, usage: %f, availability: %f\n", cpu.cpuID, cpu.usage, cpu.availability)
-		}
+		fmt.Printf("cpuID: %d, usage: %f, availability: %f\n", cpu.cpuID, cpu.usage, cpu.availability)
+	}*/
+
+	// Test Processes Get
+	/*var answer []Process = getProcesses()
+
+	for _, process := range answer {
+
+		fmt.Printf("processID: %d, PID: %d, collectorID: %d, name: %s, status: %s, cpuUsage: %f, memoryUsage: %f, diskUsage: %f, executionTime: %f\n",
+			process.processID, process.PID, process.collectorID, process.name, process.status, process.cpuUsage, process.memoryUsage, process.diskUsage, process.executionTime)
+	}*/
+
+	// Test Processes Get by Collector
+	/*var answer []Process = getProcessesByCollector(1)
+
+	for _, process := range answer {
+
+		fmt.Printf("processID: %d, PID: %d, collectorID: %d, name: %s, status: %s, cpuUsage: %f, memoryUsage: %f, diskUsage: %f, executionTime: %f\n",
+			process.processID, process.PID, process.collectorID, process.name, process.status, process.cpuUsage, process.memoryUsage, process.diskUsage, process.executionTime)
+	}*/
+
+	// Test Processes Get by newest collector == newest processes
+	/*var answer []Process = getProcessesByNewest()
+
+	for _, process := range answer {
+
+		fmt.Printf("processID: %d, PID: %d, collectorID: %d, name: %s, status: %s, cpuUsage: %f, memoryUsage: %f, diskUsage: %f, executionTime: %f\n",
+			process.processID, process.PID, process.collectorID, process.name, process.status, process.cpuUsage, process.memoryUsage, process.diskUsage, process.executionTime)
+	}
+	*/
+
+	// Test Processes Get by PID
+	/*var answer []Process = getProcessesByPID(6640)
+
+	for _, process := range answer {
+
+		fmt.Printf("processID: %d, PID: %d, collectorID: %d, name: %s, status: %s, cpuUsage: %f, memoryUsage: %f, diskUsage: %f, executionTime: %f\n",
+			process.processID, process.PID, process.collectorID, process.name, process.status, process.cpuUsage, process.memoryUsage, process.diskUsage, process.executionTime)
+	}
+	*/
+
+	// Test Processes Get by custom column and a string filed
+	/*var answer []Process = getProcessesByCustomStringField("name", "process2")
+
+	for _, process := range answer {
+
+		fmt.Printf("processID: %d, PID: %d, collectorID: %d, name: %s, status: %s, cpuUsage: %f, memoryUsage: %f, diskUsage: %f, executionTime: %f\n",
+			process.processID, process.PID, process.collectorID, process.name, process.status, process.cpuUsage, process.memoryUsage, process.diskUsage, process.executionTime)
+	}
+	*/
+
+	// Test Processes Get by custom column and a string filed
+	/*var answer []Process = getProcessesByStatus("done")
+
+	for _, process := range answer {
+
+		fmt.Printf("processID: %d, PID: %d, collectorID: %d, name: %s, status: %s, cpuUsage: %f, memoryUsage: %f, diskUsage: %f, executionTime: %f\n",
+			process.processID, process.PID, process.collectorID, process.name, process.status, process.cpuUsage, process.memoryUsage, process.diskUsage, process.executionTime)
+	}
+	*/
+
+	// Test Processes Get by custom column and a float filed
+	/*var answer []Process = getProcessesByCustomFloatField("diskUsage", 99.99)
+
+	for _, process := range answer {
+
+		fmt.Printf("processID: %d, PID: %d, collectorID: %d, name: %s, status: %s, cpuUsage: %.2f, memoryUsage: %.2f, diskUsage: %.2f, executionTime: %.2f\n",
+			process.processID, process.PID, process.collectorID, process.name, process.status, process.cpuUsage, process.memoryUsage, process.diskUsage, process.executionTime)
+	}
 	*/
 
 	// For now I am closing it manually.
 	// Not sure if we want it to stay open......
 	closeDBConnection()
 
-	fmt.Print("Look, im done!")
+	fmt.Print("DONE TEST")
 }
