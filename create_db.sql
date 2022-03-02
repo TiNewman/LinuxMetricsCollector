@@ -57,8 +57,8 @@ CREATE TABLE COLLECTOR (
 
 CREATE TABLE PROCESS (
 	processID BIGINT NOT NULL IDENTITY(0,1),
-	PID BIGINT NOT NULL, -- This is the actual PID of the process from PROCFS.
 	collectorID BIGINT NOT NULL,
+	PID BIGINT NOT NULL, -- This is the actual PID of the process from PROCFS.
 	name VARCHAR(100),
 	status VARCHAR(20) NOT NULL,
 	cpuUsage FLOAT,

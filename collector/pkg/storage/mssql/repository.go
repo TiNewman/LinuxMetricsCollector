@@ -33,8 +33,8 @@ type Storage struct {
 
 type Process struct {
 	processID     int
-	PID           int
 	collectorID   int
+	PID           int
 	name          string
 	status        string
 	cpuUsage      float32
@@ -128,6 +128,46 @@ func getCPUs() []Cpu {
 	}
 
 	return toReturn
+}
+
+func getCollectorIDNewest() int {
+
+	ctx := context.Background()
+
+	// Get newsest Processes, based off collectorID.
+	singleQuery :=
+		fmt.Sprintf("SELECT TOP 1 collectorID FROM COLLECTOR " +
+			" ORDER BY timeCollected DESC;")
+
+	// Execute query
+	rows, err := DB_CONNECTION.QueryContext(ctx, singleQuery)
+
+	if err != nil {
+
+		log.Fatal(err.Error())
+	}
+
+	defer rows.Close()
+
+	var toReturnInt int
+
+	// Iterate through the result set.
+	for rows.Next() {
+
+		var collectorID int
+
+		// Get values from row.
+		err := rows.Scan(&collectorID)
+
+		if err != nil {
+
+			log.Fatal(err.Error())
+		}
+
+		toReturnInt = collectorID
+	}
+
+	return toReturnInt
 }
 
 func getProcesses() []Process {
@@ -435,6 +475,38 @@ func getProcessesByStatus(field string) []Process {
 	return toReturn
 }
 
+// Insert for PROCESS Table
+// Takes in a Process, then checks for the newest collector,
+// and uses that collectorID (as you have to insert into collector first)
+// with the data in the Process to insert into the PROCESS table.
+//
+// Return:
+//	(int) rows inserted.
+//	(error) any error, this should be 'nil'.
+func putNewProcess(singleProcess Process) (int64, error) {
+
+	var collectorID = getCollectorIDNewest()
+
+	//ctx := context.Background()
+
+	// Get processes based off status string.
+	singleInsert :=
+		fmt.Sprintf("INSERT INTO PROCESS VALUES (%d, %d, '%s', '%s', %.2f, %.2f, "+
+			"%.2f, %.2f);", collectorID, singleProcess.PID, singleProcess.name,
+			singleProcess.status, singleProcess.cpuUsage, singleProcess.memoryUsage,
+			singleProcess.diskUsage, singleProcess.executionTime)
+
+	// Execute Insertion
+	result, err := DB_CONNECTION.Exec(singleInsert)
+
+	if err != nil {
+
+		log.Fatal(err.Error())
+	}
+
+	return result.RowsAffected()
+}
+
 func main() {
 
 	fmt.Printf("Repository Implementation for mssql (Microsoft SQL Server)\n")
@@ -455,7 +527,7 @@ func main() {
 
 	for _, process := range answer {
 
-		fmt.Printf("processID: %d, PID: %d, collectorID: %d, name: %s, status: %s, cpuUsage: %f, memoryUsage: %f, diskUsage: %f, executionTime: %f\n",
+		fmt.Printf("processID: %d, collectorID: %d, PID: %d,  name: %s, status: %s, cpuUsage: %f, memoryUsage: %f, diskUsage: %f, executionTime: %f\n",
 			process.processID, process.PID, process.collectorID, process.name, process.status, process.cpuUsage, process.memoryUsage, process.diskUsage, process.executionTime)
 	}*/
 
@@ -464,7 +536,7 @@ func main() {
 
 	for _, process := range answer {
 
-		fmt.Printf("processID: %d, PID: %d, collectorID: %d, name: %s, status: %s, cpuUsage: %f, memoryUsage: %f, diskUsage: %f, executionTime: %f\n",
+		fmt.Printf("processID: %d, collectorID: %d, PID: %d,  name: %s, status: %s, cpuUsage: %f, memoryUsage: %f, diskUsage: %f, executionTime: %f\n",
 			process.processID, process.PID, process.collectorID, process.name, process.status, process.cpuUsage, process.memoryUsage, process.diskUsage, process.executionTime)
 	}*/
 
@@ -473,7 +545,7 @@ func main() {
 
 	for _, process := range answer {
 
-		fmt.Printf("processID: %d, PID: %d, collectorID: %d, name: %s, status: %s, cpuUsage: %f, memoryUsage: %f, diskUsage: %f, executionTime: %f\n",
+		fmt.Printf("processID: %d, collectorID: %d, PID: %d,  name: %s, status: %s, cpuUsage: %f, memoryUsage: %f, diskUsage: %f, executionTime: %f\n",
 			process.processID, process.PID, process.collectorID, process.name, process.status, process.cpuUsage, process.memoryUsage, process.diskUsage, process.executionTime)
 	}
 	*/
@@ -483,7 +555,7 @@ func main() {
 
 	for _, process := range answer {
 
-		fmt.Printf("processID: %d, PID: %d, collectorID: %d, name: %s, status: %s, cpuUsage: %f, memoryUsage: %f, diskUsage: %f, executionTime: %f\n",
+		fmt.Printf("processID: %d, collectorID: %d, PID: %d,  name: %s, status: %s, cpuUsage: %f, memoryUsage: %f, diskUsage: %f, executionTime: %f\n",
 			process.processID, process.PID, process.collectorID, process.name, process.status, process.cpuUsage, process.memoryUsage, process.diskUsage, process.executionTime)
 	}
 	*/
@@ -493,7 +565,7 @@ func main() {
 
 	for _, process := range answer {
 
-		fmt.Printf("processID: %d, PID: %d, collectorID: %d, name: %s, status: %s, cpuUsage: %f, memoryUsage: %f, diskUsage: %f, executionTime: %f\n",
+		fmt.Printf("processID: %d, collectorID: %d, PID: %d,  name: %s, status: %s, cpuUsage: %f, memoryUsage: %f, diskUsage: %f, executionTime: %f\n",
 			process.processID, process.PID, process.collectorID, process.name, process.status, process.cpuUsage, process.memoryUsage, process.diskUsage, process.executionTime)
 	}
 	*/
@@ -503,7 +575,7 @@ func main() {
 
 	for _, process := range answer {
 
-		fmt.Printf("processID: %d, PID: %d, collectorID: %d, name: %s, status: %s, cpuUsage: %f, memoryUsage: %f, diskUsage: %f, executionTime: %f\n",
+		fmt.Printf("processID: %d, collectorID: %d, PID: %d,  name: %s, status: %s, cpuUsage: %f, memoryUsage: %f, diskUsage: %f, executionTime: %f\n",
 			process.processID, process.PID, process.collectorID, process.name, process.status, process.cpuUsage, process.memoryUsage, process.diskUsage, process.executionTime)
 	}
 	*/
@@ -513,9 +585,19 @@ func main() {
 
 	for _, process := range answer {
 
-		fmt.Printf("processID: %d, PID: %d, collectorID: %d, name: %s, status: %s, cpuUsage: %.2f, memoryUsage: %.2f, diskUsage: %.2f, executionTime: %.2f\n",
+		fmt.Printf("processID: %d, collectorID: %d, PID: %d,  name: %s, status: %s, cpuUsage: %.2f, memoryUsage: %.2f, diskUsage: %.2f, executionTime: %.2f\n",
 			process.processID, process.PID, process.collectorID, process.name, process.status, process.cpuUsage, process.memoryUsage, process.diskUsage, process.executionTime)
 	}
+	*/
+
+	// Test Processes Put single
+	/*
+		var holderProcess = Process{0, 0, 5540, "process0", "done", 00.00, 00.00, 00.00, 00.00}
+
+		var rowsInsertedCount, error1 = putNewProcess(holderProcess)
+
+		fmt.Printf("rowsInsertedCount: %d ", rowsInsertedCount)
+		fmt.Println(error1)
 	*/
 
 	// For now I am closing it manually.
