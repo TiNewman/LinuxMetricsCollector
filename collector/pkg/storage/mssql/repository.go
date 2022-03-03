@@ -51,6 +51,12 @@ type Collector struct {
 	diskID        int
 }
 
+type CollectorInsert struct {
+	cpuID    int
+	memoryID int
+	diskID   int
+}
+
 type Cpu struct {
 	cpuID        int
 	usage        float32
@@ -168,6 +174,44 @@ func getCollectorIDNewest() int {
 	}
 
 	return toReturnInt
+}
+
+// Insert for COLLECTOR Table
+// Takes in a Collector, and uses its data to insert into the table.
+//
+// Return:
+//	(int) rows inserted.
+//	(error) any error, this should be 'nil'.
+func putNewCollector(singleCollector CollectorInsert) (int64, error) {
+
+	// These will be used once we get to CPU/MEMORY/DISK tables.
+	// var cpuID = getCPUIDNewest()
+	// var memoryID = getMemoryIDNewest()
+	// var diskID = getDiskIDNewest()
+
+	// Insert into Collector.
+	// For now we only care about creating a timestamp and having a collectorID
+	// for the PROCESS table.
+	// CPU/MEMORY/DISK will be up later.
+	singleInsert :=
+		fmt.Sprint("INSERT INTO COLLECTOR VALUES (GETDATE(), NULL, NULL, NULL);")
+
+	/*
+		// This will be used once we actually have to input CPU, etc..
+			singleInsert :=
+				fmt.Sprint("INSERT INTO COLLECT VALUES (GETDATE(), %d, %d, %d);",
+				singleCollector.cpuID, singleCollector.memoryID, singleCollector.diskID)
+	*/
+
+	// Execute Insertion
+	result, err := DB_CONNECTION.Exec(singleInsert)
+
+	if err != nil {
+
+		log.Fatal(err.Error())
+	}
+
+	return result.RowsAffected()
 }
 
 func getProcesses() []Process {
@@ -487,9 +531,7 @@ func putNewProcess(singleProcess Process) (int64, error) {
 
 	var collectorID = getCollectorIDNewest()
 
-	//ctx := context.Background()
-
-	// Get processes based off status string.
+	// Insert into PROCESS based of singleProcess Data.
 	singleInsert :=
 		fmt.Sprintf("INSERT INTO PROCESS VALUES (%d, %d, '%s', '%s', %.2f, %.2f, "+
 			"%.2f, %.2f);", collectorID, singleProcess.PID, singleProcess.name,
@@ -591,13 +633,21 @@ func main() {
 	*/
 
 	// Test Processes Put single
-	/*
-		var holderProcess = Process{0, 0, 5540, "process0", "done", 00.00, 00.00, 00.00, 00.00}
+	/*var holderProcess = Process{0, 0, 5540, "process0", "done", 00.00, 00.00, 00.00, 00.00}
 
-		var rowsInsertedCount, error1 = putNewProcess(holderProcess)
+	var rowsInsertedCount, error1 = putNewProcess(holderProcess)
 
-		fmt.Printf("rowsInsertedCount: %d ", rowsInsertedCount)
-		fmt.Println(error1)
+	fmt.Printf("rowsInsertedCount: %d ", rowsInsertedCount)
+	fmt.Println(error1)
+	*/
+
+	// Test Collector Put single
+	/*var holderCollector = CollectorInsert{0, 0, 0}
+
+	var rowsInsertedCount, error1 = putNewCollector(holderCollector)
+
+	fmt.Printf("rowsInsertedCount: %d ", rowsInsertedCount)
+	fmt.Println(error1)
 	*/
 
 	// For now I am closing it manually.
