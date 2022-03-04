@@ -2,8 +2,10 @@
 For now I have main left as a comment, as it allows for easy testing.
 Will need to change function names etc, but for now we can see that a connection
 to the SQL Server works.
-To start the connection, call 'databaseConnection'.
+To start the connection, call 'OpenDBConnection'.
+To close the connection, call 'CloseDBConnection'.
 */
+
 //package mssql
 
 package main
@@ -63,7 +65,10 @@ type Cpu struct {
 	availability float32
 }
 
-func openDBConnection() {
+// ----------------------------- Connecting to Database Section -----------------------------
+
+//
+func OpenDBConnection() {
 
 	// Build connection string
 	connString := fmt.Sprintf("server=%s;user id=%s;password=%s;port=%d;database=%s;",
@@ -91,12 +96,16 @@ func openDBConnection() {
 	fmt.Printf("Connected to DB!\n")
 }
 
-func closeDBConnection() {
+//
+func CloseDBConnection() {
 
 	DB_CONNECTION.Close()
 }
 
-func getCPUs() []Cpu {
+// ----------------------------- GPU Section Section -----------------------------
+
+//
+func GetCPUs() []Cpu {
 
 	ctx := context.Background()
 
@@ -136,7 +145,10 @@ func getCPUs() []Cpu {
 	return toReturn
 }
 
-func getCollectorIDNewest() int {
+// ----------------------------- COLLECTOR Section -----------------------------
+
+//
+func GetCollectorIDNewest() int {
 
 	ctx := context.Background()
 
@@ -176,13 +188,14 @@ func getCollectorIDNewest() int {
 	return toReturnInt
 }
 
-// Insert for COLLECTOR Table
-// Takes in a Collector, and uses its data to insert into the table.
-//
-// Return:
-//	(int) rows inserted.
-//	(error) any error, this should be 'nil'.
-func putNewCollector(singleCollector CollectorInsert) (int64, error) {
+/*	Insert for COLLECTOR Table
+ *	Takes in a Collector, and uses its data to insert into the table.
+ *
+ *	Return:
+ *		(int) rows inserted.
+ *		(error) any error, this should be 'nil'.
+ */
+func PutNewCollector(singleCollector CollectorInsert) (int64, error) {
 
 	// These will be used once we get to CPU/MEMORY/DISK tables.
 	// var cpuID = getCPUIDNewest()
@@ -214,7 +227,10 @@ func putNewCollector(singleCollector CollectorInsert) (int64, error) {
 	return result.RowsAffected()
 }
 
-func getProcesses() []Process {
+// ----------------------------- PROCESS Section -----------------------------
+
+//
+func GetProcesses() []Process {
 
 	ctx := context.Background()
 
@@ -257,51 +273,8 @@ func getProcesses() []Process {
 	return toReturn
 }
 
-func getProcessesByCollector(collectorID int) []Process {
-
-	ctx := context.Background()
-
-	// Based off of a collectorID (which is where the timeStamp is held),
-	// get PROCESSES.
-	singleQuery := fmt.Sprintf("SELECT * FROM PROCESS WHERE collectorID = %d;", collectorID)
-
-	// Execute query
-	rows, err := DB_CONNECTION.QueryContext(ctx, singleQuery)
-
-	if err != nil {
-
-		log.Fatal(err.Error())
-	}
-
-	defer rows.Close()
-
-	var toReturn []Process
-
-	// Iterate through the result set.
-	for rows.Next() {
-
-		var processID, PID, collectorID int
-		var name, status string
-		var cpuUsage, memoryUsage, diskUsage, executionTime float32
-
-		// Get values from row.
-		err := rows.Scan(&processID, &PID, &collectorID, &name, &status, &cpuUsage,
-			&memoryUsage, &diskUsage, &executionTime)
-
-		if err != nil {
-
-			log.Fatal(err.Error())
-		}
-
-		singleInput := Process{processID, PID, collectorID, name, status, cpuUsage,
-			memoryUsage, diskUsage, executionTime}
-		toReturn = append(toReturn, singleInput)
-	}
-
-	return toReturn
-}
-
-func getProcessesByNewest() []Process {
+//
+func GetProcessesByNewest() []Process {
 
 	ctx := context.Background()
 
@@ -345,51 +318,8 @@ func getProcessesByNewest() []Process {
 	return toReturn
 }
 
-func getProcessesByPID(PID int) []Process {
-
-	ctx := context.Background()
-
-	// Get processes based off PID.
-	singleQuery := fmt.Sprintf("SELECT * FROM PROCESS WHERE PID = %d;", PID)
-
-	// Execute query
-	rows, err := DB_CONNECTION.QueryContext(ctx, singleQuery)
-
-	if err != nil {
-
-		log.Fatal(err.Error())
-	}
-
-	defer rows.Close()
-
-	var toReturn []Process
-
-	// Iterate through the result set.
-	for rows.Next() {
-
-		var processID, PID, collectorID int
-		var name, status string
-		var cpuUsage, memoryUsage, diskUsage, executionTime float32
-
-		// Get values from row.
-		err := rows.Scan(&processID, &PID, &collectorID, &name, &status, &cpuUsage,
-			&memoryUsage, &diskUsage, &executionTime)
-
-		if err != nil {
-
-			log.Fatal(err.Error())
-		}
-
-		singleInput := Process{processID, PID, collectorID, name, status, cpuUsage,
-			memoryUsage, diskUsage, executionTime}
-		toReturn = append(toReturn, singleInput)
-	}
-
-	return toReturn
-}
-
 // Given a column name, test it against a string field.
-func getProcessesByCustomStringField(column string, field string) []Process {
+func GetProcessesByCustomStringField(column string, field string) []Process {
 
 	ctx := context.Background()
 
@@ -433,7 +363,7 @@ func getProcessesByCustomStringField(column string, field string) []Process {
 }
 
 // Given a column name, test it against a float field.
-func getProcessesByCustomFloatField(column string, field float32) []Process {
+func GetProcessesByCustomFloatField(column string, field float32) []Process {
 
 	ctx := context.Background()
 
@@ -476,12 +406,13 @@ func getProcessesByCustomFloatField(column string, field float32) []Process {
 	return toReturn
 }
 
-func getProcessesByStatus(field string) []Process {
+// Given a column name, test it against a int field.
+func GetProcessesByCustomIntField(column string, field int) []Process {
 
 	ctx := context.Background()
 
-	// Get processes based off status string.
-	singleQuery := fmt.Sprintf("SELECT * FROM PROCESS WHERE status = '%s';", field)
+	// Get processes based custom column and int field.
+	singleQuery := fmt.Sprintf("SELECT * FROM PROCESS WHERE %s = %d;", column, field)
 
 	// Execute query
 	rows, err := DB_CONNECTION.QueryContext(ctx, singleQuery)
@@ -519,17 +450,19 @@ func getProcessesByStatus(field string) []Process {
 	return toReturn
 }
 
-// Insert for PROCESS Table
-// Takes in a Process, then checks for the newest collector,
-// and uses that collectorID (as you have to insert into collector first)
-// with the data in the Process to insert into the PROCESS table.
-//
-// Return:
-//	(int) rows inserted.
-//	(error) any error, this should be 'nil'.
-func putNewProcess(singleProcess Process) (int64, error) {
+/*
+ *	Insert for PROCESS Table
+ *	Takes in a Process, then checks for the newest collector,
+ *	and uses that collectorID (as you have to insert into collector first)
+ *	with the data in the Process to insert into the PROCESS table.
+ *
+ *	Return:
+ *		(int) rows inserted.
+ *		(error) any error, this should be 'nil'.
+ */
+func PutNewProcess(singleProcess Process) (int64, error) {
 
-	var collectorID = getCollectorIDNewest()
+	var collectorID = GetCollectorIDNewest()
 
 	// Insert into PROCESS based of singleProcess Data.
 	singleInsert :=
@@ -549,12 +482,15 @@ func putNewProcess(singleProcess Process) (int64, error) {
 	return result.RowsAffected()
 }
 
+// ------------------- Testing Section -------------------
+
+//
 func main() {
 
 	fmt.Printf("Repository Implementation for mssql (Microsoft SQL Server)\n")
 
 	// To start the connection, call 'databaseConnection'.
-	openDBConnection()
+	OpenDBConnection()
 
 	// Test CPUs Get
 	/*var answer []Cpu = getCPUs()
@@ -632,6 +568,15 @@ func main() {
 	}
 	*/
 
+	// Test Processes Get by custom column and a int filed
+	/*var answer []Process = GetProcessesByCustomIntField("collectorID", 1)
+	for _, process := range answer {
+
+		fmt.Printf("processID: %d, collectorID: %d, PID: %d,  name: %s, status: %s, cpuUsage: %.2f, memoryUsage: %.2f, diskUsage: %.2f, executionTime: %.2f\n",
+			process.processID, process.PID, process.collectorID, process.name, process.status, process.cpuUsage, process.memoryUsage, process.diskUsage, process.executionTime)
+	}
+	*/
+
 	// Test Processes Put single
 	/*var holderProcess = Process{0, 0, 5540, "process0", "done", 00.00, 00.00, 00.00, 00.00}
 
@@ -652,7 +597,7 @@ func main() {
 
 	// For now I am closing it manually.
 	// Not sure if we want it to stay open......
-	closeDBConnection()
+	CloseDBConnection()
 
 	fmt.Print("DONE TEST")
 }
