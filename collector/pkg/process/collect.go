@@ -2,23 +2,29 @@ package process
 
 import (
 	"fmt"
+	"os/user"
 	"time"
 
 	"github.com/prometheus/procfs"
 )
 
 type Process struct {
-	PID            int
-	CPUUtilization float32
-	RAMUtilization float32
-	// Disk Utilization
-	Status    string
-	TimeStamp time.Time
+	PID             int
+	CPUUtilization  float32
+	RAMUtilization  float32
+	DiskUtilization uint64
+	Status          string
+	TimeStamp       time.Time
 }
 
 func Collect() {
 	currentTime := time.Now()
 	processList := []Process{}
+	currentUser, err := user.Current()
+	if err != nil {
+		fmt.Printf("Cannot determine current user: %v\n", err.Error())
+		return
+	}
 
 	p, err := procfs.AllProcs()
 	if err != nil {
@@ -27,6 +33,17 @@ func Collect() {
 	fmt.Printf("Number of processes: %v\n", p.Len())
 
 	for _, proc := range p {
+		// filter by UID ( get processes for current user only )
+		procStatus, err := proc.NewStatus()
+		if err != nil {
+			fmt.Printf("Could not get uids of process: %v\n", err.Error())
+			return
+		}
+		uids := procStatus.UIDs
+		if currentUser.Uid != uids[0] {
+			continue
+		}
+
 		procstat, err := proc.Stat()
 
 		if err != nil {
@@ -39,6 +56,19 @@ func Collect() {
 
 		// resident memory in bytes
 		mem := procstat.ResidentMemory()
+
+		// disk utilization (bytes read by process)
+		io, err := proc.IO()
+
+		var readTotal uint64
+		if err != nil {
+			fmt.Printf("Could not get IO metrics: %v\n", err)
+			//return
+			// set a negative value to signify N/A
+			readTotal = 0
+		} else {
+			readTotal = io.ReadBytes
+		}
 
 		// calculate the CPU Utilization
 		unixstarttime, err := procstat.StartTime()
@@ -55,8 +85,8 @@ func Collect() {
 		cpuUtilization := calcCPUUtilization(cputime, currentTime, starttime)
 
 		fmt.Printf("Current Time: %v\n", currentTime)
-		fmt.Printf("Process: %v, CPU Utilization: %v, Mem Usage: %v, Status: %v, StartTime: %v\n", proc.PID, cpuUtilization, float64(mem)/1000000, status, starttime)
-		processList = append(processList, Process{PID: proc.PID, CPUUtilization: float32(cputime), RAMUtilization: float32(mem) / 1000000, Status: status, TimeStamp: currentTime})
+		fmt.Printf("Uid: %v, Process: %v, CPU Utilization: %v, Mem Usage: %v, Disk Usage: %v Status: %v, StartTime: %v\n", uids, proc.PID, cpuUtilization, float64(mem)/1000000, readTotal, status, starttime)
+		processList = append(processList, Process{PID: proc.PID, CPUUtilization: float32(cputime), RAMUtilization: float32(mem) / 1000000, DiskUtilization: readTotal, Status: status, TimeStamp: currentTime})
 	}
 	fmt.Printf("Processes in list: %v\n", len(processList))
 
