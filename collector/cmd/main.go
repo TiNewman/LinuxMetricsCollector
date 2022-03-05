@@ -12,7 +12,8 @@ func main() {
 	// initialize storage
 
 	// initialize collectors
-	process.Collect()
+	pcollector := process.NewProcessCollectorWithoutRepo()
+	pcollector.Collect()
 
 	// serve endpoints
 	//fmt.Println("Starting Service")

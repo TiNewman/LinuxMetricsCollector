@@ -21,7 +21,15 @@ type collector struct {
 	r Repository
 }
 
-func Collect() {
+func NewProcessCollector(repo Repository) collector {
+	return collector{repo}
+}
+
+func NewProcessCollectorWithoutRepo() collector {
+	return collector{}
+}
+
+func (c collector) Collect() {
 	currentTime := time.Now()
 	processList := []Process{}
 	currentUser, err := user.Current()
