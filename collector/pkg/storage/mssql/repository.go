@@ -1,14 +1,15 @@
 /*
 For now I have main left as a comment, as it allows for easy testing.
-Will need to change function names etc, but for now we can see that a connection
-to the SQL Server works.
-To start the connection, call 'OpenDBConnection'.
-To close the connection, call 'CloseDBConnection'.
+These functions will be exported.
+As of 3/5/2022, the current functions mainly revolve around the Process Table.
+More functions will be added for CPU/MEMORY/DISK tables.
+There is insert for both COLLECTOR and PROCESS tables.
+Queries exsist for PROCESS, and one
 */
 
-//package mssql
+package mssql
 
-package main
+//package main
 
 import (
 	"context"
@@ -53,6 +54,7 @@ type Collector struct {
 	diskID        int
 }
 
+// Type for inserting into a Collector, as we don't need time or collectorID.
 type CollectorInsert struct {
 	cpuID    int
 	memoryID int
@@ -67,7 +69,9 @@ type Cpu struct {
 
 // ----------------------------- Connecting to Database Section -----------------------------
 
-//
+/*	Opens a single database connection.
+ *	Doesn't need anything.
+ */
 func OpenDBConnection() {
 
 	// Build connection string
@@ -96,7 +100,10 @@ func OpenDBConnection() {
 	fmt.Printf("Connected to DB!\n")
 }
 
-//
+/*	Close a single database connection.
+ *	Doesn't need anything, but a connection should be open before
+ *	this is called.
+ */
 func CloseDBConnection() {
 
 	DB_CONNECTION.Close()
@@ -104,8 +111,15 @@ func CloseDBConnection() {
 
 // ----------------------------- GPU Section Section -----------------------------
 
-//
+/*	Get all GPUs from GPU Table.
+ *	Doesn't need anything, it just cycles through each gpu in the table.
+ *
+ *	Return:
+ *		([]Cpu) all current CPUs.
+ */
 func GetCPUs() []Cpu {
+
+	OpenDBConnection()
 
 	ctx := context.Background()
 
@@ -121,6 +135,8 @@ func GetCPUs() []Cpu {
 	}
 
 	defer rows.Close()
+
+	CloseDBConnection()
 
 	var toReturn []Cpu
 
@@ -147,8 +163,67 @@ func GetCPUs() []Cpu {
 
 // ----------------------------- COLLECTOR Section -----------------------------
 
-//
+/*	Get all Collectors from COLLECTOR Table.
+ *	!DONT USE THIS UNTIL WE ACTUALLY GET CPU/MEMORY/DISK tables running.!
+ *	Doesn't need anything, it just cycles through each collector in the table.
+ *
+ *	Return:
+ *		([]Collector) all collectors.
+ */
+/*func GetCollectors() []Collector {
+
+	OpenDBConnection()
+
+	ctx := context.Background()
+
+	// Get all Collectors.
+	singleQuery := fmt.Sprintf("SELECT * FROM COLLECTOR;")
+
+	// Execute query
+	rows, err := DB_CONNECTION.QueryContext(ctx, singleQuery)
+
+	if err != nil {
+
+		log.Fatal(err.Error())
+	}
+
+	defer rows.Close()
+
+	CloseDBConnection()
+
+	var toReturn []Collector
+
+	// Iterate through the result set.
+	for rows.Next() {
+
+		var collectorID, cpuID, memoryID, diskID int
+		var timeCollected time.Time
+
+		// Get values from row.
+		err := rows.Scan(&collectorID, &timeCollected, &cpuID, &memoryID, &diskID)
+
+		if err != nil {
+
+			log.Fatal(err.Error())
+		}
+
+		singleInput := Collector{collectorID, timeCollected, cpuID, memoryID, diskID}
+		toReturn = append(toReturn, singleInput)
+	}
+
+	return toReturn
+}
+*/
+
+/*	Get newest collector's ID from COLLECTOR table.
+ *	Doesn't need anything, just call it to get the newest ID.
+ *
+ *	Return:
+ *		(int) collectorID.
+ */
 func GetCollectorIDNewest() int {
+
+	OpenDBConnection()
 
 	ctx := context.Background()
 
@@ -166,6 +241,8 @@ func GetCollectorIDNewest() int {
 	}
 
 	defer rows.Close()
+
+	CloseDBConnection()
 
 	var toReturnInt int
 
@@ -188,7 +265,7 @@ func GetCollectorIDNewest() int {
 	return toReturnInt
 }
 
-/*	Insert for COLLECTOR Table
+/*	Insert for COLLECTOR Table.
  *	Takes in a Collector, and uses its data to insert into the table.
  *
  *	Return:
@@ -196,6 +273,8 @@ func GetCollectorIDNewest() int {
  *		(error) any error, this should be 'nil'.
  */
 func PutNewCollector(singleCollector CollectorInsert) (int64, error) {
+
+	OpenDBConnection()
 
 	// These will be used once we get to CPU/MEMORY/DISK tables.
 	// var cpuID = getCPUIDNewest()
@@ -224,13 +303,22 @@ func PutNewCollector(singleCollector CollectorInsert) (int64, error) {
 		log.Fatal(err.Error())
 	}
 
+	CloseDBConnection()
+
 	return result.RowsAffected()
 }
 
 // ----------------------------- PROCESS Section -----------------------------
 
-//
+/*	Get all Processes from PROCESS Table.
+ *	Doesn't need anything, it just cycles through each process in the table.
+ *
+ *	Return:
+ *		([]Process) all processes.
+ */
 func GetProcesses() []Process {
+
+	OpenDBConnection()
 
 	ctx := context.Background()
 
@@ -246,6 +334,8 @@ func GetProcesses() []Process {
 	}
 
 	defer rows.Close()
+
+	CloseDBConnection()
 
 	var toReturn []Process
 
@@ -273,8 +363,16 @@ func GetProcesses() []Process {
 	return toReturn
 }
 
-//
+/*	Get all new Processes from PROCESS Table.
+ *	Doesn't need anything, it goes based off of the newest collectorID
+ *	which is taken from the COLLECTOR table.
+ *
+ *	Return:
+ *		([]Process) newsest processes.
+ */
 func GetProcessesByNewest() []Process {
+
+	OpenDBConnection()
 
 	ctx := context.Background()
 
@@ -292,6 +390,8 @@ func GetProcessesByNewest() []Process {
 
 	defer rows.Close()
 
+	CloseDBConnection()
+
 	var toReturn []Process
 
 	// Iterate through the result set.
@@ -318,8 +418,16 @@ func GetProcessesByNewest() []Process {
 	return toReturn
 }
 
-// Given a column name, test it against a string field.
+/*	Get custom string searched Processes from PROCESS Table.
+ *	Given a column name, test it against a string field in the PROCESS table.
+ * 	This will only work when searching columns that use 'string'/VARCHAR.
+ *
+ *	Return:
+ *		([]Process) custom processes.
+ */
 func GetProcessesByCustomStringField(column string, field string) []Process {
+
+	OpenDBConnection()
 
 	ctx := context.Background()
 
@@ -336,6 +444,8 @@ func GetProcessesByCustomStringField(column string, field string) []Process {
 
 	defer rows.Close()
 
+	CloseDBConnection()
+
 	var toReturn []Process
 
 	// Iterate through the result set.
@@ -362,8 +472,16 @@ func GetProcessesByCustomStringField(column string, field string) []Process {
 	return toReturn
 }
 
-// Given a column name, test it against a float field.
+/*	Get custom float searched Processes from PROCESS Table.
+ *	Given a column name, test it against a float field in the PROCESS table.
+ * 	This will only work when searching columns that use float.
+ *
+ *	Return:
+ *		([]Process) custom processes.
+ */
 func GetProcessesByCustomFloatField(column string, field float32) []Process {
+
+	OpenDBConnection()
 
 	ctx := context.Background()
 
@@ -380,6 +498,8 @@ func GetProcessesByCustomFloatField(column string, field float32) []Process {
 
 	defer rows.Close()
 
+	CloseDBConnection()
+
 	var toReturn []Process
 
 	// Iterate through the result set.
@@ -406,8 +526,16 @@ func GetProcessesByCustomFloatField(column string, field float32) []Process {
 	return toReturn
 }
 
-// Given a column name, test it against a int field.
+/*	Get custom Integer searched Processes from PROCESS Table.
+ *	Given a column name, test it against an integer field in the PROCESS table.
+ * 	This will only work when searching columns that use int/BIG INT.
+ *
+ *	Return:
+ *		([]Process) custom processes.
+ */
 func GetProcessesByCustomIntField(column string, field int) []Process {
+
+	OpenDBConnection()
 
 	ctx := context.Background()
 
@@ -423,6 +551,8 @@ func GetProcessesByCustomIntField(column string, field int) []Process {
 	}
 
 	defer rows.Close()
+
+	CloseDBConnection()
 
 	var toReturn []Process
 
@@ -462,6 +592,8 @@ func GetProcessesByCustomIntField(column string, field int) []Process {
  */
 func PutNewProcess(singleProcess Process) (int64, error) {
 
+	OpenDBConnection()
+
 	var collectorID = GetCollectorIDNewest()
 
 	// Insert into PROCESS based of singleProcess Data.
@@ -479,6 +611,8 @@ func PutNewProcess(singleProcess Process) (int64, error) {
 		log.Fatal(err.Error())
 	}
 
+	CloseDBConnection()
+
 	return result.RowsAffected()
 }
 
@@ -490,7 +624,7 @@ func main() {
 	fmt.Printf("Repository Implementation for mssql (Microsoft SQL Server)\n")
 
 	// To start the connection, call 'databaseConnection'.
-	OpenDBConnection()
+	//OpenDBConnection()
 
 	// Test CPUs Get
 	/*var answer []Cpu = getCPUs()
@@ -549,7 +683,7 @@ func main() {
 	*/
 
 	// Test Processes Get by custom column and a string filed
-	/*var answer []Process = getProcessesByStatus("done")
+	/*var answer []Process = GetProcessesByCustomStringField("name", "process2")
 
 	for _, process := range answer {
 
@@ -597,7 +731,17 @@ func main() {
 
 	// For now I am closing it manually.
 	// Not sure if we want it to stay open......
-	CloseDBConnection()
+	//CloseDBConnection()
+
+	// Test Collectors all
+	// Dont run this, as we arent using ints for CPUID etc..
+	/*var answer []Collector = GetCollectors()
+	for _, collector := range answer {
+
+		fmt.Printf("collectorID: %d, time: %t, CPUID: %d,  memoryID: %d, diskID: %d\n",
+			collector.collectorID, collector.timeCollected.Day(), collector.cpuID, collector.memoryID, collector.diskID)
+	}
+	*/
 
 	fmt.Print("DONE TEST")
 }
