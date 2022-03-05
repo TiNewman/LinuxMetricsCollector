@@ -17,6 +17,10 @@ type Process struct {
 	TimeStamp       time.Time
 }
 
+type collector struct {
+	r Repository
+}
+
 func Collect() {
 	currentTime := time.Now()
 	processList := []Process{}
