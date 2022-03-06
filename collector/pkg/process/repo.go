@@ -1,8 +1,8 @@
 package process
 
 type Repository interface {
-	// select from database
+	// retrieve from database
 	GetProcesses() []Process
 	// create record
-	RecordProcess(Process)
+	PutNewProcess(Process)
 }
