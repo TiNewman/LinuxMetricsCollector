@@ -5,7 +5,10 @@ go 1.17
 require (
 	github.com/denisenkom/go-mssqldb v0.12.0
 	github.com/gorilla/websocket v1.5.0
+	github.com/prometheus/procfs v0.7.3
 )
+
+require golang.org/x/sys v0.0.0-20210423082822-04245dca01da // indirect
 
 require (
 	github.com/golang-sql/civil v0.0.0-20190719163853-cb61b32ac6fe // indirect

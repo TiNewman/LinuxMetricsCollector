@@ -21,8 +21,6 @@ import (
 	_ "github.com/denisenkom/go-mssqldb"
 )
 
-var DB_CONNECTION *sql.DB
-
 // Database connection variables.
 var server = "127.0.0.1"
 var port = 1433
@@ -72,41 +70,46 @@ type Cpu struct {
 /*	Opens a single database connection.
  *	Doesn't need anything.
  */
-func OpenDBConnection() {
+func NewStorage() (*Storage, error) {
 
 	// Build connection string
 	connString := fmt.Sprintf("server=%s;user id=%s;password=%s;port=%d;database=%s;",
 		server, user, password, port, database)
 
+	var DB_CONNECTION *sql.DB
 	var err error
 
 	// Create connection pool
 	DB_CONNECTION, err = sql.Open("sqlserver", connString)
 
 	if err != nil {
-
 		log.Fatal("Error creating connection pool: ", err.Error())
+		return nil, err
 	}
 
 	ctx := context.Background()
 	err = DB_CONNECTION.PingContext(ctx)
 
 	if err != nil {
-
 		log.Fatal(err.Error())
+		return nil, err
 	}
+
+	s := new(Storage)
+	s.DB_CONNECTION = DB_CONNECTION
 
 	// Log connection here!
 	fmt.Printf("Connected to DB!\n")
+	return s, err
 }
 
 /*	Close a single database connection.
  *	Doesn't need anything, but a connection should be open before
  *	this is called.
  */
-func CloseDBConnection() {
+func (s *Storage) CloseDBConnection() {
 
-	DB_CONNECTION.Close()
+	s.DB_CONNECTION.Close()
 }
 
 // ----------------------------- GPU Section Section -----------------------------
@@ -117,9 +120,9 @@ func CloseDBConnection() {
  *	Return:
  *		([]Cpu) all current CPUs.
  */
-func GetCPUs() []Cpu {
+func (s *Storage) GetCPUs() []Cpu {
 
-	OpenDBConnection()
+	//OpenDBConnection()
 
 	ctx := context.Background()
 
@@ -127,7 +130,7 @@ func GetCPUs() []Cpu {
 	singleQuery := fmt.Sprintf("SELECT * FROM CPU;")
 
 	// Execute query
-	rows, err := DB_CONNECTION.QueryContext(ctx, singleQuery)
+	rows, err := s.DB_CONNECTION.QueryContext(ctx, singleQuery)
 
 	if err != nil {
 
@@ -136,7 +139,7 @@ func GetCPUs() []Cpu {
 
 	defer rows.Close()
 
-	CloseDBConnection()
+	//CloseDBConnection()
 
 	var toReturn []Cpu
 
@@ -221,9 +224,9 @@ func GetCPUs() []Cpu {
  *	Return:
  *		(int) collectorID.
  */
-func GetCollectorIDNewest() int {
+func (s *Storage) GetCollectorIDNewest() int {
 
-	OpenDBConnection()
+	//OpenDBConnection()
 
 	ctx := context.Background()
 
@@ -233,7 +236,7 @@ func GetCollectorIDNewest() int {
 			" ORDER BY timeCollected DESC;")
 
 	// Execute query
-	rows, err := DB_CONNECTION.QueryContext(ctx, singleQuery)
+	rows, err := s.DB_CONNECTION.QueryContext(ctx, singleQuery)
 
 	if err != nil {
 
@@ -242,7 +245,7 @@ func GetCollectorIDNewest() int {
 
 	defer rows.Close()
 
-	CloseDBConnection()
+	//CloseDBConnection()
 
 	var toReturnInt int
 
@@ -272,9 +275,9 @@ func GetCollectorIDNewest() int {
  *		(int) rows inserted.
  *		(error) any error, this should be 'nil'.
  */
-func PutNewCollector(singleCollector CollectorInsert) (int64, error) {
+func (s *Storage) PutNewCollector(singleCollector CollectorInsert) (int64, error) {
 
-	OpenDBConnection()
+	//OpenDBConnection()
 
 	// These will be used once we get to CPU/MEMORY/DISK tables.
 	// var cpuID = getCPUIDNewest()
@@ -296,14 +299,14 @@ func PutNewCollector(singleCollector CollectorInsert) (int64, error) {
 	*/
 
 	// Execute Insertion
-	result, err := DB_CONNECTION.Exec(singleInsert)
+	result, err := s.DB_CONNECTION.Exec(singleInsert)
 
 	if err != nil {
 
 		log.Fatal(err.Error())
 	}
 
-	CloseDBConnection()
+	//CloseDBConnection()
 
 	return result.RowsAffected()
 }
@@ -316,9 +319,9 @@ func PutNewCollector(singleCollector CollectorInsert) (int64, error) {
  *	Return:
  *		([]Process) all processes.
  */
-func GetProcesses() []Process {
+func (s *Storage) GetProcesses() []Process {
 
-	OpenDBConnection()
+	//OpenDBConnection()
 
 	ctx := context.Background()
 
@@ -326,7 +329,7 @@ func GetProcesses() []Process {
 	singleQuery := fmt.Sprintf("SELECT * FROM PROCESS;")
 
 	// Execute query
-	rows, err := DB_CONNECTION.QueryContext(ctx, singleQuery)
+	rows, err := s.DB_CONNECTION.QueryContext(ctx, singleQuery)
 
 	if err != nil {
 
@@ -335,7 +338,7 @@ func GetProcesses() []Process {
 
 	defer rows.Close()
 
-	CloseDBConnection()
+	//CloseDBConnection()
 
 	var toReturn []Process
 
@@ -370,9 +373,9 @@ func GetProcesses() []Process {
  *	Return:
  *		([]Process) newsest processes.
  */
-func GetProcessesByNewest() []Process {
+func (s *Storage) GetProcessesByNewest() []Process {
 
-	OpenDBConnection()
+	//OpenDBConnection()
 
 	ctx := context.Background()
 
@@ -381,7 +384,7 @@ func GetProcessesByNewest() []Process {
 		"(SELECT TOP 1 collectorID FROM COLLECTOR ORDER BY timeCollected DESC);")
 
 	// Execute query
-	rows, err := DB_CONNECTION.QueryContext(ctx, singleQuery)
+	rows, err := s.DB_CONNECTION.QueryContext(ctx, singleQuery)
 
 	if err != nil {
 
@@ -390,7 +393,7 @@ func GetProcessesByNewest() []Process {
 
 	defer rows.Close()
 
-	CloseDBConnection()
+	//CloseDBConnection()
 
 	var toReturn []Process
 
@@ -425,9 +428,9 @@ func GetProcessesByNewest() []Process {
  *	Return:
  *		([]Process) custom processes.
  */
-func GetProcessesByCustomStringField(column string, field string) []Process {
+func (s *Storage) GetProcessesByCustomStringField(column string, field string) []Process {
 
-	OpenDBConnection()
+	//OpenDBConnection()
 
 	ctx := context.Background()
 
@@ -435,7 +438,7 @@ func GetProcessesByCustomStringField(column string, field string) []Process {
 	singleQuery := fmt.Sprintf("SELECT * FROM PROCESS WHERE %s = '%s';", column, field)
 
 	// Execute query
-	rows, err := DB_CONNECTION.QueryContext(ctx, singleQuery)
+	rows, err := s.DB_CONNECTION.QueryContext(ctx, singleQuery)
 
 	if err != nil {
 
@@ -444,7 +447,7 @@ func GetProcessesByCustomStringField(column string, field string) []Process {
 
 	defer rows.Close()
 
-	CloseDBConnection()
+	//CloseDBConnection()
 
 	var toReturn []Process
 
@@ -479,9 +482,9 @@ func GetProcessesByCustomStringField(column string, field string) []Process {
  *	Return:
  *		([]Process) custom processes.
  */
-func GetProcessesByCustomFloatField(column string, field float32) []Process {
+func (s *Storage) GetProcessesByCustomFloatField(column string, field float32) []Process {
 
-	OpenDBConnection()
+	//OpenDBConnection()
 
 	ctx := context.Background()
 
@@ -489,7 +492,7 @@ func GetProcessesByCustomFloatField(column string, field float32) []Process {
 	singleQuery := fmt.Sprintf("SELECT * FROM PROCESS WHERE %s = %.2f;", column, field)
 
 	// Execute query
-	rows, err := DB_CONNECTION.QueryContext(ctx, singleQuery)
+	rows, err := s.DB_CONNECTION.QueryContext(ctx, singleQuery)
 
 	if err != nil {
 
@@ -498,7 +501,7 @@ func GetProcessesByCustomFloatField(column string, field float32) []Process {
 
 	defer rows.Close()
 
-	CloseDBConnection()
+	//CloseDBConnection()
 
 	var toReturn []Process
 
@@ -533,9 +536,9 @@ func GetProcessesByCustomFloatField(column string, field float32) []Process {
  *	Return:
  *		([]Process) custom processes.
  */
-func GetProcessesByCustomIntField(column string, field int) []Process {
+func (s *Storage) GetProcessesByCustomIntField(column string, field int) []Process {
 
-	OpenDBConnection()
+	//OpenDBConnection()
 
 	ctx := context.Background()
 
@@ -543,7 +546,7 @@ func GetProcessesByCustomIntField(column string, field int) []Process {
 	singleQuery := fmt.Sprintf("SELECT * FROM PROCESS WHERE %s = %d;", column, field)
 
 	// Execute query
-	rows, err := DB_CONNECTION.QueryContext(ctx, singleQuery)
+	rows, err := s.DB_CONNECTION.QueryContext(ctx, singleQuery)
 
 	if err != nil {
 
@@ -552,7 +555,7 @@ func GetProcessesByCustomIntField(column string, field int) []Process {
 
 	defer rows.Close()
 
-	CloseDBConnection()
+	//CloseDBConnection()
 
 	var toReturn []Process
 
@@ -590,11 +593,11 @@ func GetProcessesByCustomIntField(column string, field int) []Process {
  *		(int) rows inserted.
  *		(error) any error, this should be 'nil'.
  */
-func PutNewProcess(singleProcess Process) (int64, error) {
+func (s *Storage) PutNewProcess(singleProcess Process) (int64, error) {
 
-	OpenDBConnection()
+	//OpenDBConnection()
 
-	var collectorID = GetCollectorIDNewest()
+	var collectorID = s.GetCollectorIDNewest()
 
 	// Insert into PROCESS based of singleProcess Data.
 	singleInsert :=
@@ -604,14 +607,14 @@ func PutNewProcess(singleProcess Process) (int64, error) {
 			singleProcess.diskUsage, singleProcess.executionTime)
 
 	// Execute Insertion
-	result, err := DB_CONNECTION.Exec(singleInsert)
+	result, err := s.DB_CONNECTION.Exec(singleInsert)
 
 	if err != nil {
 
 		log.Fatal(err.Error())
 	}
 
-	CloseDBConnection()
+	//CloseDBConnection()
 
 	return result.RowsAffected()
 }
