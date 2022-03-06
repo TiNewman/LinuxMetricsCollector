@@ -20,6 +20,8 @@ var upgrader = websocket.Upgrader{
 
 func Handler(process Collector) http.Handler {
 	fmt.Printf("Websocket Handler\n")
+	process.Collect()
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("/ws", wsEndpoint)
 
