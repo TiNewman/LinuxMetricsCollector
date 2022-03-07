@@ -4,12 +4,13 @@ These functions will be exported.
 As of 3/5/2022, the current functions mainly revolve around the Process Table.
 More functions will be added for CPU/MEMORY/DISK tables.
 There is insert for both COLLECTOR and PROCESS tables.
-Queries exsist for PROCESS, and one
+Maybe look at hainv fully custom:
+(tableName, column, field)...
 */
 
-package mssql
+//package mssql
 
-//package main
+package main
 
 import (
 	"context"
@@ -67,9 +68,8 @@ type Cpu struct {
 
 // ----------------------------- Connecting to Database Section -----------------------------
 
-/*	Opens a single database connection.
- *	Doesn't need anything.
- */
+//  Opens a single database connection.
+//  Doesn't need anything.
 func NewStorage() (*Storage, error) {
 
 	// Build connection string
@@ -83,6 +83,7 @@ func NewStorage() (*Storage, error) {
 	DB_CONNECTION, err = sql.Open("sqlserver", connString)
 
 	if err != nil {
+
 		log.Fatal("Error creating connection pool: ", err.Error())
 		return nil, err
 	}
@@ -91,6 +92,7 @@ func NewStorage() (*Storage, error) {
 	err = DB_CONNECTION.PingContext(ctx)
 
 	if err != nil {
+
 		log.Fatal(err.Error())
 		return nil, err
 	}
@@ -103,10 +105,9 @@ func NewStorage() (*Storage, error) {
 	return s, err
 }
 
-/*	Close a single database connection.
- *	Doesn't need anything, but a connection should be open before
- *	this is called.
- */
+//  Close a single database connection.
+//  Doesn't need anything, but a connection should be open before
+//  this is called.
 func (s *Storage) CloseDBConnection() {
 
 	s.DB_CONNECTION.Close()
@@ -114,12 +115,11 @@ func (s *Storage) CloseDBConnection() {
 
 // ----------------------------- GPU Section Section -----------------------------
 
-/*	Get all GPUs from GPU Table.
- *	Doesn't need anything, it just cycles through each gpu in the table.
- *
- *	Return:
- *		([]Cpu) all current CPUs.
- */
+//  Get all GPUs from GPU Table.
+//  Doesn't need anything, it just cycles through each gpu in the table.
+//
+//  Return:
+//  	([]Cpu) all current CPUs.
 func (s *Storage) GetCPUs() []Cpu {
 
 	//OpenDBConnection()
@@ -166,13 +166,12 @@ func (s *Storage) GetCPUs() []Cpu {
 
 // ----------------------------- COLLECTOR Section -----------------------------
 
-/*	Get all Collectors from COLLECTOR Table.
- *	!DONT USE THIS UNTIL WE ACTUALLY GET CPU/MEMORY/DISK tables running.!
- *	Doesn't need anything, it just cycles through each collector in the table.
- *
- *	Return:
- *		([]Collector) all collectors.
- */
+//  Get all Collectors from COLLECTOR Table.
+//  !DONT USE THIS UNTIL WE ACTUALLY GET CPU/MEMORY/DISK tables running.!
+//  Doesn't need anything, it just cycles through each collector in the table.
+//
+//  Return:
+//  	([]Collector) all collectors.
 /*func GetCollectors() []Collector {
 
 	OpenDBConnection()
@@ -218,12 +217,11 @@ func (s *Storage) GetCPUs() []Cpu {
 }
 */
 
-/*	Get newest collector's ID from COLLECTOR table.
- *	Doesn't need anything, just call it to get the newest ID.
- *
- *	Return:
- *		(int) collectorID.
- */
+//  Get newest collector's ID from COLLECTOR table.
+//  Doesn't need anything, just call it to get the newest ID.
+//
+//  Return:
+//  	(int) collectorID.
 func (s *Storage) GetCollectorIDNewest() int {
 
 	//OpenDBConnection()
@@ -268,13 +266,12 @@ func (s *Storage) GetCollectorIDNewest() int {
 	return toReturnInt
 }
 
-/*	Insert for COLLECTOR Table.
- *	Takes in a Collector, and uses its data to insert into the table.
- *
- *	Return:
- *		(int) rows inserted.
- *		(error) any error, this should be 'nil'.
- */
+//  Insert for COLLECTOR Table.
+//  Takes in a Collector, and uses its data to insert into the table.
+//
+//  Return:
+//  	(int) rows inserted.
+//  	(error) any error, this should be 'nil'.
 func (s *Storage) PutNewCollector(singleCollector CollectorInsert) (int64, error) {
 
 	//OpenDBConnection()
@@ -313,12 +310,11 @@ func (s *Storage) PutNewCollector(singleCollector CollectorInsert) (int64, error
 
 // ----------------------------- PROCESS Section -----------------------------
 
-/*	Get all Processes from PROCESS Table.
- *	Doesn't need anything, it just cycles through each process in the table.
- *
- *	Return:
- *		([]Process) all processes.
- */
+//  Get all Processes from PROCESS Table.
+//  Doesn't need anything, it just cycles through each process in the table.
+//
+//  Return:
+//  	([]Process) all processes.
 func (s *Storage) GetProcesses() []Process {
 
 	//OpenDBConnection()
@@ -366,13 +362,12 @@ func (s *Storage) GetProcesses() []Process {
 	return toReturn
 }
 
-/*	Get all new Processes from PROCESS Table.
- *	Doesn't need anything, it goes based off of the newest collectorID
- *	which is taken from the COLLECTOR table.
- *
- *	Return:
- *		([]Process) newsest processes.
- */
+//  Get all new Processes from PROCESS Table.
+//  Doesn't need anything, it goes based off of the newest collectorID
+//  which is taken from the COLLECTOR table.
+//
+//  Return:
+//  	([]Process) newsest processes.
 func (s *Storage) GetProcessesByNewest() []Process {
 
 	//OpenDBConnection()
@@ -421,13 +416,12 @@ func (s *Storage) GetProcessesByNewest() []Process {
 	return toReturn
 }
 
-/*	Get custom string searched Processes from PROCESS Table.
- *	Given a column name, test it against a string field in the PROCESS table.
- * 	This will only work when searching columns that use 'string'/VARCHAR.
- *
- *	Return:
- *		([]Process) custom processes.
- */
+//  Get custom string searched Processes from PROCESS Table.
+//  Given a column name, test it against a string field in the PROCESS table.
+//	This will only work when searching columns that use 'string'/VARCHAR.
+//
+//  Return:
+//  	([]Process) custom processes.
 func (s *Storage) GetProcessesByCustomStringField(column string, field string) []Process {
 
 	//OpenDBConnection()
@@ -475,13 +469,12 @@ func (s *Storage) GetProcessesByCustomStringField(column string, field string) [
 	return toReturn
 }
 
-/*	Get custom float searched Processes from PROCESS Table.
- *	Given a column name, test it against a float field in the PROCESS table.
- * 	This will only work when searching columns that use float.
- *
- *	Return:
- *		([]Process) custom processes.
- */
+//  Get custom float searched Processes from PROCESS Table.
+//  Given a column name, test it against a float field in the PROCESS table.
+// 	This will only work when searching columns that use float.
+//
+//  Return:
+//  	([]Process) custom processes.
 func (s *Storage) GetProcessesByCustomFloatField(column string, field float32) []Process {
 
 	//OpenDBConnection()
@@ -529,13 +522,12 @@ func (s *Storage) GetProcessesByCustomFloatField(column string, field float32) [
 	return toReturn
 }
 
-/*	Get custom Integer searched Processes from PROCESS Table.
- *	Given a column name, test it against an integer field in the PROCESS table.
- * 	This will only work when searching columns that use int/BIG INT.
- *
- *	Return:
- *		([]Process) custom processes.
- */
+//  Get custom Integer searched Processes from PROCESS Table.
+//  Given a column name, test it against an integer field in the PROCESS table.
+//	This will only work when searching columns that use int/BIG INT.
+//
+//  Return:
+//  	([]Process) custom processes.
 func (s *Storage) GetProcessesByCustomIntField(column string, field int) []Process {
 
 	//OpenDBConnection()
@@ -583,16 +575,14 @@ func (s *Storage) GetProcessesByCustomIntField(column string, field int) []Proce
 	return toReturn
 }
 
-/*
- *	Insert for PROCESS Table
- *	Takes in a Process, then checks for the newest collector,
- *	and uses that collectorID (as you have to insert into collector first)
- *	with the data in the Process to insert into the PROCESS table.
- *
- *	Return:
- *		(int) rows inserted.
- *		(error) any error, this should be 'nil'.
- */
+//  Insert for PROCESS Table
+//  Takes in a Process, then checks for the newest collector,
+//  and uses that collectorID (as you have to insert into collector first)
+//  with the data in the Process to insert into the PROCESS table.
+//
+//  Return:
+//  	(int) rows inserted.
+//  	(error) any error, this should be 'nil'.
 func (s *Storage) PutNewProcess(singleProcess Process) (int64, error) {
 
 	//OpenDBConnection()
@@ -626,6 +616,12 @@ func main() {
 
 	fmt.Printf("Repository Implementation for mssql (Microsoft SQL Server)\n")
 
+	/*var database, err = NewStorage()
+
+	if err != nil {
+	}
+	*/
+
 	// To start the connection, call 'databaseConnection'.
 	//OpenDBConnection()
 
@@ -638,7 +634,7 @@ func main() {
 	}*/
 
 	// Test Processes Get
-	/*var answer []Process = getProcesses()
+	/*var answer []Process = database.GetProcesses()
 
 	for _, process := range answer {
 
