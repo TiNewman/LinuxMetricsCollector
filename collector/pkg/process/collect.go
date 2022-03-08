@@ -10,11 +10,12 @@ import (
 
 type Process struct {
 	PID             int
+	Name            string
 	CPUUtilization  float32
 	RAMUtilization  float32
-	DiskUtilization uint64
+	DiskUtilization float32
 	Status          string
-	TimeStamp       time.Time
+	ExecutionTime   float32
 }
 
 type collector struct {
@@ -98,7 +99,7 @@ func (c collector) Collect() {
 
 		fmt.Printf("Current Time: %v\n", currentTime)
 		fmt.Printf("Uid: %v, Process: %v, CPU Utilization: %v, Mem Usage: %v, Disk Usage: %v Status: %v, StartTime: %v\n", uids, proc.PID, cpuUtilization, float64(mem)/1000000, readTotal, status, starttime)
-		processList = append(processList, Process{PID: proc.PID, CPUUtilization: float32(cputime), RAMUtilization: float32(mem) / 1000000, DiskUtilization: readTotal, Status: status, TimeStamp: currentTime})
+		processList = append(processList, Process{PID: proc.PID, CPUUtilization: float32(cputime), RAMUtilization: float32(mem) / 1000000, DiskUtilization: 0.0 /*readTotal*/, Status: status, ExecutionTime: 0.0})
 	}
 	fmt.Printf("Processes in list: %v\n", len(processList))
 

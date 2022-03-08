@@ -4,13 +4,13 @@ These functions will be exported.
 As of 3/5/2022, the current functions mainly revolve around the Process Table.
 More functions will be added for CPU/MEMORY/DISK tables.
 There is insert for both COLLECTOR and PROCESS tables.
-Maybe look at hainv fully custom:
+Will look into fully custom queries:
 (tableName, column, field)...
 */
 
-//package mssql
+package mssql
 
-package main
+//package main
 
 import (
 	"context"
@@ -19,6 +19,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/TiNewman/LinuxMetricsCollector/pkg/process"
 	_ "github.com/denisenkom/go-mssqldb"
 )
 
@@ -33,7 +34,7 @@ type Storage struct {
 	DB_CONNECTION *sql.DB
 }
 
-type Process struct {
+type DBProcess struct {
 	processID     int
 	collectorID   int
 	PID           int
@@ -286,7 +287,7 @@ func (s *Storage) PutNewCollector(singleCollector CollectorInsert) (int64, error
 	// for the PROCESS table.
 	// CPU/MEMORY/DISK will be up later.
 	singleInsert :=
-		fmt.Sprint("INSERT INTO COLLECTOR VALUES (GETDATE(), NULL, NULL, NULL);")
+		fmt.Sprintf("INSERT INTO COLLECTOR VALUES (GETDATE(), NULL, NULL, NULL);")
 
 	/*
 		// This will be used once we actually have to input CPU, etc..
@@ -315,14 +316,15 @@ func (s *Storage) PutNewCollector(singleCollector CollectorInsert) (int64, error
 //
 //  Return:
 //  	([]Process) all processes.
-func (s *Storage) GetProcesses() []Process {
+func (s *Storage) GetProcesses() []process.Process {
 
 	//OpenDBConnection()
 
 	ctx := context.Background()
 
 	// Get all Processes.
-	singleQuery := fmt.Sprintf("SELECT * FROM PROCESS;")
+	singleQuery := fmt.Sprintf("SELECT processID, collectorID, PID, name, status," +
+		" cpuUsage, memoryUsage, diskUsage, executionTime FROM PROCESS;")
 
 	// Execute query
 	rows, err := s.DB_CONNECTION.QueryContext(ctx, singleQuery)
@@ -336,7 +338,7 @@ func (s *Storage) GetProcesses() []Process {
 
 	//CloseDBConnection()
 
-	var toReturn []Process
+	var toReturn []process.Process
 
 	// Iterate through the result set.
 	for rows.Next() {
@@ -346,7 +348,7 @@ func (s *Storage) GetProcesses() []Process {
 		var cpuUsage, memoryUsage, diskUsage, executionTime float32
 
 		// Get values from row.
-		err := rows.Scan(&processID, &PID, &collectorID, &name, &status, &cpuUsage,
+		err := rows.Scan(&processID, &collectorID, &PID, &name, &status, &cpuUsage,
 			&memoryUsage, &diskUsage, &executionTime)
 
 		if err != nil {
@@ -354,8 +356,10 @@ func (s *Storage) GetProcesses() []Process {
 			log.Fatal(err.Error())
 		}
 
-		singleInput := Process{processID, PID, collectorID, name, status, cpuUsage,
-			memoryUsage, diskUsage, executionTime}
+		singleInput := process.Process{PID: PID, Name: name,
+			CPUUtilization: cpuUsage, RAMUtilization: memoryUsage,
+			DiskUtilization: diskUsage, Status: status, ExecutionTime: executionTime}
+
 		toReturn = append(toReturn, singleInput)
 	}
 
@@ -368,14 +372,16 @@ func (s *Storage) GetProcesses() []Process {
 //
 //  Return:
 //  	([]Process) newsest processes.
-func (s *Storage) GetProcessesByNewest() []Process {
+func (s *Storage) GetProcessesByNewest() []process.Process {
 
 	//OpenDBConnection()
 
 	ctx := context.Background()
 
 	// Get newsest Processes, based off collectorID.
-	singleQuery := fmt.Sprintf("SELECT * FROM PROCESS WHERE collectorID IN " +
+	singleQuery := fmt.Sprintf("SELECT processID, collectorID, PID, name, status," +
+		" cpuUsage, memoryUsage, diskUsage, executionTime FROM PROCESS" +
+		" WHERE collectorID IN " +
 		"(SELECT TOP 1 collectorID FROM COLLECTOR ORDER BY timeCollected DESC);")
 
 	// Execute query
@@ -390,7 +396,7 @@ func (s *Storage) GetProcessesByNewest() []Process {
 
 	//CloseDBConnection()
 
-	var toReturn []Process
+	var toReturn []process.Process
 
 	// Iterate through the result set.
 	for rows.Next() {
@@ -400,7 +406,7 @@ func (s *Storage) GetProcessesByNewest() []Process {
 		var cpuUsage, memoryUsage, diskUsage, executionTime float32
 
 		// Get values from row.
-		err := rows.Scan(&processID, &PID, &collectorID, &name, &status, &cpuUsage,
+		err := rows.Scan(&processID, &collectorID, &PID, &name, &status, &cpuUsage,
 			&memoryUsage, &diskUsage, &executionTime)
 
 		if err != nil {
@@ -408,8 +414,10 @@ func (s *Storage) GetProcessesByNewest() []Process {
 			log.Fatal(err.Error())
 		}
 
-		singleInput := Process{processID, PID, collectorID, name, status, cpuUsage,
-			memoryUsage, diskUsage, executionTime}
+		singleInput := process.Process{PID: PID, Name: name,
+			CPUUtilization: cpuUsage, RAMUtilization: memoryUsage,
+			DiskUtilization: diskUsage, Status: status, ExecutionTime: executionTime}
+
 		toReturn = append(toReturn, singleInput)
 	}
 
@@ -422,14 +430,16 @@ func (s *Storage) GetProcessesByNewest() []Process {
 //
 //  Return:
 //  	([]Process) custom processes.
-func (s *Storage) GetProcessesByCustomStringField(column string, field string) []Process {
+func (s *Storage) GetProcessesByCustomStringField(column string, field string) []process.Process {
 
 	//OpenDBConnection()
 
 	ctx := context.Background()
 
 	// Get processes based custom column and string field.
-	singleQuery := fmt.Sprintf("SELECT * FROM PROCESS WHERE %s = '%s';", column, field)
+	singleQuery := fmt.Sprintf("SELECT processID, collectorID, PID, name, status,"+
+		" cpuUsage, memoryUsage, diskUsage, executionTime FROM PROCESS"+
+		" WHERE %s = '%s';", column, field)
 
 	// Execute query
 	rows, err := s.DB_CONNECTION.QueryContext(ctx, singleQuery)
@@ -443,7 +453,7 @@ func (s *Storage) GetProcessesByCustomStringField(column string, field string) [
 
 	//CloseDBConnection()
 
-	var toReturn []Process
+	var toReturn []process.Process
 
 	// Iterate through the result set.
 	for rows.Next() {
@@ -453,7 +463,7 @@ func (s *Storage) GetProcessesByCustomStringField(column string, field string) [
 		var cpuUsage, memoryUsage, diskUsage, executionTime float32
 
 		// Get values from row.
-		err := rows.Scan(&processID, &PID, &collectorID, &name, &status, &cpuUsage,
+		err := rows.Scan(&processID, &collectorID, &PID, &name, &status, &cpuUsage,
 			&memoryUsage, &diskUsage, &executionTime)
 
 		if err != nil {
@@ -461,8 +471,10 @@ func (s *Storage) GetProcessesByCustomStringField(column string, field string) [
 			log.Fatal(err.Error())
 		}
 
-		singleInput := Process{processID, PID, collectorID, name, status, cpuUsage,
-			memoryUsage, diskUsage, executionTime}
+		singleInput := process.Process{PID: PID, Name: name,
+			CPUUtilization: cpuUsage, RAMUtilization: memoryUsage,
+			DiskUtilization: diskUsage, Status: status, ExecutionTime: executionTime}
+
 		toReturn = append(toReturn, singleInput)
 	}
 
@@ -475,14 +487,16 @@ func (s *Storage) GetProcessesByCustomStringField(column string, field string) [
 //
 //  Return:
 //  	([]Process) custom processes.
-func (s *Storage) GetProcessesByCustomFloatField(column string, field float32) []Process {
+func (s *Storage) GetProcessesByCustomFloatField(column string, field float32) []process.Process {
 
 	//OpenDBConnection()
 
 	ctx := context.Background()
 
 	// Get processes based custom column and float field.
-	singleQuery := fmt.Sprintf("SELECT * FROM PROCESS WHERE %s = %.2f;", column, field)
+	singleQuery := fmt.Sprintf("SELECT processID, collectorID, PID, name, status,"+
+		" cpuUsage, memoryUsage, diskUsage, executionTime FROM PROCESS"+
+		" WHERE %s = %.2f;", column, field)
 
 	// Execute query
 	rows, err := s.DB_CONNECTION.QueryContext(ctx, singleQuery)
@@ -496,7 +510,7 @@ func (s *Storage) GetProcessesByCustomFloatField(column string, field float32) [
 
 	//CloseDBConnection()
 
-	var toReturn []Process
+	var toReturn []process.Process
 
 	// Iterate through the result set.
 	for rows.Next() {
@@ -506,7 +520,7 @@ func (s *Storage) GetProcessesByCustomFloatField(column string, field float32) [
 		var cpuUsage, memoryUsage, diskUsage, executionTime float32
 
 		// Get values from row.
-		err := rows.Scan(&processID, &PID, &collectorID, &name, &status, &cpuUsage,
+		err := rows.Scan(&processID, &collectorID, &PID, &name, &status, &cpuUsage,
 			&memoryUsage, &diskUsage, &executionTime)
 
 		if err != nil {
@@ -514,8 +528,10 @@ func (s *Storage) GetProcessesByCustomFloatField(column string, field float32) [
 			log.Fatal(err.Error())
 		}
 
-		singleInput := Process{processID, PID, collectorID, name, status, cpuUsage,
-			memoryUsage, diskUsage, executionTime}
+		singleInput := process.Process{PID: PID, Name: name,
+			CPUUtilization: cpuUsage, RAMUtilization: memoryUsage,
+			DiskUtilization: diskUsage, Status: status, ExecutionTime: executionTime}
+
 		toReturn = append(toReturn, singleInput)
 	}
 
@@ -528,14 +544,16 @@ func (s *Storage) GetProcessesByCustomFloatField(column string, field float32) [
 //
 //  Return:
 //  	([]Process) custom processes.
-func (s *Storage) GetProcessesByCustomIntField(column string, field int) []Process {
+func (s *Storage) GetProcessesByCustomIntField(column string, field int) []process.Process {
 
 	//OpenDBConnection()
 
 	ctx := context.Background()
 
 	// Get processes based custom column and int field.
-	singleQuery := fmt.Sprintf("SELECT * FROM PROCESS WHERE %s = %d;", column, field)
+	singleQuery := fmt.Sprintf("SELECT processID, collectorID, PID, name, status,"+
+		" cpuUsage, memoryUsage, diskUsage, executionTime FROM PROCESS"+
+		" WHERE %s = %d;", column, field)
 
 	// Execute query
 	rows, err := s.DB_CONNECTION.QueryContext(ctx, singleQuery)
@@ -549,7 +567,7 @@ func (s *Storage) GetProcessesByCustomIntField(column string, field int) []Proce
 
 	//CloseDBConnection()
 
-	var toReturn []Process
+	var toReturn []process.Process
 
 	// Iterate through the result set.
 	for rows.Next() {
@@ -559,7 +577,7 @@ func (s *Storage) GetProcessesByCustomIntField(column string, field int) []Proce
 		var cpuUsage, memoryUsage, diskUsage, executionTime float32
 
 		// Get values from row.
-		err := rows.Scan(&processID, &PID, &collectorID, &name, &status, &cpuUsage,
+		err := rows.Scan(&processID, &collectorID, &PID, &name, &status, &cpuUsage,
 			&memoryUsage, &diskUsage, &executionTime)
 
 		if err != nil {
@@ -567,8 +585,10 @@ func (s *Storage) GetProcessesByCustomIntField(column string, field int) []Proce
 			log.Fatal(err.Error())
 		}
 
-		singleInput := Process{processID, PID, collectorID, name, status, cpuUsage,
-			memoryUsage, diskUsage, executionTime}
+		singleInput := process.Process{PID: PID, Name: name,
+			CPUUtilization: cpuUsage, RAMUtilization: memoryUsage,
+			DiskUtilization: diskUsage, Status: status, ExecutionTime: executionTime}
+
 		toReturn = append(toReturn, singleInput)
 	}
 
@@ -583,7 +603,7 @@ func (s *Storage) GetProcessesByCustomIntField(column string, field int) []Proce
 //  Return:
 //  	(int) rows inserted.
 //  	(error) any error, this should be 'nil'.
-func (s *Storage) PutNewProcess(singleProcess Process) (int64, error) {
+func (s *Storage) PutNewProcess(singleProcess process.Process) (int64, error) {
 
 	//OpenDBConnection()
 
@@ -592,9 +612,9 @@ func (s *Storage) PutNewProcess(singleProcess Process) (int64, error) {
 	// Insert into PROCESS based of singleProcess Data.
 	singleInsert :=
 		fmt.Sprintf("INSERT INTO PROCESS VALUES (%d, %d, '%s', '%s', %.2f, %.2f, "+
-			"%.2f, %.2f);", collectorID, singleProcess.PID, singleProcess.name,
-			singleProcess.status, singleProcess.cpuUsage, singleProcess.memoryUsage,
-			singleProcess.diskUsage, singleProcess.executionTime)
+			"%.2f, %.2f);", collectorID, singleProcess.PID, singleProcess.Name,
+			singleProcess.Status, singleProcess.CPUUtilization, singleProcess.RAMUtilization,
+			singleProcess.DiskUtilization, singleProcess.ExecutionTime)
 
 	// Execute Insertion
 	result, err := s.DB_CONNECTION.Exec(singleInsert)
@@ -634,90 +654,56 @@ func main() {
 	}*/
 
 	// Test Processes Get
-	/*var answer []Process = database.GetProcesses()
+	/*var answer []process.Process = database.GetProcesses()
 
 	for _, process := range answer {
 
-		fmt.Printf("processID: %d, collectorID: %d, PID: %d,  name: %s, status: %s, cpuUsage: %f, memoryUsage: %f, diskUsage: %f, executionTime: %f\n",
-			process.processID, process.PID, process.collectorID, process.name, process.status, process.cpuUsage, process.memoryUsage, process.diskUsage, process.executionTime)
-	}*/
-
-	// Test Processes Get by Collector
-	/*var answer []Process = getProcessesByCollector(1)
-
-	for _, process := range answer {
-
-		fmt.Printf("processID: %d, collectorID: %d, PID: %d,  name: %s, status: %s, cpuUsage: %f, memoryUsage: %f, diskUsage: %f, executionTime: %f\n",
-			process.processID, process.PID, process.collectorID, process.name, process.status, process.cpuUsage, process.memoryUsage, process.diskUsage, process.executionTime)
+		fmt.Printf("PID: %d,  name: %s, status: %s, cpuUsage: %.2f, memoryUsage: %.2f, diskUsage: %.2f, executionTime: %.2f\n",
+			 process.PID, process.Name, process.Status, process.CPUUtilization, process.RAMUtilization, process.DiskUtilization, process.ExecutionTime)
 	}*/
 
 	// Test Processes Get by newest collector == newest processes
-	/*var answer []Process = getProcessesByNewest()
+	/*var answer []process.Process = database.GetProcessesByNewest()
 
 	for _, process := range answer {
 
-		fmt.Printf("processID: %d, collectorID: %d, PID: %d,  name: %s, status: %s, cpuUsage: %f, memoryUsage: %f, diskUsage: %f, executionTime: %f\n",
-			process.processID, process.PID, process.collectorID, process.name, process.status, process.cpuUsage, process.memoryUsage, process.diskUsage, process.executionTime)
-	}
-	*/
-
-	// Test Processes Get by PID
-	/*var answer []Process = getProcessesByPID(6640)
-
-	for _, process := range answer {
-
-		fmt.Printf("processID: %d, collectorID: %d, PID: %d,  name: %s, status: %s, cpuUsage: %f, memoryUsage: %f, diskUsage: %f, executionTime: %f\n",
-			process.processID, process.PID, process.collectorID, process.name, process.status, process.cpuUsage, process.memoryUsage, process.diskUsage, process.executionTime)
-	}
-	*/
+		fmt.Printf("PID: %d,  name: %s, status: %s, cpuUsage: %.2f, memoryUsage: %.2f, diskUsage: %.2f, executionTime: %.2f\n",
+			process.PID, process.Name, process.Status, process.CPUUtilization, process.RAMUtilization, process.DiskUtilization, process.ExecutionTime)
+	}*/
 
 	// Test Processes Get by custom column and a string filed
-	/*var answer []Process = getProcessesByCustomStringField("name", "process2")
+	/*var answer []process.Process = database.GetProcessesByCustomStringField("name", "process2")
 
 	for _, process := range answer {
 
-		fmt.Printf("processID: %d, collectorID: %d, PID: %d,  name: %s, status: %s, cpuUsage: %f, memoryUsage: %f, diskUsage: %f, executionTime: %f\n",
-			process.processID, process.PID, process.collectorID, process.name, process.status, process.cpuUsage, process.memoryUsage, process.diskUsage, process.executionTime)
-	}
-	*/
-
-	// Test Processes Get by custom column and a string filed
-	/*var answer []Process = GetProcessesByCustomStringField("name", "process2")
-
-	for _, process := range answer {
-
-		fmt.Printf("processID: %d, collectorID: %d, PID: %d,  name: %s, status: %s, cpuUsage: %f, memoryUsage: %f, diskUsage: %f, executionTime: %f\n",
-			process.processID, process.PID, process.collectorID, process.name, process.status, process.cpuUsage, process.memoryUsage, process.diskUsage, process.executionTime)
-	}
-	*/
+		fmt.Printf("PID: %d,  name: %s, status: %s, cpuUsage: %.2f, memoryUsage: %.2f, diskUsage: %.2f, executionTime: %.2f\n",
+			process.PID, process.Name, process.Status, process.CPUUtilization, process.RAMUtilization, process.DiskUtilization, process.ExecutionTime)
+	}*/
 
 	// Test Processes Get by custom column and a float filed
-	/*var answer []Process = getProcessesByCustomFloatField("diskUsage", 99.99)
+	/*var answer []process.Process = database.GetProcessesByCustomFloatField("diskUsage", 99.99)
 
 	for _, process := range answer {
 
-		fmt.Printf("processID: %d, collectorID: %d, PID: %d,  name: %s, status: %s, cpuUsage: %.2f, memoryUsage: %.2f, diskUsage: %.2f, executionTime: %.2f\n",
-			process.processID, process.PID, process.collectorID, process.name, process.status, process.cpuUsage, process.memoryUsage, process.diskUsage, process.executionTime)
-	}
-	*/
+		fmt.Printf("PID: %d,  name: %s, status: %s, cpuUsage: %.2f, memoryUsage: %.2f, diskUsage: %.2f, executionTime: %.2f\n",
+			process.PID, process.Name, process.Status, process.CPUUtilization, process.RAMUtilization, process.DiskUtilization, process.ExecutionTime)
+	}*/
 
 	// Test Processes Get by custom column and a int filed
-	/*var answer []Process = GetProcessesByCustomIntField("collectorID", 1)
+	/*var answer []process.Process = database.GetProcessesByCustomIntField("collectorID", 1)
 	for _, process := range answer {
 
-		fmt.Printf("processID: %d, collectorID: %d, PID: %d,  name: %s, status: %s, cpuUsage: %.2f, memoryUsage: %.2f, diskUsage: %.2f, executionTime: %.2f\n",
-			process.processID, process.PID, process.collectorID, process.name, process.status, process.cpuUsage, process.memoryUsage, process.diskUsage, process.executionTime)
-	}
-	*/
+		fmt.Printf("PID: %d,  name: %s, status: %s, cpuUsage: %.2f, memoryUsage: %.2f, diskUsage: %.2f, executionTime: %.2f\n",
+			process.PID, process.Name, process.Status, process.CPUUtilization, process.RAMUtilization, process.DiskUtilization, process.ExecutionTime)
+	}*/
 
 	// Test Processes Put single
-	/*var holderProcess = Process{0, 0, 5540, "process0", "done", 00.00, 00.00, 00.00, 00.00}
+	/*var holderProcess = process.Process{PID: 5540, Name: "process0", CPUUtilization: 00.00, RAMUtilization: 00.00, DiskUtilization: 00.00, Status: "done", ExecutionTime: 00.00}
 
-	var rowsInsertedCount, error1 = putNewProcess(holderProcess)
+	var rowsInsertedCount, error1 = database.PutNewProcess(holderProcess)
 
 	fmt.Printf("rowsInsertedCount: %d ", rowsInsertedCount)
-	fmt.Println(error1)
-	*/
+	fmt.Println(error1)*/
 
 	// Test Collector Put single
 	/*var holderCollector = CollectorInsert{0, 0, 0}
