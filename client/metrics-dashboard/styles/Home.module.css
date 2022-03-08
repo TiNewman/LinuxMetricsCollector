@@ -28,6 +28,14 @@
   flex-grow: 1;
 }
 
+.h1 {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2%
+}
+
 .title a {
   color: #0070f3;
   text-decoration: none;
