@@ -39,12 +39,15 @@ func (c collector) Collect() {
 		return
 	}
 
+	// read process list from the proc file system
 	p, err := procfs.AllProcs()
 	if err != nil {
 		fmt.Printf("Could not get all processes: %v\n", err)
 	}
 	fmt.Printf("Number of processes: %v\n", p.Len())
 
+	// Calculate necessary values for each process and place them in a custom
+	// Process struct
 	for _, proc := range p {
 		// filter by UID ( get processes for current user only )
 		procStatus, err := proc.NewStatus()
@@ -64,6 +67,13 @@ func (c collector) Collect() {
 			return
 		}
 
+		// get the process name
+		pname, err := proc.Comm()
+		if err != nil {
+			fmt.Printf("Could not get process name: %v\n", err.Error())
+			return
+		}
+
 		// process schedule state: running, asleep, etc.
 		status := procstat.State
 
@@ -77,7 +87,7 @@ func (c collector) Collect() {
 		if err != nil {
 			fmt.Printf("Could not get IO metrics: %v\n", err)
 			//return
-			// set a negative value to signify N/A
+			// set a negative value to signify N/A?
 			readTotal = 0
 		} else {
 			readTotal = io.ReadBytes
@@ -90,23 +100,29 @@ func (c collector) Collect() {
 			return
 		}
 
+		// time the process started
 		starttime := time.Unix(int64(unixstarttime), 0)
 
 		// total process cpu time in seconds
 		cputime := procstat.CPUTime()
 
-		cpuUtilization := calcCPUUtilization(cputime, currentTime, starttime)
+		// total time the process has been running in seconds
+		executionTime := currentTime.Sub(starttime).Seconds()
 
-		fmt.Printf("Current Time: %v\n", currentTime)
-		fmt.Printf("Uid: %v, Process: %v, CPU Utilization: %v, Mem Usage: %v, Disk Usage: %v Status: %v, StartTime: %v\n", uids, proc.PID, cpuUtilization, float64(mem)/1000000, readTotal, status, starttime)
-		processList = append(processList, Process{PID: proc.PID, CPUUtilization: float32(cputime), RAMUtilization: float32(mem) / 1000000, DiskUtilization: 0.0 /*readTotal*/, Status: status, ExecutionTime: 0.0})
+		cpuUtilization := calcCPUUtilization(cputime, executionTime)
+
+		nextprocess := Process{PID: proc.PID, Name: pname, CPUUtilization: float32(cpuUtilization), RAMUtilization: float32(mem) / 1000000, DiskUtilization: float32(readTotal) / 1000000, Status: status, ExecutionTime: float32(executionTime)}
+
+		fmt.Printf("%+v\n", nextprocess)
+		processList = append(processList, nextprocess)
+
 	}
 	fmt.Printf("Processes in list: %v\n", len(processList))
 
 }
 
 // use cpu times to calculate the percent utilization of a given process
-func calcCPUUtilization(cputime float64, currentTime time.Time, startTime time.Time) float64 {
+func calcCPUUtilization(cputime float64, executionTime float64) float64 {
 	// total time = utime + stime -> cputime
 	/*
 		sysinfo = &syscall.Sysinfo_t{}
@@ -118,5 +134,5 @@ func calcCPUUtilization(cputime float64, currentTime time.Time, startTime time.T
 	// we have cpu time in seconds, not jiffies
 	// -> usage = 100 * (totaltime / seconds)
 
-	return 100 * (cputime / currentTime.Sub(startTime).Seconds())
+	return 100 * (cputime / executionTime)
 }
