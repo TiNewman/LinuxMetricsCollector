@@ -24,8 +24,8 @@ var upgrader = websocket.Upgrader{
 
 func Handler(process Collector, repository Repository) http.Handler {
 	fmt.Printf("Websocket Handler\n")
-	repository.PutNewCollector()
-	process.Collect()
+	// repository.PutNewCollector()
+	// process.Collect()
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/ws", wsEndpoint(process, repository))
@@ -44,7 +44,7 @@ func wsEndpoint(process Collector, repository Repository) func(http.ResponseWrit
 		fmt.Println("Client Connected!")
 		writeChan := make(chan string)
 		go reader(ws, writeChan)
-		writer(ws, writeChan)
+		writer(ws, writeChan, process, repository)
 		fmt.Printf("go routines: %v\n", runtime.NumGoroutine())
 	}
 }
@@ -64,7 +64,7 @@ func reader(conn *websocket.Conn, writeChan chan string) {
 	}
 }
 
-func writer(conn *websocket.Conn, c chan string) {
+func writer(conn *websocket.Conn, c chan string, process Collector, repository Repository) {
 	var lastWrite time.Time
 	count := 0
 	publish := true
@@ -88,7 +88,9 @@ func writer(conn *websocket.Conn, c chan string) {
 			}
 			lastWrite = now
 		default:
-			if publish && !lastWrite.IsZero() && now.Sub(lastWrite).Seconds() > 1 {
+			if publish && !lastWrite.IsZero() && now.Sub(lastWrite).Seconds() > 30 {
+				repository.PutNewCollector()
+				process.Collect()
 				err := conn.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("%d", count)))
 				if err != nil {
 					fmt.Println("Error writing message: ", err.Error())
