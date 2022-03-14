@@ -113,6 +113,10 @@ func (c collector) Collect() {
 
 		nextprocess := Process{PID: proc.PID, Name: pname, CPUUtilization: float32(cpuUtilization), RAMUtilization: float32(mem) / 1000000, DiskUtilization: float32(readTotal) / 1000000, Status: status, ExecutionTime: float32(executionTime)}
 
+		if c.r != nil {
+			c.r.PutNewProcess(nextprocess)
+		}
+
 		fmt.Printf("%+v\n", nextprocess)
 		processList = append(processList, nextprocess)
 

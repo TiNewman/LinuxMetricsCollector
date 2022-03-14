@@ -24,6 +24,6 @@ func main() {
 
 	// serve endpoints
 	fmt.Println("Starting Service")
-	router := websocket.Handler(pcollector)
+	router := websocket.Handler(pcollector, s)
 	http.ListenAndServe(":8080", router)
 }

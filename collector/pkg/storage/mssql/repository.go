@@ -273,7 +273,7 @@ func (s *Storage) GetCollectorIDNewest() int {
 //  Return:
 //  	(int) rows inserted.
 //  	(error) any error, this should be 'nil'.
-func (s *Storage) PutNewCollector(singleCollector CollectorInsert) (int64, error) {
+func (s *Storage) PutNewCollector() (int64, error) {
 
 	//OpenDBConnection()
 

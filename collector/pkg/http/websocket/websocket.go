@@ -13,13 +13,18 @@ type Collector interface {
 	Collect()
 }
 
+type Repository interface {
+	PutNewCollector() (int64, error)
+}
+
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 }
 
-func Handler(process Collector) http.Handler {
+func Handler(process Collector, repository Repository) http.Handler {
 	fmt.Printf("Websocket Handler\n")
+	repository.PutNewCollector()
 	process.Collect()
 
 	mux := http.NewServeMux()
