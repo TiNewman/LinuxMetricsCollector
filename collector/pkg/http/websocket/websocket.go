@@ -28,23 +28,25 @@ func Handler(process Collector, repository Repository) http.Handler {
 	process.Collect()
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/ws", wsEndpoint)
+	mux.HandleFunc("/ws", wsEndpoint(process, repository))
 
 	return mux
 }
 
-func wsEndpoint(w http.ResponseWriter, r *http.Request) {
-	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
+func wsEndpoint(process Collector, repository Repository) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 
-	ws, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		fmt.Println("Error upgrading connection: ", err.Error())
+		ws, err := upgrader.Upgrade(w, r, nil)
+		if err != nil {
+			fmt.Println("Error upgrading connection: ", err.Error())
+		}
+		fmt.Println("Client Connected!")
+		writeChan := make(chan string)
+		go reader(ws, writeChan)
+		writer(ws, writeChan)
+		fmt.Printf("go routines: %v\n", runtime.NumGoroutine())
 	}
-	fmt.Println("Client Connected!")
-	writeChan := make(chan string)
-	go reader(ws, writeChan)
-	writer(ws, writeChan)
-	fmt.Printf("go routines: %v\n", runtime.NumGoroutine())
 }
 
 func reader(conn *websocket.Conn, writeChan chan string) {
