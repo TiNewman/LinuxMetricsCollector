@@ -1,5 +1,5 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import { Server } from 'Socket.IO'
+import { Server } from 'socket.io'
 
 const SocketHandler = (req, res) => {
   if (res.socket.server.io) {

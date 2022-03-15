@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
-import io from 'Socket.IO-client'
+import io from 'socket.io-client'
 import styles from '../styles/Home.module.css'
 //This will be the file for the main dashboard view with all of the elements
 

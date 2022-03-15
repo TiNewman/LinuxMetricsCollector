@@ -1,16 +1,18 @@
 package websocket
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"runtime"
 	"time"
 
+	"github.com/TiNewman/LinuxMetricsCollector/pkg/process"
 	"github.com/gorilla/websocket"
 )
 
 type Collector interface {
-	Collect()
+	Collect() []process.Process
 }
 
 type Repository interface {
@@ -49,6 +51,10 @@ func wsEndpoint(process Collector, repository Repository) func(http.ResponseWrit
 	}
 }
 
+type clientreq struct {
+	Request string `json:"request"`
+}
+
 func reader(conn *websocket.Conn, writeChan chan string) {
 	for {
 		_, p, err := conn.ReadMessage()
@@ -58,8 +64,14 @@ func reader(conn *websocket.Conn, writeChan chan string) {
 		}
 
 		fmt.Println("Message Received: ", string(p))
+		var req clientreq
+		err = json.Unmarshal(p, &req)
+		if err != nil {
+			fmt.Printf("Error Decoding JSON Request: %v\n", err.Error())
+		}
+		fmt.Printf("%+v\n", req)
 
-		writeChan <- string(p)
+		writeChan <- string(req.Request)
 
 	}
 }
@@ -72,6 +84,9 @@ func writer(conn *websocket.Conn, c chan string, process Collector, repository R
 		now := time.Now()
 		select {
 		case m := <-c:
+			if m == "process_list" {
+				publish = true
+			}
 			if m == "quit" {
 				fmt.Println("Stopping message stream...")
 				publish = false
@@ -81,17 +96,22 @@ func writer(conn *websocket.Conn, c chan string, process Collector, repository R
 				publish = true
 			}
 			fmt.Printf("writer received message: %v\n", m)
-			err := conn.WriteMessage(websocket.TextMessage, []byte("Hello from server"))
-			if err != nil {
-				fmt.Println("Error writing message: ", err.Error())
-				return
-			}
 			lastWrite = now
 		default:
 			if publish && !lastWrite.IsZero() && now.Sub(lastWrite).Seconds() > 30 {
 				repository.PutNewCollector()
-				process.Collect()
-				err := conn.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("%d", count)))
+				processes := process.Collect()
+
+				response := make(map[string]interface{})
+
+				response["process_list"] = processes
+
+				jsonResponse, err := json.Marshal(response)
+				if err != nil {
+					fmt.Printf("Cannot Marshal Processes to JSON")
+					return
+				}
+				err = conn.WriteMessage(websocket.TextMessage, jsonResponse)
 				if err != nil {
 					fmt.Println("Error writing message: ", err.Error())
 					return

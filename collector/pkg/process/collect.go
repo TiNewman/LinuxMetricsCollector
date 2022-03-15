@@ -30,13 +30,13 @@ func NewProcessCollectorWithoutRepo() collector {
 	return collector{}
 }
 
-func (c collector) Collect() {
+func (c collector) Collect() []Process {
 	currentTime := time.Now()
 	processList := []Process{}
 	currentUser, err := user.Current()
 	if err != nil {
 		fmt.Printf("Cannot determine current user: %v\n", err.Error())
-		return
+		return processList
 	}
 
 	// read process list from the proc file system
@@ -53,7 +53,7 @@ func (c collector) Collect() {
 		procStatus, err := proc.NewStatus()
 		if err != nil {
 			fmt.Printf("Could not get uids of process: %v\n", err.Error())
-			return
+			return processList
 		}
 		uids := procStatus.UIDs
 		if currentUser.Uid != uids[0] {
@@ -64,14 +64,14 @@ func (c collector) Collect() {
 
 		if err != nil {
 			fmt.Printf("Could not get process status: %v\n", err.Error())
-			return
+			return processList
 		}
 
 		// get the process name
 		pname, err := proc.Comm()
 		if err != nil {
 			fmt.Printf("Could not get process name: %v\n", err.Error())
-			return
+			return processList
 		}
 
 		// process schedule state: running, asleep, etc.
@@ -97,7 +97,7 @@ func (c collector) Collect() {
 		unixstarttime, err := procstat.StartTime()
 		if err != nil {
 			fmt.Printf("Could not get start time of process: %v\n", err.Error())
-			return
+			return processList
 		}
 
 		// time the process started
@@ -122,6 +122,7 @@ func (c collector) Collect() {
 
 	}
 	fmt.Printf("Processes in list: %v\n", len(processList))
+	return processList
 
 }
 

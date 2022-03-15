@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { useCallback, useEffect, useState } from 'react'
-import io from 'Socket.IO-client'
+import io from 'socket.io-client'
 import processListStyles from '../styles/Process_List.module.css'
 
 let socket
@@ -35,8 +35,9 @@ const processListView = props => {
   useEffect(() => socketInitializer(), [])
 
   const socketInitializer = async () => {
-    await fetch('/api/socket');
-    socket = io() //point socket to his here
+    //await fetch('/api/socket');
+    //socket = io('http://localhost:8080/ws') //point socket to his here
+    const socket = new WebSocket("ws://localhost:8080/ws");
     /*
     socket.on('connect', () => {
       setMessage('Connected')
@@ -45,18 +46,25 @@ const processListView = props => {
     socket.onmessage = (e) => {
       setMessage("Get message from server: " + e.data)
     };
-    */
     socket.on('connect', () => {
       //as soon as connection happens, send request for process list
+      console.log("connected to socket server")
       socket.send(JSON.stringify({
             "request": "process_list"
       }))
     })
 
+    */
+
+    socket.onopen = () => {
+      socket.send(JSON.stringify({"request": "process_list"}))
+    };
+
     socket.onmessage = (e) => {
-      var processArray = JSON.parse(e)// might need to be e.data
+      console.log("Received Message!: " + e.data)
+      var processArray = JSON.parse(e.data)// might need to be e.data
       for (var i = 0; i < processArray.process_list.length; i++) {
-          var process = processArray.process_list.counters[i];
+          var process = processArray.process_list[i];
           console.log(process.Name);
           createTableRow(process) //pass each process in and create a row for it
       }
