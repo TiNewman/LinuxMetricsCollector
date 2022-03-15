@@ -60,6 +60,10 @@ const processListView = props => {
           console.log(process.Name);
           createTableRow(process) //pass each process in and create a row for it
       }
+    }
+
+    return () => {
+      socket.close()
     };
   }
 
