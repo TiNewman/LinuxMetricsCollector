@@ -1,9 +1,12 @@
-//import '../styles/globals.css'
-import "assets/scss/nextjs-material-dashboard-pro.scss?v=1.0.0";
-
+import Layout from '../components/Layout'
+import '../styles/globals.css'
 
 function MyApp({ Component, pageProps }) {
-  return <Component {...pageProps} />
+  return (
+    <Layout>
+      <Component {...pageProps} />
+    </Layout>
+  )
 }
 
 export default MyApp
