@@ -22,6 +22,10 @@ type collector struct {
 	r Repository
 }
 
+type Collector interface {
+	Collect() []Process
+}
+
 func NewProcessCollector(repo Repository) collector {
 	return collector{repo}
 }

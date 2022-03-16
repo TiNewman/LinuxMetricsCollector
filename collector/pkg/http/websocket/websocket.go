@@ -11,10 +11,6 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-type Collector interface {
-	Collect() []process.Process
-}
-
 type Repository interface {
 	PutNewCollector() (int64, error)
 }
@@ -24,10 +20,8 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
-func Handler(process Collector, repository Repository) http.Handler {
+func Handler(process process.Collector, repository Repository) http.Handler {
 	fmt.Printf("Websocket Handler\n")
-	// repository.PutNewCollector()
-	// process.Collect()
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/ws", wsEndpoint(process, repository))
@@ -35,7 +29,7 @@ func Handler(process Collector, repository Repository) http.Handler {
 	return mux
 }
 
-func wsEndpoint(process Collector, repository Repository) func(http.ResponseWriter, *http.Request) {
+func wsEndpoint(process process.Collector, repository Repository) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 
@@ -76,7 +70,7 @@ func reader(conn *websocket.Conn, writeChan chan string) {
 	}
 }
 
-func writer(conn *websocket.Conn, c chan string, process Collector, repository Repository) {
+func writer(conn *websocket.Conn, c chan string, process process.Collector, repository Repository) {
 	var lastWrite time.Time
 	count := 0
 	publish := true
@@ -120,5 +114,6 @@ func writer(conn *websocket.Conn, c chan string, process Collector, repository R
 				lastWrite = now
 			}
 		}
+		time.Sleep(30 * time.Second)
 	}
 }
