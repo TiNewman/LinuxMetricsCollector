@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { useCallback, useEffect, useState } from 'react'
 import io from 'socket.io-client'
 import processListStyles from '../styles/Process_List.module.css'
+import Table from "../components/Table";
 
 let socket
 let html = (
@@ -28,33 +29,14 @@ let html = (
 )
 
 const processListView = props => {
-  //const [message, setMessage] = useState('')
   //use this to store the process list stuff
-  //const [process_list, setProcessList] = useState('')
+  /*
+  const [process_list, setProcessList] = useState('')
 
   useEffect(() => socketInitializer(), [])
 
   const socketInitializer = async () => {
-    //await fetch('/api/socket');
-    //socket = io('http://localhost:8080/ws') //point socket to his here
     const socket = new WebSocket("ws://localhost:8080/ws");
-    /*
-    socket.on('connect', () => {
-      setMessage('Connected')
-    })
-
-    socket.onmessage = (e) => {
-      setMessage("Get message from server: " + e.data)
-    };
-    socket.on('connect', () => {
-      //as soon as connection happens, send request for process list
-      console.log("connected to socket server")
-      socket.send(JSON.stringify({
-            "request": "process_list"
-      }))
-    })
-
-    */
 
     socket.onopen = () => {
       socket.send(JSON.stringify({"request": "process_list"}))
@@ -70,46 +52,33 @@ const processListView = props => {
       }
     }
 
+    socket.onmessage = (e) => {
+      console.log("Received Message!: " + e.data)
+      setProcessList(e.data)
+    }
+
     return () => {
       socket.close()
     };
-  }
+  }*/
 
-  const createTableRow = (process) => {
-    //declare the new row elements
-    const tableRow = document.createElement("tr")
-    const pid = document.createElement("td")
-    const name = document.createElement("td")
-    const cpu = document.createElement("td")
-    const ram = document.createElement("td")
-    const disk = document.createElement("td")
-    const status = document.createElement("td")
-    const uptime = document.createElement("td")
+  const response = {"process_list":[{"PID":1611,"Name":"systemd","CPUUtilization":0.006125288,"RAMUtilization":14.983168,"DiskUtilization":37.363712,"Status":"S","ExecutionTime":6367.0474},{"PID":1616,"Name":"(sd-pam)","CPUUtilization":0,"RAMUtilization":6.770688,"DiskUtilization":0,"Status":"S","ExecutionTime":6367.0474},{"PID":1635,"Name":"gnome-keyring-d","CPUUtilization":0.0039270837,"RAMUtilization":7.708672,"DiskUtilization":0.106496,"Status":"S","ExecutionTime":6366.0474},{"PID":1649,"Name":"gdm-wayland-ses","CPUUtilization":0,"RAMUtilization":6.004736,"DiskUtilization":0,"Status":"S","ExecutionTime":6366.0474},{"PID":1652,"Name":"dbus-broker-lau","CPUUtilization":0.00015708334,"RAMUtilization":4.657152,"DiskUtilization":0,"Status":"S","ExecutionTime":6366.0474},{"PID":1654,"Name":"dbus-broker","CPUUtilization":0.00989625,"RAMUtilization":5.541888,"DiskUtilization":0,"Status":"S","ExecutionTime":6366.0474},{"PID":1656,"Name":"gnome-session-b","CPUUtilization":0.00015708334,"RAMUtilization":18.190336,"DiskUtilization":0.258048,"Status":"S","ExecutionTime":6366.0474}]}
+  const process_list = [{"PID":1611,"Name":"systemd","CPUUtilization":0.006125288,"RAMUtilization":14.983168,"DiskUtilization":37.363712,"Status":"S","ExecutionTime":6367.0474},{"PID":1616,"Name":"(sd-pam)","CPUUtilization":0,"RAMUtilization":6.770688,"DiskUtilization":0,"Status":"S","ExecutionTime":6367.0474},{"PID":1635,"Name":"gnome-keyring-d","CPUUtilization":0.0039270837,"RAMUtilization":7.708672,"DiskUtilization":0.106496,"Status":"S","ExecutionTime":6366.0474},{"PID":1649,"Name":"gdm-wayland-ses","CPUUtilization":0,"RAMUtilization":6.004736,"DiskUtilization":0,"Status":"S","ExecutionTime":6366.0474},{"PID":1652,"Name":"dbus-broker-lau","CPUUtilization":0.00015708334,"RAMUtilization":4.657152,"DiskUtilization":0,"Status":"S","ExecutionTime":6366.0474},{"PID":1654,"Name":"dbus-broker","CPUUtilization":0.00989625,"RAMUtilization":5.541888,"DiskUtilization":0,"Status":"S","ExecutionTime":6366.0474},{"PID":1656,"Name":"gnome-session-b","CPUUtilization":0.00015708334,"RAMUtilization":18.190336,"DiskUtilization":0.258048,"Status":"S","ExecutionTime":6366.0474}]
+  console.log(process_list)
 
-    //set the values of the process in the correct column
-    pid.innerHTML = process.PID
-    name.innerHTML = process.Name
-    cpu.innerHTML = process.CPU
-    ram.innerHTML = process.RAM
-    disk.innerHTML = process.DISK
-    status.innerHTML = process.STATUS
-    uptime.innerHTML = process.UpTime
+  const column = [
+    { heading: 'PID', value: 'PID' },
+    { heading: 'Name', value:'Name' },
+    { heading: 'CPU Utilization', value:'CPUUtilization'},
+    { heading: 'RAM Utilization', value:'RAMUtilization'},
+    { heading: 'Disk Utilization', value:'DiskUtilization'},
+    { heading: 'Status', value:'Status'},
+    { heading: 'Up Time', value:'ExecutionTime' },
+  ]
 
-    //append the columns to the row
-    tableRow.appendChild(pid)
-    tableRow.appendChild(name)
-    tableRow.appendChild(cpu)
-    tableRow.appendChild(ram)
-    tableRow.appendChild(disk)
-    tableRow.appendChild(status)
-    tableRow.appendChild(uptime)
-
-    //append the row to the html table body
-    const tableBody = html.getElementbyId("pTableBody")
-    tableBody.appendChild(tableRow)
-  }
-
-  return html
+  return (
+    <Table data={process_list} column={column}/>
+  )
 }
 
 export default processListView;
