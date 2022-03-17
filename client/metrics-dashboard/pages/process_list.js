@@ -5,28 +5,6 @@ import processListStyles from '../styles/Process_List.module.css'
 import Table from "../components/Table";
 
 let socket
-let html = (
- <div>
-   <h1 className={processListStyles.h1}> Process List </h1>
-   <div className="overflow-x-auto flex flex-col justify-center items-center">
-     <table className="table">
-       <thead>
-         <tr>
-           <th>PID</th>
-           <th>Name</th>
-           <th>CPU</th>
-           <th>RAM</th>
-           <th>Disk</th>
-           <th>Status</th>
-           <th>Execution Time</th>
-         </tr>
-       </thead>
-       <tbody className="scroll-smooth" id="pTableBody">
-       </tbody>
-     </table>
-   </div>
- </div>
-)
 
 const processListView = props => {
   //use this to store the process list stuff
