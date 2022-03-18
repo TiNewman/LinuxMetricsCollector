@@ -3,82 +3,53 @@ import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import io from 'socket.io-client'
 import styles from '../styles/Home.module.css'
+import Table from "../components/Table";
 //This will be the file for the main dashboard view with all of the elements
 
 // pages/index.js
 
-import Link from 'next/link'
 import Layout from "../components/Layout";
 
 let socket
 
 const Index = () => {
-  const [message, setMessage] = useState('')
-  const [process_list, setProcessList] = useState('')
+   //use this to store the process list stuff
+   const [process_list, setProcessList] = useState([])
 
-  useEffect(() => socketInitializer(), [])
+   useEffect(() => socketInitializer(), [])
 
-  const socketInitializer = async () => {
-    await fetch('/api/socket');
-    socket = io() //point socket to his here
+   const socketInitializer = async () => {
+     const socket = new WebSocket("ws://localhost:8080/ws");
 
-    //might need to use the set message to store the incoming data -- declare variable?
-    socket.on('connect', () => {
-      setMessage('Connected')
-    })
+     socket.onopen = () => {
+       socket.send(JSON.stringify({"request": "process_list"}))
+     };
 
-    socket.onmessage = (e) => {
-          setMessage("Get message from server: " + e.data)
-    };
+     socket.onmessage = (e) => {
+       console.log("Received Message!: " + e.data)
+       var processJSON = JSON.parse(e.data)// might need to be e.data
+       setProcessList(processJSON.process_list)
+     }
 
-    socket.on('connect', () => {
-          setProcessList()
-        })
+     return () => {
+       console.log("closing socket")
+       socket.send(JSON.stringify({"request": "stop"}))
+       socket.close()
+     };
+   }
 
-    socket.onmessage = (e) => {
-          setProcessList("Get message from server: " + e.data)
-    };
+     //const response = {"process_list":[{"PID":1611,"Name":"systemd"},{"PID":1616,"Name":"(sd-pam)"},{"PID":1635,"Name":"gnome-keyring-d"},{"PID":1649,"Name":"gdm-wayland-ses"},{"PID":1652,"Name":"dbus-broker-lau"},{"PID":1654,"Name":"dbus-broker"},{"PID":1656,"Name":"gnome-session-b"}]}
+     //const responseArray = response.process_list
+     //console.log(responseArray)
 
-  }
+
+   const column = [
+       { heading: 'PID', value: 'PID' },
+       { heading: 'Name', value:'Name' },
+     ]
 
   return (
-    <div>
-        <h1 className={styles.h1}> Welcome to Linux Metrics Dashboard!</h1>
-         <div className="overflow-x-auto flex flex-col justify-center items-center">
-           <Link href="/process_list">
-           <table className="table">
-             <thead>
-               <tr>
-                 <th>PID</th>
-                 <th>Name</th>
-               </tr>
-             </thead>
-             <tbody>
-               <tr className="hover">
-                 <th>1</th>
-                 <td>{message}</td>
-               </tr>
-               <tr className="hover">
-                 <th>2</th>
-                 <td></td>
-               </tr>
-               <tr className="hover">
-                 <th>3</th>
-                 <td></td>
-               </tr>
-               <tr className="hover">
-                 <th>4</th>
-                 <td></td>
-               </tr>
-               <tr className="hover">
-                 <th>5</th>
-                 <td></td>
-               </tr>
-             </tbody>
-           </table>
-           </Link>
-         </div>
-      </div>
+    <Table data={process_list} column={column}/>
   )
 }
 
