@@ -1,19 +1,22 @@
 import TableScrollbar from 'react-table-scrollbar'
+import Link from 'next/link'
 
 const Table = ({ data, column }) => (
   <div>
      <div className="overflow-x-auto flex flex-col p-5 justify-center table-zebra items-center">
        <TableScrollbar height="500px">
-       <table className="table">
-         <thead>
-           <tr>
-             {column.map((item, index) => <TableHeadItem key={item.heading} item={item}/>)}
-           </tr>
-         </thead>
-         <tbody>
-           {data.map((item, index) => <TableRow key={item.PID} item={item} column={column} />)}
-         </tbody>
-       </table>
+         <Link href="/process_list">
+           <table className="table border-4 border-secondary-content bg-secondary">
+             <thead>
+               <tr>
+                 {column.map((item, index) => <TableHeadItem key={item.heading} item={item}/>)}
+               </tr>
+             </thead>
+             <tbody>
+               {data.map((item, index) => <TableRow key={item.PID} item={item} column={column} />)}
+             </tbody>
+           </table>
+         </Link>
        </TableScrollbar>
      </div>
    </div>
