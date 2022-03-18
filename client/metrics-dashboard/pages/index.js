@@ -13,7 +13,6 @@ import Layout from "../components/Layout";
 let socket
 
 const Index = () => {
-/*
    //use this to store the process list stuff
    const [process_list, setProcessList] = useState('')
 
@@ -37,11 +36,10 @@ const Index = () => {
        socket.close()
      };
    }
-*/
 
-     const response = {"process_list":[{"PID":1611,"Name":"systemd"},{"PID":1616,"Name":"(sd-pam)"},{"PID":1635,"Name":"gnome-keyring-d"},{"PID":1649,"Name":"gdm-wayland-ses"},{"PID":1652,"Name":"dbus-broker-lau"},{"PID":1654,"Name":"dbus-broker"},{"PID":1656,"Name":"gnome-session-b"}]}
-     const responseArray = response.process_list
-     console.log(responseArray)
+     //const response = {"process_list":[{"PID":1611,"Name":"systemd"},{"PID":1616,"Name":"(sd-pam)"},{"PID":1635,"Name":"gnome-keyring-d"},{"PID":1649,"Name":"gdm-wayland-ses"},{"PID":1652,"Name":"dbus-broker-lau"},{"PID":1654,"Name":"dbus-broker"},{"PID":1656,"Name":"gnome-session-b"}]}
+     //const responseArray = response.process_list
+     //console.log(responseArray)
 
 
    const column = [
