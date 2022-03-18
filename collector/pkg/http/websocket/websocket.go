@@ -114,6 +114,6 @@ func writer(conn *websocket.Conn, c chan string, process process.Collector, repo
 				lastWrite = now
 			}
 		}
-		time.Sleep(30 * time.Second)
+		time.Sleep(1 * time.Second)
 	}
 }

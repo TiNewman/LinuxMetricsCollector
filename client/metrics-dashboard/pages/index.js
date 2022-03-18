@@ -14,7 +14,7 @@ let socket
 
 const Index = () => {
    //use this to store the process list stuff
-   const [process_list, setProcessList] = useState('')
+   const [process_list, setProcessList] = useState([])
 
    useEffect(() => socketInitializer(), [])
 
@@ -33,6 +33,7 @@ const Index = () => {
 
      return () => {
        console.log("closing socket")
+       socket.send(JSON.stringify({"request": "stop"}))
        socket.close()
      };
    }
@@ -48,7 +49,7 @@ const Index = () => {
      ]
 
   return (
-    <Table data={responseArray} column={column}/>
+    <Table data={process_list} column={column}/>
   )
 }
 
