@@ -52,9 +52,22 @@ type clientreq struct {
 func reader(conn *websocket.Conn, writeChan chan string) {
 	for {
 		_, p, err := conn.ReadMessage()
+
 		if err != nil {
-			fmt.Println("Error reading message: ", err.Error())
-			return
+			if ce, ok := err.(*websocket.CloseError); ok {
+				switch ce.Code {
+				case websocket.CloseNormalClosure,
+					websocket.CloseGoingAway,
+					websocket.CloseNoStatusReceived:
+					fmt.Println("Connection closed by client")
+					writeChan <- fmt.Sprint("stop")
+					conn.Close()
+					return
+				}
+			} else {
+				fmt.Printf("Error reading message: %v\n", err.Error())
+				continue
+			}
 		}
 
 		fmt.Println("Message Received: ", string(p))
@@ -73,7 +86,7 @@ func reader(conn *websocket.Conn, writeChan chan string) {
 func writer(conn *websocket.Conn, c chan string, process process.Collector, repository Repository) {
 	var lastWrite time.Time
 	count := 0
-	publish := true
+	publish := false
 	for {
 		now := time.Now()
 		select {
@@ -81,13 +94,9 @@ func writer(conn *websocket.Conn, c chan string, process process.Collector, repo
 			if m == "process_list" {
 				publish = true
 			}
-			if m == "quit" {
+			if m == "stop" {
 				fmt.Println("Stopping message stream...")
 				publish = false
-			}
-			if m == "start" {
-				fmt.Println("Start message stream")
-				publish = true
 			}
 			fmt.Printf("writer received message: %v\n", m)
 			lastWrite = now
