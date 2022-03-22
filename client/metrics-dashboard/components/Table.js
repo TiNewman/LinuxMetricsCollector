@@ -6,7 +6,7 @@ const Table = ({ data, column }) => (
      <div className="overflow-x-auto flex flex-col p-5 justify-center table-zebra items-center">
        <TableScrollbar height="500px">
          <Link href="/process_list">
-           <table className="table border-4 border-secondary-content bg-secondary">
+           <table className="table border-4 border-accent bg-primary">
              <thead>
                <tr>
                  {column.map((item, index) => <TableHeadItem key={item.heading} item={item}/>)}
