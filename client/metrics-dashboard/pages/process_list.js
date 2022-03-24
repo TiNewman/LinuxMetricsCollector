@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { useCallback, useEffect, useState } from 'react'
 import io from 'socket.io-client'
 import processListStyles from '../styles/Process_List.module.css'
-import Table from "../components/Table";
+import Table from "../components/ProcessTable";
 
 let socket
 

@@ -3,7 +3,7 @@ import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import io from 'socket.io-client'
 import styles from '../styles/Home.module.css'
-import Table from "../components/Table";
+import Table from "../components/ProcessTable-Dashboard";
 //This will be the file for the main dashboard view with all of the elements
 
 // pages/index.js
@@ -50,7 +50,10 @@ const Index = () => {
      ]
 
   return (
-    <Table data={process_list} column={column}/>
+     <div>
+       <h1 className={styles.h1}> Process List </h1>
+       <Table data={process_list} column={column}/>
+     </div>
   )
 }
 
