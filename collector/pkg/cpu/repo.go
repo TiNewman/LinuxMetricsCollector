@@ -2,6 +2,6 @@ package cpu
 
 type Repository interface {
 	// retrieve from database
-	GetCPUs() CPU
+	GetCPUs() []CPU
 	// create record
 }

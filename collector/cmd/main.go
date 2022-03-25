@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/TiNewman/LinuxMetricsCollector/pkg/cpu"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/http/websocket"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/process"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/storage/mssql"
@@ -23,9 +24,10 @@ func main() {
 	// initialize collectors
 	//pcollector := process.NewProcessCollectorWithoutRepo()
 	pcollector := process.NewProcessCollector(s)
+	cpuCollector := cpu.NewCPUCollector(s)
 
 	// serve endpoints
 	fmt.Println("Starting Service")
-	router := websocket.Handler(pcollector, s)
+	router := websocket.Handler(pcollector, cpuCollector, s)
 	http.ListenAndServe(":8080", router)
 }
