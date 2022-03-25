@@ -31,10 +31,22 @@ func (c collector) Collect() []CPU {
 
 	info, err := fs.CPUInfo()
 	if err != nil {
-		fmt.Printf("Could not get all processes: %v\n", err)
+		fmt.Printf("Could not get CPU info: %v\n", err)
 	}
-	fmt.Printf("%v", len(info))
+	fmt.Printf("%v\n", len(info))
+	fmt.Printf("%+v\n", info[0])
 
-	result := []CPU{}
-	return result
+	stat, err := fs.Stat()
+	if err != nil {
+		fmt.Printf("Could not get CPU stat: %v\n", err)
+	}
+	fmt.Printf("%+v\n", stat)
+
+	/*
+		for _, cpu := range info {
+			fmt.Printf("%+v\n", cpu)
+		}
+	*/
+
+	return []CPU{}
 }
