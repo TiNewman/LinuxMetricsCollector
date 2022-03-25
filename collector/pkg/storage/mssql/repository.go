@@ -19,6 +19,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/TiNewman/LinuxMetricsCollector/pkg/cpu"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/process"
 	_ "github.com/denisenkom/go-mssqldb"
 )
@@ -121,7 +122,7 @@ func (s *Storage) CloseDBConnection() {
 //
 //  Return:
 //  	([]Cpu) all current CPUs.
-func (s *Storage) GetCPUs() []Cpu {
+func (s *Storage) GetCPUs() []cpu.CPU {
 
 	//OpenDBConnection()
 
@@ -142,7 +143,7 @@ func (s *Storage) GetCPUs() []Cpu {
 
 	//CloseDBConnection()
 
-	var toReturn []Cpu
+	var toReturn []cpu.CPU
 
 	// Iterate through the result set.
 	for rows.Next() {
@@ -158,7 +159,7 @@ func (s *Storage) GetCPUs() []Cpu {
 			log.Fatal(err.Error())
 		}
 
-		singleInput := Cpu{cpuID, usage, availability}
+		singleInput := cpu.CPU{Usage: usage, Availability: availability}
 		toReturn = append(toReturn, singleInput)
 	}
 
