@@ -15,10 +15,13 @@ type service struct {
 	c cpu.Collector
 }
 
+type Metric struct {
+	processes []process.Process
+	cpu       []cpu.CPU
+}
+
 type Repository interface {
-	process.Repository
-	cpu.Repository
-	PutNewCollector() (int64, error)
+	PutMetric()
 }
 
 func NewService(proc process.Collector, cpu cpu.Collector, repo Repository) service {
@@ -29,7 +32,9 @@ func (s service) Collect() ([]cpu.CPU, []process.Process) {
 	CPUInfo := s.c.Collect()
 	// call cpu database code (remove database injection from cpu collector)?
 	// or return new row id from cpu Collect
-	s.r.PutNewCollector()
+
+	//s.r.PutNewCollector()
+
 	processes := s.p.Collect()
 	// call process database code (remove database injection from process collector)?
 	return CPUInfo, processes
