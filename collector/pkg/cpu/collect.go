@@ -2,6 +2,7 @@ package cpu
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/prometheus/procfs"
 )
@@ -20,7 +21,7 @@ type Collector interface {
 }
 
 func NewCPUCollector(repo Repository) collector {
-	return collector{repo}
+	return collector{r: repo}
 }
 
 func (c collector) Collect() []CPU {
@@ -36,30 +37,44 @@ func (c collector) Collect() []CPU {
 		fmt.Printf("Could not get CPU info: %v\n", err)
 	}
 	fmt.Printf("%v\n", len(info))
-	fmt.Printf("%+v\n", info[0])
+	// fmt.Printf("%+v\n", info[0])
 
-	stat, err := fs.Stat()
+	startStat, err := fs.Stat()
 	if err != nil {
 		fmt.Printf("Could not get CPU stat: %v\n", err)
 	}
-	fmt.Printf("%+v\n", stat)
 
-	totalUsage := calculateUsage(stat.CPUTotal)
+	time.Sleep(time.Second)
+
+	endStat, err := fs.Stat()
+	if err != nil {
+		fmt.Printf("Could not get CPU stat: %v\n", err)
+	}
+	// fmt.Printf("%+v\n", stat)
+
+	totalUsage := calculateUsage(startStat.CPUTotal, endStat.CPUTotal)
 
 	result = append(result, CPU{Usage: totalUsage, Availability: 0})
 
-	for _, cpu := range stat.CPU {
-		coreUsage := calculateUsage(cpu)
+	for i := range startStat.CPU {
+		coreUsage := calculateUsage(startStat.CPU[i], endStat.CPU[i])
 		result = append(result, CPU{Usage: coreUsage, Availability: 0})
 	}
+
+	fmt.Printf("%+v\n", result)
 
 	return result
 }
 
-func calculateUsage(stat procfs.CPUStat) float32 {
+func calculateUsage(start procfs.CPUStat, end procfs.CPUStat) float32 {
 
-	active := stat.User + stat.System + stat.Iowait
-	total := active + stat.Idle
+	userDiff := end.User - start.User
+	sysDiff := end.System - start.System
+	ioDiff := end.Iowait - start.Iowait
+	idleDiff := end.Idle - start.Idle
+
+	active := userDiff + sysDiff + ioDiff
+	total := active + idleDiff
 
 	usage := (active / total) * 100
 

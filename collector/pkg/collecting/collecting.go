@@ -21,7 +21,7 @@ type Metric struct {
 }
 
 type Repository interface {
-	PutMetric()
+	PutMetric([]cpu.CPU, []process.Process)
 }
 
 func NewService(proc process.Collector, cpu cpu.Collector, repo Repository) service {
@@ -33,9 +33,14 @@ func (s service) Collect() ([]cpu.CPU, []process.Process) {
 	// call cpu database code (remove database injection from cpu collector)?
 	// or return new row id from cpu Collect
 
+	// Old approach
 	//s.r.PutNewCollector()
 
 	processes := s.p.Collect()
 	// call process database code (remove database injection from process collector)?
+
+	// New approach
+	s.r.PutMetric(CPUInfo, processes)
+
 	return CPUInfo, processes
 }
