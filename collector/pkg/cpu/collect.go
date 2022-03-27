@@ -24,6 +24,8 @@ func NewCPUCollector(repo Repository) collector {
 }
 
 func (c collector) Collect() []CPU {
+	result := []CPU{}
+
 	fs, err := procfs.NewDefaultFS()
 	if err != nil {
 		fmt.Printf("Cannot locate proc mount %v", err.Error())
@@ -42,11 +44,24 @@ func (c collector) Collect() []CPU {
 	}
 	fmt.Printf("%+v\n", stat)
 
-	/*
-		for _, cpu := range info {
-			fmt.Printf("%+v\n", cpu)
-		}
-	*/
+	totalUsage := calculateUsage(stat.CPUTotal)
 
-	return []CPU{}
+	result = append(result, CPU{Usage: totalUsage, Availability: 0})
+
+	for _, cpu := range stat.CPU {
+		coreUsage := calculateUsage(cpu)
+		result = append(result, CPU{Usage: coreUsage, Availability: 0})
+	}
+
+	return result
+}
+
+func calculateUsage(stat procfs.CPUStat) float32 {
+
+	active := stat.User + stat.System + stat.Iowait
+	total := active + stat.Idle
+
+	usage := (active / total) * 100
+
+	return float32(usage)
 }
