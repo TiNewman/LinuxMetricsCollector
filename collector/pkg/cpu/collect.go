@@ -23,6 +23,10 @@ func NewCPUCollector(repo Repository) collector {
 	return collector{r: repo}
 }
 
+func NewCPUCollectorWithoutRepo() collector {
+	return collector{}
+}
+
 func (c collector) Collect() []CPU {
 	result := []CPU{}
 

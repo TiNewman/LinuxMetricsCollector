@@ -6,7 +6,7 @@ import (
 )
 
 type Service interface {
-	Collect()
+	Collect() Metrics
 }
 
 type service struct {
@@ -16,8 +16,8 @@ type service struct {
 }
 
 type Metrics struct {
-	processes []process.Process
-	cpu       []cpu.CPU
+	Processes []process.Process
+	CPU       []cpu.CPU
 }
 
 type Repository interface {
@@ -26,6 +26,10 @@ type Repository interface {
 
 func NewService(proc process.Collector, cpu cpu.Collector, repo Repository) service {
 	return service{p: proc, c: cpu, r: repo}
+}
+
+func NewServiceWithoutRepo(proc process.Collector, cpu cpu.Collector) service {
+	return service{p: proc, c: cpu}
 }
 
 func (s service) Collect() Metrics {
@@ -40,7 +44,9 @@ func (s service) Collect() Metrics {
 	// call process database code (remove database injection from process collector)?
 
 	// New approach
-	s.r.PutMetric(CPUInfo, processes)
+	if s.r != nil {
+		s.r.PutMetric(CPUInfo, processes)
+	}
 
-	return Metrics{cpu: CPUInfo, processes: processes}
+	return Metrics{CPU: CPUInfo, Processes: processes}
 }
