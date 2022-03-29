@@ -159,7 +159,7 @@ func (s *Storage) GetCPUs() []cpu.CPU {
 			log.Fatal(err.Error())
 		}
 
-		singleInput := cpu.CPU{Usage: usage, Availability: availability}
+		singleInput := cpu.CPU{Usage: usage}
 		toReturn = append(toReturn, singleInput)
 	}
 

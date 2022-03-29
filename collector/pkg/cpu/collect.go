@@ -8,8 +8,7 @@ import (
 )
 
 type CPU struct {
-	Usage        float32
-	Availability float32
+	Usage float32
 }
 
 type collector struct {
@@ -54,11 +53,11 @@ func (c collector) Collect() []CPU {
 
 	totalUsage := calculateUsage(startStat.CPUTotal, endStat.CPUTotal)
 
-	result = append(result, CPU{Usage: totalUsage, Availability: 0})
+	result = append(result, CPU{Usage: totalUsage})
 
 	for i := range startStat.CPU {
 		coreUsage := calculateUsage(startStat.CPU[i], endStat.CPU[i])
-		result = append(result, CPU{Usage: coreUsage, Availability: 0})
+		result = append(result, CPU{Usage: coreUsage})
 	}
 
 	fmt.Printf("%+v\n", result)

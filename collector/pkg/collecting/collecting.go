@@ -15,7 +15,7 @@ type service struct {
 	c cpu.Collector
 }
 
-type Metric struct {
+type Metrics struct {
 	processes []process.Process
 	cpu       []cpu.CPU
 }
@@ -28,7 +28,7 @@ func NewService(proc process.Collector, cpu cpu.Collector, repo Repository) serv
 	return service{p: proc, c: cpu, r: repo}
 }
 
-func (s service) Collect() ([]cpu.CPU, []process.Process) {
+func (s service) Collect() Metrics {
 	CPUInfo := s.c.Collect()
 	// call cpu database code (remove database injection from cpu collector)?
 	// or return new row id from cpu Collect
@@ -42,5 +42,5 @@ func (s service) Collect() ([]cpu.CPU, []process.Process) {
 	// New approach
 	s.r.PutMetric(CPUInfo, processes)
 
-	return CPUInfo, processes
+	return Metrics{cpu: CPUInfo, processes: processes}
 }
