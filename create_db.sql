@@ -5,6 +5,15 @@ Date: 2/28/2022
 Creation Script for the MetricsCollectorDB.
 */
 
+/*
+If partitioning doesnt work:
+Truncate Table: https://docs.microsoft.com/en-us/sql/t-sql/statements/truncate-table-transact-sql?view=sql-server-ver15
+
+
+
+
+*/
+
 DROP DATABASE IF EXISTS MetricsCollectorDB;
 
 GO
@@ -70,3 +79,29 @@ CREATE TABLE PROCESS (
 );
 
 GO
+
+/*
+DECLARE @dateHolder date = '12-31-9999';
+DECLARE @datetime2Holder datetime2 = @dateHolder;
+
+CREATE PARTITION FUNCTION dateRangePartitionFunc (datetime)
+    AS RANGE FOR VALUES (DATEDIFF(day , SYSDATETIME() , @datetime2Holder)) ;  
+GO
+
+CREATE PARTITION SCHEME dateRangePartitionSchme 
+    AS PARTITION dateRangePartitionFunc  
+    ALL TO ('PRIMARY');
+GO  
+
+CREATE TABLE COLLECTORXX (
+	collectorID BIGINT NOT NULL IDENTITY(0,1),
+	timeCollected DATETIME NOT NULL,
+	cpuID BIGINT, -- NOT NULL
+	memoryID BIGINT, -- NOT NULL
+	diskID BIGINT, -- NOT NULL
+
+	--CONSTRAINT pk_collector_collectorID2 PRIMARY KEY (collectorID), primary key has to be timedate or move this back to a sub-tree of datetime 
+) 
+ON dateRangePartitionSchme (timeCollected);  
+GO
+*/
