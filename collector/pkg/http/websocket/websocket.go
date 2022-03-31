@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/collecting"
+	"github.com/TiNewman/LinuxMetricsCollector/pkg/cpu"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/process"
 	"github.com/gorilla/websocket"
 )
@@ -94,6 +95,12 @@ func writer(conn *websocket.Conn, c chan string, collector collecting.Service) {
 				data := collector.Collect()
 				sendProcessList(conn, data.Processes)
 			}
+			if m == "cpu" {
+				publish = true
+				metric = "cpu"
+				data := collector.Collect()
+				sendCPUInfo(conn, data.CPU)
+			}
 			if m == "stop" {
 				fmt.Println("Stopping message stream...")
 				publish = false
@@ -106,6 +113,9 @@ func writer(conn *websocket.Conn, c chan string, collector collecting.Service) {
 				case "process_list":
 					data := collector.Collect()
 					sendProcessList(conn, data.Processes)
+				case "cpu":
+					data := collector.Collect()
+					sendCPUInfo(conn, data.CPU)
 				}
 				lastWrite = now
 			}
@@ -118,6 +128,17 @@ func sendProcessList(conn *websocket.Conn, processes []process.Process) {
 	response := make(map[string]interface{})
 
 	response["process_list"] = processes
+
+	err := writeSocketResponse(conn, response)
+	if err != nil {
+		fmt.Printf("Error: %v", err.Error())
+	}
+}
+
+func sendCPUInfo(conn *websocket.Conn, cpuList []cpu.CPU) {
+	response := make(map[string]interface{})
+
+	response["cpu"] = cpuList
 
 	err := writeSocketResponse(conn, response)
 	if err != nil {
