@@ -18,3 +18,8 @@ a {
 * {
   box-sizing: border-box;
 }
+
+.p-8 {
+    padding: 2rem;
+    z-index: 15;
+}

@@ -1,0 +1,14 @@
+.table {
+    display: table;
+    position: relative;
+    text-align: left;
+    border-width: 4px;
+    --tw-border-opacity: 1;
+    border-color: hsl(var(--b1) / var(--tw-border-opacity));
+    padding: 2rem;
+    z-index: 15;
+    text-indent: 0;
+    border-color: inherit;
+    border-collapse: collapse;
+    border-spacing: 2px;
+}

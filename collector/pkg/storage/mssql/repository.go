@@ -18,6 +18,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/TiNewman/LinuxMetricsCollector/pkg/cpu"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/process"
 	_ "github.com/denisenkom/go-mssqldb"
 )
@@ -122,8 +123,8 @@ func (s *Storage) CloseDBConnection() {
 //  Doesn't need anything, it just cycles through each cpu in the table.
 //
 //  Return:
-//  	([]CPU) all CPUs.
-func (s *Storage) GetCPUs() []CPU {
+//  	([]cpu.CPU) all CPUs.
+func (s *Storage) GetCPUs() []cpu.CPU {
 
 	ctx := context.Background()
 
@@ -151,7 +152,6 @@ func (s *Storage) GetCPUs() []CPU {
 		err := rows.Scan(&usage)
 
 		if err != nil {
-
 			log.Fatal(err.Error())
 		}
 

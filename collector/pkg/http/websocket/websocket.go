@@ -7,6 +7,7 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/TiNewman/LinuxMetricsCollector/pkg/cpu"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/process"
 	"github.com/gorilla/websocket"
 )
@@ -20,8 +21,10 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
-func Handler(process process.Collector, repository Repository) http.Handler {
+func Handler(process process.Collector, cpu cpu.Collector, repository Repository) http.Handler {
 	fmt.Printf("Websocket Handler\n")
+
+	cpu.Collect()
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/ws", wsEndpoint(process, repository))
@@ -85,14 +88,16 @@ func reader(conn *websocket.Conn, writeChan chan string) {
 
 func writer(conn *websocket.Conn, c chan string, process process.Collector, repository Repository) {
 	var lastWrite time.Time
-	count := 0
 	publish := false
+	metric := ""
 	for {
 		now := time.Now()
 		select {
 		case m := <-c:
 			if m == "process_list" {
 				publish = true
+				metric = "process_list"
+				collectAndSendProcessList(conn, process, repository)
 			}
 			if m == "stop" {
 				fmt.Println("Stopping message stream...")
@@ -102,27 +107,40 @@ func writer(conn *websocket.Conn, c chan string, process process.Collector, repo
 			lastWrite = now
 		default:
 			if publish && !lastWrite.IsZero() && now.Sub(lastWrite).Seconds() > 30 {
-				repository.PutNewCollector()
-				processes := process.Collect()
-
-				response := make(map[string]interface{})
-
-				response["process_list"] = processes
-
-				jsonResponse, err := json.Marshal(response)
-				if err != nil {
-					fmt.Printf("Cannot Marshal Processes to JSON")
-					return
+				switch metric {
+				case "process_list":
+					collectAndSendProcessList(conn, process, repository)
 				}
-				err = conn.WriteMessage(websocket.TextMessage, jsonResponse)
-				if err != nil {
-					fmt.Println("Error writing message: ", err.Error())
-					return
-				}
-				count = count + 1
 				lastWrite = now
 			}
 		}
 		time.Sleep(1 * time.Second)
 	}
+}
+
+func collectAndSendProcessList(conn *websocket.Conn, process process.Collector, repository Repository) {
+	response := make(map[string]interface{})
+	repository.PutNewCollector()
+
+	processes := process.Collect()
+	response["process_list"] = processes
+
+	err := writeSocketResponse(conn, response)
+	if err != nil {
+		fmt.Printf("Error: %v", err.Error())
+	}
+}
+
+func writeSocketResponse(conn *websocket.Conn, res map[string]interface{}) error {
+	jsonResponse, err := json.Marshal(res)
+	if err != nil {
+		fmt.Printf("Cannot Marshal Processes to JSON")
+		return err
+	}
+	err = conn.WriteMessage(websocket.TextMessage, jsonResponse)
+	if err != nil {
+		fmt.Println("Error writing message: ", err.Error())
+		return err
+	}
+	return nil
 }
