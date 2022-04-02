@@ -141,7 +141,7 @@ func (s *Storage) GetCPUs() []cpu.CPU {
 
 	defer rows.Close()
 
-	var toReturn []CPU
+	var toReturn []cpu.CPU
 
 	// Iterate through the result set.
 	for rows.Next() {
@@ -155,7 +155,7 @@ func (s *Storage) GetCPUs() []cpu.CPU {
 			log.Fatal(err.Error())
 		}
 
-		singleInput := CPU{usage}
+		singleInput := cpu.CPU{Usage: usage}
 		toReturn = append(toReturn, singleInput)
 	}
 
