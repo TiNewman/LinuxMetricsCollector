@@ -81,27 +81,33 @@ CREATE TABLE PROCESS (
 GO
 
 /*
-DECLARE @dateHolder date = '12-31-9999';
-DECLARE @datetime2Holder datetime2 = @dateHolder;
+CREATE FUNCTION dbo.CREATEDATERANGE1()
+	RETURNS @dates TABLE (date DATETIME)
+	BEGIN
 
-CREATE PARTITION FUNCTION dateRangePartitionFunc (datetime)
-    AS RANGE FOR VALUES (DATEDIFF(day , SYSDATETIME() , @datetime2Holder)) ;  
-GO
+		DECLARE @StartDateTime DATETIME = SYSDATETIME();
+		DECLARE @EndDateTime DATETIME = (SELECT DATEADD(year, 10, @StartDateTime) AS DateAdd);
+ 
+		WITH DateRange(DateData) AS 
+		(
+		SELECT @StartDateTime as Date
+		UNION ALL
+		SELECT DATEADD(d,3,DateData)
+		FROM DateRange 
+		WHERE DateData < @EndDateTime
+	
+		)
 
-CREATE PARTITION SCHEME dateRangePartitionSchme 
-    AS PARTITION dateRangePartitionFunc  
-    ALL TO ('PRIMARY');
-GO  
+		INSERT INTO @dates SELECT DateData FROM DateRange OPTION(MAXRECURSION 0);
+		RETURN;
+	END
+GO;
 
-CREATE TABLE COLLECTORXX (
-	collectorID BIGINT NOT NULL IDENTITY(0,1),
-	timeCollected DATETIME NOT NULL,
-	cpuID BIGINT, -- NOT NULL
-	memoryID BIGINT, -- NOT NULL
-	diskID BIGINT, -- NOT NULL
+DECLARE @holder1 AS TABLE (holderDate DATETIME);
+INSERT INTO @holder1 SELECT * FROM CREATEDATERANGE() OPTION(MAXRECURSION 0);
 
-	--CONSTRAINT pk_collector_collectorID2 PRIMARY KEY (collectorID), primary key has to be timedate or move this back to a sub-tree of datetime 
-) 
-ON dateRangePartitionSchme (timeCollected);  
-GO
+CREATE PARTITION FUNCTION [myDateRangePF1] (DATETIME)
+   AS RANGE LEFT
+   FOR VALUES (dbo.CREATEDATERANGE1()); 
+Go
 */
