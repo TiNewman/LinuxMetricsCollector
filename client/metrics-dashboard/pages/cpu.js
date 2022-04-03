@@ -2,7 +2,10 @@ import Link from 'next/link'
 import { useCallback, useEffect, useState } from 'react'
 import io from 'socket.io-client'
 import processListStyles from '../styles/Process_List.module.css'
-import Table from "../components/ProcessTable";
+//import Chart from "../components/CPUChart"
+//import dynamic from 'next/dynamic'
+
+//const Chart = dynamic(() => import('../components/CPUChart'), { ssr: false });
 
 let socket
 
@@ -35,10 +38,13 @@ const cpuView = props => {
     };
   }
   */
-
+  //const data = [30, 40, 45, 50, 49, 60, 70, 91]
+  const data = [{Usage:7.7905493}, {Usage:4.123711}, {Usage:5.1546392}, {Usage:5.050505}, {Usage:12.244898}, {Usage:4.1666665}, {Usage:4.0816326}, {Usage:13.131313}, {Usage:13.265306}]
+  //<Chart data={data}/>
   return (
     <div>
       <h1 className={processListStyles.h1}> CPU </h1>
+      <div className="radial-progress text-primary ml-8" style={{"--value":data[0].Usage}}>{data[0].Usage}%</div>
     </div>
   )
 }
