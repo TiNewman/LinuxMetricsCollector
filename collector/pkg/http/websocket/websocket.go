@@ -7,6 +7,7 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/TiNewman/LinuxMetricsCollector/pkg/cpu"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/process"
 	"github.com/gorilla/websocket"
 )
@@ -20,8 +21,10 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
-func Handler(process process.Collector, repository Repository) http.Handler {
+func Handler(process process.Collector, cpu cpu.Collector, repository Repository) http.Handler {
 	fmt.Printf("Websocket Handler\n")
+
+	cpu.Collect()
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/ws", wsEndpoint(process, repository))
