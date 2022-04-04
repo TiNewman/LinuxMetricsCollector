@@ -63,10 +63,13 @@ func (c collector) Collect() []CPU {
 
 	result = append(result, CPU{Usage: totalUsage, Model: model, Cores: int(cores)})
 
-	for i := range startStat.CPU {
-		coreUsage := calculateUsage(startStat.CPU[i], endStat.CPU[i])
-		result = append(result, CPU{Usage: coreUsage})
-	}
+	/*
+		// Compute usage for each CPU core
+		for i := range startStat.CPU {
+			coreUsage := calculateUsage(startStat.CPU[i], endStat.CPU[i])
+			result = append(result, CPU{Usage: coreUsage})
+		}
+	*/
 
 	fmt.Printf("%+v\n", result)
 
