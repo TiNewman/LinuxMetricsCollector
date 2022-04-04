@@ -1,59 +1,34 @@
-import Chart from "react-apexcharts"
-import { useCallback, useEffect, useState } from 'react'
+import React, { useState } from 'react';
+import Chart from 'react-apexcharts';
 
-const CPUChart = (data) => {
-  //might need to be in page with websocket code
-  const [state,setState] = useState({
-                                     options: {
-                                       chart: {
-                                         id: "basic-bar"
-                                       },
-                                       xaxis: {
-                                         categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998]
-                                       }
-                                     },
-                                     series: [
-                                       {
-                                         name: "series-1",
-                                         data: [30, 40, 45, 50, 49, 60, 70, 91]
-                                       }
-                                     ]
-                               });
-  setState({
-                                                options: {
-                                                  chart: {
-                                                    id: "basic-bar"
-                                                  },
-                                                  xaxis: {
-                                                    categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998]
-                                                  }
-                                                },
-                                                series: [
-                                                  {
-                                                    name: "series-1",
-                                                    data: data
-                                                  }
-                                                ]
-                                          })
-
+const CPUChart = () => {
+  const [options, setOptions] = useState({
+    chart: {
+      id: 'line-chart',
+    },
+    xaxis: {
+      categories: [
+        '8:23:00',
+        '8:23:30',
+        '8:24:00',
+        '8:24:30',
+        '8:25:00',
+        '8:25:30',
+        '8:26:00',
+      ],
+    },
+  });
+  const [series, setSeries] = useState([
+    {
+      name: 'CPU Percentage Used',
+      data: [7.7905493, 4.123711, 5.1546392, 5.050505, 12.244898, 4.1666665, 4.0816326],
+    },
+  ]);
   return (
-  <div className="mixed-chart">
-    {(typeof window !== 'undefined') &&
-    <div className="app">
-      <div className="row">
-        <div className="mixed-chart">
-          <Chart
-            options={state.options}
-            series={state.series}
-            type="bar"
-            width="500"
-          />
-        </div>
-      </div>
+    <div className='chart w-3/6 pt-7 mx-auto'>
+      <Chart options={options} series={series} type='line'/>
     </div>
-    }
-  </div>
-  )
+  );
 }
 
 export default CPUChart
