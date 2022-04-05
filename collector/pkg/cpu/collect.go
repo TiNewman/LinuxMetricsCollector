@@ -18,7 +18,7 @@ type collector struct {
 }
 
 type Collector interface {
-	Collect() []CPU
+	Collect() CPU
 }
 
 func NewCPUCollector(repo Repository) collector {
@@ -29,8 +29,8 @@ func NewCPUCollectorWithoutRepo() collector {
 	return collector{}
 }
 
-func (c collector) Collect() []CPU {
-	result := []CPU{}
+func (c collector) Collect() CPU {
+	result := CPU{}
 
 	fs, err := procfs.NewDefaultFS()
 	if err != nil {
@@ -61,7 +61,7 @@ func (c collector) Collect() []CPU {
 
 	totalUsage := calculateUsage(startStat.CPUTotal, endStat.CPUTotal)
 
-	result = append(result, CPU{Usage: totalUsage, Model: model, Cores: int(cores)})
+	result = CPU{Usage: totalUsage, Model: model, Cores: int(cores)}
 
 	/*
 		// Compute usage for each CPU core

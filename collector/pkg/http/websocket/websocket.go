@@ -135,7 +135,7 @@ func sendProcessList(conn *websocket.Conn, processes []process.Process) {
 	}
 }
 
-func sendCPUInfo(conn *websocket.Conn, cpuList []cpu.CPU) {
+func sendCPUInfo(conn *websocket.Conn, cpuList cpu.CPU) {
 	response := make(map[string]interface{})
 
 	response["cpu"] = cpuList

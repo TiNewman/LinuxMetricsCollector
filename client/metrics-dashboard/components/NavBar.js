@@ -9,6 +9,7 @@ const NavBar = () => (
             <ul tabIndex="0" className="menu dropdown-content p-4 shadow-md shadow-accent bg-neutral text-base-100 rounded-box w-52 mt-8">
               <li className="hover:bg-primary hover:text-neutral"><Link href="/">Dashboard</Link></li>
               <li className="hover:bg-primary hover:text-neutral"><Link href="/process_list">Process List</Link></li>
+              <li className="hover:bg-primary hover:text-neutral"><Link href="/cpu">CPU</Link></li>
             </ul>
           </div>
         </div>

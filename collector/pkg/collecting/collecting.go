@@ -17,11 +17,11 @@ type service struct {
 
 type Metrics struct {
 	Processes []process.Process
-	CPU       []cpu.CPU
+	CPU       cpu.CPU
 }
 
 type Repository interface {
-	PutMetric(Metrics)
+	BulkInsert(Metrics) bool
 }
 
 func NewService(proc process.Collector, cpu cpu.Collector, repo Repository) service {
@@ -47,7 +47,7 @@ func (s service) Collect() Metrics {
 
 	// New approach
 	if s.r != nil {
-		s.r.PutMetric(m)
+		s.r.BulkInsert(m)
 	}
 
 	return m
