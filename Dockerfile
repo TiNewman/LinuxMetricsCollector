@@ -12,5 +12,6 @@ COPY *.sql /usr/work/
 WORKDIR /usr/work
 
 RUN ( /opt/mssql/bin/sqlservr & ) \
+    && sleep 10 \
     && /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P $SA_PASSWORD -i create_db.sql \
     && pkill sqlservr
