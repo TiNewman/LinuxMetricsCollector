@@ -8,6 +8,8 @@ import (
 )
 
 type CPU struct {
+	Model string
+	Cores int
 	Usage float32
 }
 
@@ -23,6 +25,10 @@ func NewCPUCollector(repo Repository) collector {
 	return collector{r: repo}
 }
 
+func NewCPUCollectorWithoutRepo() collector {
+	return collector{}
+}
+
 func (c collector) Collect() CPU {
 	result := CPU{}
 
@@ -36,7 +42,9 @@ func (c collector) Collect() CPU {
 		fmt.Printf("Could not get CPU info: %v\n", err)
 	}
 	fmt.Printf("%v\n", len(info))
-	// fmt.Printf("%+v\n", info[0])
+	fmt.Printf("%+v\n", info[0])
+	cores := info[0].CPUCores
+	model := info[0].ModelName
 
 	startStat, err := fs.Stat()
 	if err != nil {
@@ -53,9 +61,10 @@ func (c collector) Collect() CPU {
 
 	totalUsage := calculateUsage(startStat.CPUTotal, endStat.CPUTotal)
 
-	result = CPU{Usage: totalUsage}
+	result = CPU{Usage: totalUsage, Model: model, Cores: int(cores)}
 
 	/*
+		// Compute usage for each CPU core
 		for i := range startStat.CPU {
 			coreUsage := calculateUsage(startStat.CPU[i], endStat.CPU[i])
 			result = append(result, CPU{Usage: coreUsage})

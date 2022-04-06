@@ -7,32 +7,27 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/TiNewman/LinuxMetricsCollector/pkg/collecting"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/cpu"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/process"
 	"github.com/gorilla/websocket"
 )
-
-type Repository interface {
-	PutNewCollector() (int64, error)
-}
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 }
 
-func Handler(process process.Collector, cpu cpu.Collector, repository Repository) http.Handler {
+func Handler(collector collecting.Service) http.Handler {
 	fmt.Printf("Websocket Handler\n")
 
-	cpu.Collect()
-
 	mux := http.NewServeMux()
-	mux.HandleFunc("/ws", wsEndpoint(process, repository))
+	mux.HandleFunc("/ws", wsEndpoint(collector))
 
 	return mux
 }
 
-func wsEndpoint(process process.Collector, repository Repository) func(http.ResponseWriter, *http.Request) {
+func wsEndpoint(collector collecting.Service) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 
@@ -43,7 +38,7 @@ func wsEndpoint(process process.Collector, repository Repository) func(http.Resp
 		fmt.Println("Client Connected!")
 		writeChan := make(chan string)
 		go reader(ws, writeChan)
-		writer(ws, writeChan, process, repository)
+		writer(ws, writeChan, collector)
 		fmt.Printf("go routines: %v\n", runtime.NumGoroutine())
 	}
 }
@@ -86,7 +81,7 @@ func reader(conn *websocket.Conn, writeChan chan string) {
 	}
 }
 
-func writer(conn *websocket.Conn, c chan string, process process.Collector, repository Repository) {
+func writer(conn *websocket.Conn, c chan string, collector collecting.Service) {
 	var lastWrite time.Time
 	publish := false
 	metric := ""
@@ -97,7 +92,14 @@ func writer(conn *websocket.Conn, c chan string, process process.Collector, repo
 			if m == "process_list" {
 				publish = true
 				metric = "process_list"
-				collectAndSendProcessList(conn, process, repository)
+				data := collector.Collect()
+				sendProcessList(conn, data.Processes)
+			}
+			if m == "cpu" {
+				publish = true
+				metric = "cpu"
+				data := collector.Collect()
+				sendCPUInfo(conn, data.CPU)
 			}
 			if m == "stop" {
 				fmt.Println("Stopping message stream...")
@@ -109,7 +111,11 @@ func writer(conn *websocket.Conn, c chan string, process process.Collector, repo
 			if publish && !lastWrite.IsZero() && now.Sub(lastWrite).Seconds() > 30 {
 				switch metric {
 				case "process_list":
-					collectAndSendProcessList(conn, process, repository)
+					data := collector.Collect()
+					sendProcessList(conn, data.Processes)
+				case "cpu":
+					data := collector.Collect()
+					sendCPUInfo(conn, data.CPU)
 				}
 				lastWrite = now
 			}
@@ -118,9 +124,30 @@ func writer(conn *websocket.Conn, c chan string, process process.Collector, repo
 	}
 }
 
-func collectAndSendProcessList(conn *websocket.Conn, process process.Collector, repository Repository) {
+func sendProcessList(conn *websocket.Conn, processes []process.Process) {
 	response := make(map[string]interface{})
-	repository.PutNewCollector()
+
+	response["process_list"] = processes
+
+	err := writeSocketResponse(conn, response)
+	if err != nil {
+		fmt.Printf("Error: %v", err.Error())
+	}
+}
+
+func sendCPUInfo(conn *websocket.Conn, cpuList cpu.CPU) {
+	response := make(map[string]interface{})
+
+	response["cpu"] = cpuList
+
+	err := writeSocketResponse(conn, response)
+	if err != nil {
+		fmt.Printf("Error: %v", err.Error())
+	}
+}
+
+func collectAndSendProcessList(conn *websocket.Conn, process process.Collector) {
+	response := make(map[string]interface{})
 
 	processes := process.Collect()
 	response["process_list"] = processes
