@@ -65,7 +65,7 @@ CREATE TABLE PROCESS (
 	diskUsage FLOAT,
 	executionTime FLOAT,
 
-	CONSTRAINT pk_process_processID PRIMARY KEY (processID),
+	CONSTRAINT pk_process_processID_collectorID_PID PRIMARY KEY (processID, collectorID, PID),
 	CONSTRAINT fk_process_collector_collectorID FOREIGN KEY (collectorID) REFERENCES COLLECTOR(collectorID)
 );
 

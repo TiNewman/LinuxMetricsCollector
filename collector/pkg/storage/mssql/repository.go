@@ -151,8 +151,7 @@ func (s *Storage) GetNewestCPUID() int {
 	ctx := context.Background()
 
 	// For not we are just getting from the single table!
-	singleQuery := fmt.Sprintf("SELECT cpuID FROM CPU WHERE cpuID IN " +
-		"(SELECT TOP 1 cpuID FROM COLLECTOR ORDER BY timeCollected DESC);")
+	singleQuery := fmt.Sprintf("SELECT TOP 1 cpuID FROM CPU ORDER BY cpuID DESC;")
 
 	// Execute query
 	rows, err := s.DB_CONNECTION.QueryContext(ctx, singleQuery)
@@ -517,9 +516,8 @@ func (s *Storage) GetNewestIndivComponentID(tableName string) int {
 	ctx := context.Background()
 
 	// For not we are just getting from the single table!
-	singleQuery := fmt.Sprintf("SELECT %s FROM %s WHERE %s IN "+
-		"(SELECT TOP 1 %s FROM COLLECTOR ORDER BY timeCollected DESC);",
-		IdName, tableName, IdName, IdName)
+	singleQuery := fmt.Sprintf("SELECT %s FROM %s ORDER BY %s DESC;",
+		IdName, tableName, IdName)
 
 	// Execute query
 	rows, err := s.DB_CONNECTION.QueryContext(ctx, singleQuery)
@@ -685,6 +683,8 @@ func (s *Storage) GetCollectorIDNewest() int {
 //  	(int) rows inserted.
 //  	(error) any error, this should be 'nil'.
 func (s *Storage) PutNewCollector() (int64, error) {
+
+	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!NEED TO TEST IF the IDs for the 3 tables are the same, as if they arent, then it means that one table was not inserted into.!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 	// These will be used once we get to CPU/MEMORY/DISK tables.
 	var cpuID = s.GetNewestCPUID()
@@ -993,23 +993,42 @@ func (s *Storage) GetProcessesByCustomIntField(column string, field int) []proce
 func (s *Storage) PutNewProcess(singleProcess process.Process) (int64, error) {
 
 	var collectorID = s.GetCollectorIDNewest()
+	var repeatedProcess = false
 
-	// Insert into PROCESS based of singleProcess Data.
-	singleInsert :=
-		fmt.Sprintf("INSERT INTO PROCESS VALUES (%v, %v, '%v', '%v', %.2f, %.2f, "+
-			"%.2f, %.2f);", collectorID, singleProcess.PID, singleProcess.Name,
-			singleProcess.Status, singleProcess.CPUUtilization, singleProcess.RAMUtilization,
-			singleProcess.DiskUtilization, singleProcess.ExecutionTime)
+	// Test if this is already inserted in the DB for this collector time
+	processes := s.GetProcessesByNewest()
 
-	// Execute Insertion
-	result, err := s.DB_CONNECTION.Exec(singleInsert)
+	for _, singleCheckProcess := range processes {
 
-	if err != nil {
+		if singleCheckProcess == singleProcess {
 
-		log.Fatal(err.Error())
+			fmt.Printf("Inserting the same process, PID: %v\n", singleProcess.PID)
+			repeatedProcess = true
+		}
 	}
 
-	return result.RowsAffected()
+	var err error
+
+	if !(repeatedProcess) {
+		// Insert into PROCESS based of singleProcess Data.
+		singleInsert :=
+			fmt.Sprintf("INSERT INTO PROCESS VALUES (%v, %v, '%v', '%v', %.2f, %.2f, "+
+				"%.2f, %.2f);", collectorID, singleProcess.PID, singleProcess.Name,
+				singleProcess.Status, singleProcess.CPUUtilization, singleProcess.RAMUtilization,
+				singleProcess.DiskUtilization, singleProcess.ExecutionTime)
+
+		// Execute Insertion
+		result, err := s.DB_CONNECTION.Exec(singleInsert)
+
+		if err != nil {
+
+			log.Fatal(err.Error())
+		}
+
+		return result.RowsAffected()
+	}
+
+	return 0, err
 }
 
 // ------------------- BULK INSERT Section -------------------
@@ -1026,6 +1045,7 @@ func (s *Storage) BulkInsert(totalMetrics collecting.Metrics) bool {
 
 	// Insert into CPU/MEMORY/DISK
 	rowsAffected, err := s.PutNewCPU(totalMetrics.CPU)
+
 	if err != nil {
 
 		fmt.Printf("Error in adding in CPU Table -- Bulk Insert Function: %v\n", err)
@@ -1124,11 +1144,14 @@ func main() {
 	listProcess = append(listProcess, process.Process{PID: 5540, Name: "process0", CPUUtilization: 00.00, RAMUtilization: 00.00, DiskUtilization: 00.00, Status: "done", ExecutionTime: 00.00})
 	listProcess = append(listProcess, process.Process{PID: 999, Name: "process1", CPUUtilization: 01.00, RAMUtilization: 01.00, DiskUtilization: 00.10, Status: "running", ExecutionTime: 01.00})
 	listProcess = append(listProcess, process.Process{PID: 666, Name: "process2", CPUUtilization: 02.20, RAMUtilization: 22.00, DiskUtilization: 00.22, Status: "failed", ExecutionTime: 22.00})
+	listProcess = append(listProcess, process.Process{PID: 999, Name: "process1", CPUUtilization: 00.00, RAMUtilization: 00.00, DiskUtilization: 00.10, Status: "done", ExecutionTime: 00.00})
 
 	metricsHolder1 := collecting.Metrics{Processes: listProcess, CPU: cpuHolder1}
 
 	database.BulkInsert(metricsHolder1)
 	*/
+
+	//database.PutNewProcess(process.Process{PID: 5540, Name: "process0", CPUUtilization: 00.00, RAMUtilization: 00.00, DiskUtilization: 00.00, Status: "done", ExecutionTime: 00.00})
 
 	// To start the connection, call 'databaseConnection'.
 
