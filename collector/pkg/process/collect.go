@@ -142,6 +142,9 @@ func calcCPUUtilization(cputime float64, executionTime float64) float64 {
 	// usage = 100 * ((totaltime / hertz) / seconds)
 	// we have cpu time in seconds, not jiffies
 	// -> usage = 100 * (totaltime / seconds)
+	if executionTime <= 0 {
+		return 0
+	}
 
 	return 100 * (cputime / executionTime)
 }
