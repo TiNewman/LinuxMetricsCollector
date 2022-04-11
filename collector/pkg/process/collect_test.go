@@ -4,6 +4,16 @@ import (
 	"testing"
 )
 
+func TestCollect(t *testing.T) {
+	numProcs := 1
+	collector := NewProcessCollectorWithoutRepo()
+
+	list := collector.Collect()
+	if len(list) != numProcs {
+		t.Errorf("Expected %v processes; Got %v\n", numProcs, len(list))
+	}
+}
+
 func TestCalcCPUUtilization(t *testing.T) {
 	ts := []struct {
 		name          string

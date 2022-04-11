@@ -44,11 +44,23 @@ func (c collector) Collect() []Process {
 	}
 
 	// read process list from the proc file system
-	p, err := procfs.AllProcs()
+	/*
+		p, err := procfs.AllProcs()
+		if err != nil {
+			fmt.Printf("Could not get all processes: %v\n", err)
+		}
+		// fmt.Printf("Number of processes: %v\n", p.Len())
+	*/
+
+	// read process list from the test file system
+	fs, err := procfs.NewFS("/home/james/github.com/LinuxMetricsCollector/collector/testdata")
+	if err != nil {
+		fmt.Printf("Cannot locate proc mount %v", err.Error())
+	}
+	p, err := fs.AllProcs()
 	if err != nil {
 		fmt.Printf("Could not get all processes: %v\n", err)
 	}
-	// fmt.Printf("Number of processes: %v\n", p.Len())
 
 	// Calculate necessary values for each process and place them in a custom
 	// Process struct
