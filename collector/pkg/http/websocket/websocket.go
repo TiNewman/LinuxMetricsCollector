@@ -108,7 +108,7 @@ func writer(conn *websocket.Conn, c chan string, collector collecting.Service) {
 			fmt.Printf("writer received message: %v\n", m)
 			lastWrite = now
 		default:
-			if publish && !lastWrite.IsZero() && now.Sub(lastWrite).Seconds() > 30 {
+			if publish && !lastWrite.IsZero() && now.Sub(lastWrite).Seconds() > 5 {
 				switch metric {
 				case "process_list":
 					data := collector.Collect()

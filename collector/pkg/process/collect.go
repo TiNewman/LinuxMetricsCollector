@@ -48,7 +48,7 @@ func (c collector) Collect() []Process {
 	if err != nil {
 		fmt.Printf("Could not get all processes: %v\n", err)
 	}
-	fmt.Printf("Number of processes: %v\n", p.Len())
+	// fmt.Printf("Number of processes: %v\n", p.Len())
 
 	// Calculate necessary values for each process and place them in a custom
 	// Process struct
@@ -89,7 +89,7 @@ func (c collector) Collect() []Process {
 
 		var readTotal uint64
 		if err != nil {
-			fmt.Printf("Could not get IO metrics: %v\n", err)
+			fmt.Printf("Could not get IO metrics for process %v: %v\n", pname, err)
 			//return
 			// set a negative value to signify N/A?
 			readTotal = 0
@@ -121,7 +121,7 @@ func (c collector) Collect() []Process {
 			c.r.PutNewProcess(nextprocess)
 		}
 
-		fmt.Printf("%+v\n", nextprocess)
+		// fmt.Printf("%+v\n", nextprocess)
 		processList = append(processList, nextprocess)
 
 	}

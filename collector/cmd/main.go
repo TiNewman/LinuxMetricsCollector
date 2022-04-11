@@ -10,25 +10,26 @@ import (
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/cpu"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/http/websocket"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/process"
-	"github.com/TiNewman/LinuxMetricsCollector/pkg/storage/mssql"
 )
 
 func main() {
 	fmt.Printf("Linux Metrics Collector\n")
 
 	// initialize storage
-	s, err := mssql.NewStorage()
-	if err != nil {
-		fmt.Printf("Could not initialize persistent storage: %v", err.Error())
-	}
+	/*
+		s, err := mssql.NewStorage()
+		if err != nil {
+			fmt.Printf("Could not initialize persistent storage: %v", err.Error())
+		}
+	*/
 
 	// initialize collectors
 
 	// without persistent storage
 	pcollector := process.NewProcessCollectorWithoutRepo()
 	cpuCollector := cpu.NewCPUCollectorWithoutRepo()
-	//collectingService := collecting.NewServiceWithoutRepo(pcollector, cpuCollector)
-	collectingService := collecting.NewService(pcollector, cpuCollector, s)
+	collectingService := collecting.NewServiceWithoutRepo(pcollector, cpuCollector)
+	// collectingService := collecting.NewService(pcollector, cpuCollector, s)
 
 	// with persistent storage
 	/*
