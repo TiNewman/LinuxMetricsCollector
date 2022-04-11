@@ -7,7 +7,7 @@
 
 # testing
 /coverage
-/testdata
+**/testdata
 
 # next.js
 /.next/
