@@ -50,7 +50,7 @@ func (c collector) Collect() CPU {
 	if err != nil {
 		fmt.Printf("Could not get CPU stat: %v\n", err)
 	}
-	fmt.Printf("start: %v\n", startStat.CPUTotal)
+	fmt.Printf("start: %+v\n", startStat.CPUTotal)
 
 	time.Sleep(time.Second)
 
@@ -58,7 +58,7 @@ func (c collector) Collect() CPU {
 	if err != nil {
 		fmt.Printf("Could not get CPU stat: %v\n", err)
 	}
-	fmt.Printf("end: %v\n", endStat.CPUTotal)
+	fmt.Printf("end: %+v\n", endStat.CPUTotal)
 	// fmt.Printf("%+v\n", stat)
 
 	totalUsage := calculateUsage(startStat.CPUTotal, endStat.CPUTotal)
