@@ -149,7 +149,7 @@ func sendCPUInfo(conn *websocket.Conn, cpuList cpu.CPU) {
 func collectAndSendProcessList(conn *websocket.Conn, process process.Collector) {
 	response := make(map[string]interface{})
 
-	processes := process.Collect()
+	processes, _ := process.Collect()
 	response["process_list"] = processes
 
 	err := writeSocketResponse(conn, response)

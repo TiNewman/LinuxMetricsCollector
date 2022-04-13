@@ -8,7 +8,10 @@ func TestCollect(t *testing.T) {
 	numProcs := 1
 	collector := NewProcessCollectorWithoutRepo()
 
-	list := collector.Collect()
+	list, err := collector.Collect()
+	if err != nil {
+		t.Errorf("Collect method returned an error: %v\n", err.Error())
+	}
 	if len(list) != numProcs {
 		t.Errorf("Expected %v processes; Got %v\n", numProcs, len(list))
 	}

@@ -45,7 +45,10 @@ func (s service) Collect() Metrics {
 	// Old approach
 	//s.r.PutNewCollector()
 
-	processes := s.p.Collect()
+	processes, err := s.p.Collect()
+	if err != nil {
+		fmt.Printf("Error collecting CPU metrics: %v\n", err)
+	}
 	// call process database code (remove database injection from process collector)?
 
 	m := Metrics{CPU: CPUInfo, Processes: processes}

@@ -23,7 +23,7 @@ type collector struct {
 }
 
 type Collector interface {
-	Collect() []Process
+	Collect() ([]Process, error)
 }
 
 func NewProcessCollector(repo Repository) collector {
@@ -34,13 +34,13 @@ func NewProcessCollectorWithoutRepo() collector {
 	return collector{}
 }
 
-func (c collector) Collect() []Process {
+func (c collector) Collect() ([]Process, error) {
 	currentTime := time.Now()
 	processList := []Process{}
 	currentUser, err := user.Current()
 	if err != nil {
 		fmt.Printf("Cannot determine current user: %v\n", err.Error())
-		return processList
+		return processList, err
 	}
 
 	// read process list from the proc file system
@@ -48,18 +48,21 @@ func (c collector) Collect() []Process {
 		p, err := procfs.AllProcs()
 		if err != nil {
 			fmt.Printf("Could not get all processes: %v\n", err)
+			return processList, err
 		}
 		// fmt.Printf("Number of processes: %v\n", p.Len())
 	*/
 
 	// read process list from the test file system
-	fs, err := procfs.NewFS("/home/james/github.com/LinuxMetricsCollector/collector/testdata")
+	fs, err := procfs.NewFS("/home/james/github.com/LinuxMetricsCollector/collector/pkg/process/testdata")
 	if err != nil {
 		fmt.Printf("Cannot locate proc mount %v", err.Error())
+		return processList, err
 	}
 	p, err := fs.AllProcs()
 	if err != nil {
 		fmt.Printf("Could not get all processes: %v\n", err)
+		return processList, err
 	}
 
 	// Calculate necessary values for each process and place them in a custom
@@ -69,7 +72,7 @@ func (c collector) Collect() []Process {
 		procStatus, err := proc.NewStatus()
 		if err != nil {
 			fmt.Printf("Could not get uids of process: %v\n", err.Error())
-			return processList
+			return processList, err
 		}
 		uids := procStatus.UIDs
 		if currentUser.Uid != uids[0] {
@@ -80,14 +83,14 @@ func (c collector) Collect() []Process {
 
 		if err != nil {
 			fmt.Printf("Could not get process status: %v\n", err.Error())
-			return processList
+			return processList, err
 		}
 
 		// get the process name
 		pname, err := proc.Comm()
 		if err != nil {
 			fmt.Printf("Could not get process name: %v\n", err.Error())
-			return processList
+			return processList, err
 		}
 
 		// process schedule state: running, asleep, etc.
@@ -113,7 +116,7 @@ func (c collector) Collect() []Process {
 		unixstarttime, err := procstat.StartTime()
 		if err != nil {
 			fmt.Printf("Could not get start time of process: %v\n", err.Error())
-			return processList
+			return processList, err
 		}
 
 		// time the process started
@@ -138,7 +141,7 @@ func (c collector) Collect() []Process {
 
 	}
 	fmt.Printf("Processes in list: %v\n", len(processList))
-	return processList
+	return processList, nil
 
 }
 
