@@ -13,6 +13,16 @@ type UsageCase struct {
 	expected float32
 }
 
+func TestCollect(t *testing.T) {
+	collector := NewCPUCollectorWithoutRepo()
+
+	_, err := collector.Collect()
+	if err != nil {
+		t.Errorf("Collect method returned an error: %v\n", err.Error())
+	}
+
+}
+
 func TestCalculateUsage(t *testing.T) {
 
 	ts := []UsageCase{

@@ -1,6 +1,8 @@
 package collecting
 
 import (
+	"fmt"
+
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/cpu"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/process"
 )
@@ -33,7 +35,10 @@ func NewServiceWithoutRepo(proc process.Collector, cpu cpu.Collector) service {
 }
 
 func (s service) Collect() Metrics {
-	CPUInfo := s.c.Collect()
+	CPUInfo, err := s.c.Collect()
+	if err != nil {
+		fmt.Printf("Error collecting CPU metrics: %v\n", err)
+	}
 	// call cpu database code (remove database injection from cpu collector)?
 	// or return new row id from cpu Collect
 

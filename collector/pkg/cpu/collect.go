@@ -18,7 +18,7 @@ type collector struct {
 }
 
 type Collector interface {
-	Collect() CPU
+	Collect() (CPU, error)
 }
 
 func NewCPUCollector(repo Repository) collector {
@@ -29,17 +29,19 @@ func NewCPUCollectorWithoutRepo() collector {
 	return collector{}
 }
 
-func (c collector) Collect() CPU {
+func (c collector) Collect() (CPU, error) {
 	result := CPU{}
 
 	fs, err := procfs.NewDefaultFS()
 	if err != nil {
 		fmt.Printf("Cannot locate proc mount %v", err.Error())
+		return result, err
 	}
 
 	info, err := fs.CPUInfo()
 	if err != nil {
 		fmt.Printf("Could not get CPU info: %v\n", err)
+		return result, err
 	}
 	// fmt.Printf("%v\n", len(info))
 	// fmt.Printf("%+v\n", info[0])
@@ -49,6 +51,7 @@ func (c collector) Collect() CPU {
 	startStat, err := fs.Stat()
 	if err != nil {
 		fmt.Printf("Could not get CPU stat: %v\n", err)
+		return result, err
 	}
 	fmt.Printf("start: %+v\n", startStat.CPUTotal)
 
@@ -57,6 +60,7 @@ func (c collector) Collect() CPU {
 	endStat, err := fs.Stat()
 	if err != nil {
 		fmt.Printf("Could not get CPU stat: %v\n", err)
+		return result, err
 	}
 	fmt.Printf("end: %+v\n", endStat.CPUTotal)
 	// fmt.Printf("%+v\n", stat)
@@ -75,7 +79,7 @@ func (c collector) Collect() CPU {
 
 	fmt.Printf("%+v\n", result)
 
-	return result
+	return result, nil
 }
 
 func calculateUsage(start procfs.CPUStat, end procfs.CPUStat) float32 {
