@@ -1,4 +1,4 @@
-.PHONY: all ui collector database
+.PHONY: all ui collector database test
 
 all: collector ui database
 
@@ -10,4 +10,8 @@ ui:
 
 database:
 	sudo docker-compose build
+
+test: 
+	./ttar -C collector/pkg/process/ -x -f process.ttar
+	cd collector/pkg/process && go test -v
 
