@@ -12,6 +12,5 @@ database:
 	sudo docker-compose build
 
 test: 
-	./ttar -C collector/pkg/process/ -x -f process.ttar
-	cd collector/pkg/process && go test -v
+	./ttar -C collector/pkg/process/ -x -f process.ttar && cd collector/pkg/process && go test -v
 

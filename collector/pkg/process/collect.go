@@ -2,6 +2,7 @@ package process
 
 import (
 	"fmt"
+	"os"
 	"os/user"
 	"time"
 
@@ -19,7 +20,8 @@ type Process struct {
 }
 
 type collector struct {
-	r Repository
+	r     Repository
+	mount string
 }
 
 type Collector interface {
@@ -27,11 +29,17 @@ type Collector interface {
 }
 
 func NewProcessCollector(repo Repository) collector {
-	return collector{repo}
+	return collector{repo, "/proc"}
 }
 
 func NewProcessCollectorWithoutRepo() collector {
-	return collector{}
+	return collector{mount: "/proc"}
+}
+
+func NewTestCollector() collector {
+	wd, _ := os.Getwd()
+	mountpoint := wd + "/testdata"
+	return collector{mount: mountpoint}
 }
 
 func (c collector) Collect() ([]Process, error) {
@@ -43,18 +51,9 @@ func (c collector) Collect() ([]Process, error) {
 		return processList, err
 	}
 
-	// read process list from the proc file system
-	/*
-		p, err := procfs.AllProcs()
-		if err != nil {
-			fmt.Printf("Could not get all processes: %v\n", err)
-			return processList, err
-		}
-		// fmt.Printf("Number of processes: %v\n", p.Len())
-	*/
-
-	// read process list from the test file system
-	fs, err := procfs.NewFS("/home/james/github.com/LinuxMetricsCollector/collector/pkg/process/testdata")
+	// collect data from the configured mount point
+	// this differs from /proc when testing
+	fs, err := procfs.NewFS(c.mount)
 	if err != nil {
 		fmt.Printf("Cannot locate proc mount %v", err.Error())
 		return processList, err
