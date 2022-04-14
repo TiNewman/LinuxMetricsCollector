@@ -5,7 +5,7 @@ import (
 )
 
 func TestCollect(t *testing.T) {
-	numProcs := 1
+	numProcs := 4
 	collector := NewProcessCollectorWithoutRepo()
 
 	list, err := collector.Collect()
