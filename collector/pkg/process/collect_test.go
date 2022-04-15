@@ -68,6 +68,9 @@ type CPUUtilizationCase struct {
 
 func TestCalcCPUUtilization(t *testing.T) {
 	ts := []CPUUtilizationCase{
+		{name: "valid1", cpuTime: 0.33, executionTime: 10909.357297287, expected: float64(0.003024926134576839)},
+		{name: "valid2", cpuTime: 0.41, executionTime: 10909.357297287, expected: float64(0.0037582415611409213)},
+		{name: "valid3", cpuTime: 414.29, executionTime: 10908.357297287, expected: float64(3.7979137344817024)},
 		{name: "full utilization", cpuTime: 450.6, executionTime: 450.6, expected: float64(100)},
 		{name: "execution zero", cpuTime: 450.6, executionTime: 0, expected: float64(0)},
 		{name: "cpu zero", cpuTime: 0, executionTime: 2043.56, expected: float64(0)},
