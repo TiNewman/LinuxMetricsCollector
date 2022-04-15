@@ -36,9 +36,9 @@ func NewProcessCollectorWithoutRepo() collector {
 	return collector{mount: "/proc"}
 }
 
-func newTestCollector() collector {
+func newTestCollector(mp string) collector {
 	wd, _ := os.Getwd()
-	mountpoint := wd + "/testdata"
+	mountpoint := wd + "/testdata/" + mp
 	return collector{mount: mountpoint}
 }
 
@@ -86,11 +86,15 @@ func (c collector) Collect() ([]Process, error) {
 		}
 
 		// get the process name
-		pname, err := proc.Comm()
-		if err != nil {
-			fmt.Printf("Could not get process name: %v\n", err.Error())
-			return processList, err
-		}
+		pname := procstat.Comm
+		/*
+			fmt.Printf("Proc Comm: %v\n", procstat.Comm)
+			pname, err := proc.Comm()
+			if err != nil {
+				fmt.Printf("Could not get process name: %v\n", err.Error())
+				return processList, err
+			}
+		*/
 
 		// process schedule state: running, asleep, etc.
 		status := procstat.State

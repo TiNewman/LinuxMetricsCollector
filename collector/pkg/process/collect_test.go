@@ -1,12 +1,19 @@
 package process
 
 import (
+	"errors"
+	"os"
 	"testing"
 )
 
+type CollectCase struct {
+	name string
+}
+
 func TestCollect(t *testing.T) {
 	numProcs := 4
-	collector := newTestCollector()
+	tc := CollectCase{name: "valid"}
+	collector := newTestCollector(tc.name)
 
 	list, err := collector.Collect()
 	if err != nil {
@@ -14,6 +21,17 @@ func TestCollect(t *testing.T) {
 	}
 	if len(list) != numProcs {
 		t.Errorf("Expected %v processes; Got %v\n", numProcs, len(list))
+	}
+}
+
+func TestCollectInvalidMount(t *testing.T) {
+	tc := CollectCase{name: "mount_does_not_exist"}
+	collector := newTestCollector(tc.name)
+	_, err := collector.Collect()
+	e := errors.Unwrap(err)
+	_, ok := e.(*os.PathError)
+	if !ok {
+		t.Errorf("Test: %v; Unexpected error: %v; Expected os.PathError\n", tc.name, err.Error())
 	}
 }
 
