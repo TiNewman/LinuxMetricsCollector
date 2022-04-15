@@ -2,6 +2,7 @@ package process
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"testing"
 )
@@ -32,6 +33,26 @@ func TestCollectInvalidMount(t *testing.T) {
 	_, ok := e.(*os.PathError)
 	if !ok {
 		t.Errorf("Test: %v; Unexpected error: %v; Expected os.PathError\n", tc.name, err.Error())
+	}
+}
+
+func TestCollectError(t *testing.T) {
+	ts := []CollectCase{{name: "nostatus"}}
+
+	for _, tc := range ts {
+		t.Run(tc.name, func(t *testing.T) {
+			collector := newTestCollector(tc.name)
+			_, e := collector.Collect()
+			if e != nil {
+				fmt.Println(e.Error())
+				_, ok := e.(*os.PathError)
+				if !ok {
+					t.Errorf("Test: %v; Unexpected error: %v; Expected os.PathError\n", tc.name, e.Error())
+				}
+			} else {
+				t.Errorf("Test: %v; Expected os.PathError\n", tc.name)
+			}
+		})
 	}
 }
 
