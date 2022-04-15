@@ -29,6 +29,7 @@ func TestCalcCPUUtilization(t *testing.T) {
 		{name: "full utilization", cpuTime: 450.6, executionTime: 450.6, expected: float64(100)},
 		{name: "execution zero", cpuTime: 450.6, executionTime: 0, expected: float64(0)},
 		{name: "cpu zero", cpuTime: 0, executionTime: 2043.56, expected: float64(0)},
+		{name: "all zero", cpuTime: 0, executionTime: 0, expected: float64(0)},
 	}
 	for _, tc := range ts {
 		// run each case in a sub-test
