@@ -39,7 +39,7 @@ func TestAllCorrectInputs(t *testing.T) {
 	if err != nil {
 	}
 
-	var numberOfRounds int = 2
+	var numberOfRounds int = 10
 
 	for numberOfRounds != 0 {
 
