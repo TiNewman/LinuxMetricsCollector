@@ -126,6 +126,67 @@ func TestMalformedReq(t *testing.T) {
 	}
 }
 
+func TestStopReq(t *testing.T) {
+	done = make(chan interface{})    // Channel to indicate that the receiverHandler is done
+	interrupt = make(chan os.Signal) // Channel to listen for interrupt signal to terminate gracefully
+
+	signal.Notify(interrupt, os.Interrupt) // Notify the interrupt channel for SIGINT
+
+	// connect client to server
+	socketUrl := "ws://localhost:8080" + "/ws"
+	conn, _, err := websocket.DefaultDialer.Dial(socketUrl, nil)
+	if err != nil {
+		log.Fatal("Error connecting to Websocket Server:", err)
+	}
+	defer conn.Close()
+
+	// handle server responses
+	go receiveErrorHandler(conn, t)
+
+	// send request to websocket server
+	response := make(map[string]interface{})
+
+	response["request"] = "stop"
+
+	err = writeSocketResponse(conn, response)
+	if err != nil {
+		t.Errorf("Error: %v", err.Error())
+		return
+	}
+
+	// wait for read handler to finish
+	for {
+		select {
+		case <-interrupt:
+			// We received a SIGINT (Ctrl + C). Terminate gracefully...
+			log.Println("Received SIGINT interrupt signal. Closing all pending connections")
+
+			// Close our websocket connection
+			err := conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
+			if err != nil {
+				log.Println("Error during closing websocket:", err)
+				return
+			}
+		case <-done:
+			// log.Println("Receiver Channel Closed! Exiting....")
+			err := conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
+			if err != nil {
+				log.Println("Error during closing websocket:", err)
+				return
+			}
+			return
+		case <-time.After(time.Duration(10) * time.Second):
+			// not an error -> server should ignore the request
+			err := conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
+			if err != nil {
+				log.Println("Error during closing websocket:", err)
+				return
+			}
+			return
+		}
+	}
+}
+
 func TestCPUReq(t *testing.T) {
 	done = make(chan interface{})    // Channel to indicate that the receiverHandler is done
 	interrupt = make(chan os.Signal) // Channel to listen for interrupt signal to terminate gracefully
