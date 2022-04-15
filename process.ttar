@@ -2,15 +2,21 @@
 Directory: testdata
 Mode: 775
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Directory: testdata/12641
+Directory: testdata/invalid
 Mode: 775
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: testdata/12641/comm
+Directory: testdata/valid
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: testdata/valid/12641
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: testdata/valid/12641/comm
 Lines: 1
 code
 Mode: 664
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: testdata/12641/io
+Path: testdata/valid/12641/io
 Lines: 7
 rchar: 20849919
 wchar: 17706367
@@ -21,12 +27,12 @@ write_bytes: 18821120
 cancelled_write_bytes: 4096
 Mode: 664
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: testdata/12641/stat
+Path: testdata/valid/12641/stat
 Lines: 1
 12641 (code) S 1609 12641 12641 0 -1 4194560 107715 132 1 0 451 195 0 0 20 0 32 0 23579 22225772544 41063 18446744073709551615 94172053288064 94172159431584 140734569776336 0 0 0 0 4096 1098991359 0 0 0 17 5 0 0 0 0 0 94172164577536 94172165001128 94172185333760 140734569779893 140734569779916 140734569779916 140734569783267 0
 Mode: 664
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: testdata/12641/status
+Path: testdata/valid/12641/status
 Lines: 57
 Name:	code
 Umask:	0002
@@ -87,15 +93,15 @@ voluntary_ctxt_switches:	44312
 nonvoluntary_ctxt_switches:	756
 Mode: 664
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Directory: testdata/13698
+Directory: testdata/valid/13698
 Mode: 775
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: testdata/13698/comm
+Path: testdata/valid/13698/comm
 Lines: 1
 Discord
 Mode: 664
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: testdata/13698/io
+Path: testdata/valid/13698/io
 Lines: 7
 rchar: 38077458
 wchar: 9365922
@@ -106,12 +112,12 @@ write_bytes: 9478144
 cancelled_write_bytes: 0
 Mode: 664
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: testdata/13698/stat
+Path: testdata/valid/13698/stat
 Lines: 1
 13698 (Discord) S 1738 1738 1738 0 -1 4194560 294375 15267 70 17 192 160 50 11 20 0 32 0 103590 39451992064 40127 18446744073709551615 94075167715648 94075272986096 140726268919552 0 0 0 0 16781312 18171 0 0 0 17 4 0 0 0 0 0 94075278042400 94075278469656 94075296251904 140726268926448 140726268926465 140726268926465 140726268927975 0
 Mode: 664
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: testdata/13698/status
+Path: testdata/valid/13698/status
 Lines: 57
 Name:	Discord
 Umask:	0022
@@ -172,15 +178,15 @@ voluntary_ctxt_switches:	4316
 nonvoluntary_ctxt_switches:	202
 Mode: 664
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Directory: testdata/13964
+Directory: testdata/valid/13964
 Mode: 775
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: testdata/13964/comm
+Path: testdata/valid/13964/comm
 Lines: 1
 azuredatastudio
 Mode: 664
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: testdata/13964/io
+Path: testdata/valid/13964/io
 Lines: 7
 rchar: 23528230
 wchar: 4604086
@@ -191,12 +197,12 @@ write_bytes: 1671168
 cancelled_write_bytes: 0
 Mode: 664
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: testdata/13964/stat
+Path: testdata/valid/13964/stat
 Lines: 1
 13964 (azuredatastudio) S 1738 1738 1738 0 -1 4194560 33480 12196 62 0 56 20 9 4 20 0 32 0 104878 39460773888 37288 18446744073709551615 93955747326016 93955852599088 140733404475424 0 0 0 0 16781312 16899 0 0 0 17 0 0 0 0 0 0 93955857654464 93955858081560 93955879518208 140733404477858 140733404477916 140733404477916 140733404479437 0
 Mode: 664
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: testdata/13964/status
+Path: testdata/valid/13964/status
 Lines: 57
 Name:	azuredatastudio
 Umask:	0022
@@ -257,15 +263,15 @@ voluntary_ctxt_switches:	1784
 nonvoluntary_ctxt_switches:	140
 Mode: 664
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Directory: testdata/2422
+Directory: testdata/valid/2422
 Mode: 775
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: testdata/2422/comm
+Path: testdata/valid/2422/comm
 Lines: 1
 firefox
 Mode: 664
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: testdata/2422/io
+Path: testdata/valid/2422/io
 Lines: 7
 rchar: 146746089
 wchar: 32323774
@@ -276,12 +282,12 @@ write_bytes: 80797696
 cancelled_write_bytes: 12480512
 Mode: 664
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: testdata/2422/stat
+Path: testdata/valid/2422/stat
 Lines: 1
 2422 (firefox) S 1738 1738 1738 0 -1 4194560 268084 5436 8993 0 2040 571 2 1 20 0 103 0 2555 3597156352 88042 18446744073709551615 93887750914048 93887751336509 140731261800752 0 0 0 0 16781312 17663 0 0 0 17 6 0 0 0 0 0 93887751462112 93887751467120 93887762681856 140731261806358 140731261806385 140731261806385 140731261808605 0
 Mode: 664
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: testdata/2422/status
+Path: testdata/valid/2422/status
 Lines: 57
 Name:	firefox
 Umask:	0022
@@ -342,7 +348,7 @@ voluntary_ctxt_switches:	32077
 nonvoluntary_ctxt_switches:	669
 Mode: 664
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Path: testdata/stat
+Path: testdata/valid/stat
 Lines: 16
 cpu  29536 55 11139 1424295 1267 6451 1121 0 0 0
 cpu0 3521 4 1395 178481 145 373 160 0 0 0
