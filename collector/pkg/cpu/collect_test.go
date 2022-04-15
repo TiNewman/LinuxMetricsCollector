@@ -1,6 +1,8 @@
 package cpu
 
 import (
+	"errors"
+	"os"
 	"testing"
 
 	"github.com/prometheus/procfs"
@@ -13,12 +15,50 @@ type UsageCase struct {
 	expected float32
 }
 
+type CollectCase struct {
+	name string
+}
+
 func TestCollect(t *testing.T) {
 	collector := NewCPUCollectorWithoutRepo()
 
 	_, err := collector.Collect()
 	if err != nil {
 		t.Errorf("Collect method returned an error: %v\n", err.Error())
+	}
+
+}
+
+func TestCollectError(t *testing.T) {
+	ts := []CollectCase{
+		{
+			name: "nofiles",
+		},
+		{
+			name: "withCPUInfo",
+		},
+	}
+
+	for _, tc := range ts {
+		t.Run(tc.name, func(t *testing.T) {
+			collector := newTestCollector(tc.name)
+			_, err := collector.Collect()
+			_, ok := err.(*os.PathError)
+			if !ok {
+				t.Errorf("Test: %v; Unexpected error: %v; Expected os.PathError\n", tc.name, err.Error())
+			}
+		})
+	}
+}
+
+func TestCollectInvalidMount(t *testing.T) {
+	tc := CollectCase{name: "mount_does_not_exist"}
+	collector := newTestCollector(tc.name)
+	_, err := collector.Collect()
+	e := errors.Unwrap(err)
+	_, ok := e.(*os.PathError)
+	if !ok {
+		t.Errorf("Test: %v; Unexpected error: %v; Expected os.PathError\n", tc.name, err.Error())
 	}
 
 }

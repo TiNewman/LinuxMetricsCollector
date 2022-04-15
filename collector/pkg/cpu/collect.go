@@ -2,6 +2,7 @@ package cpu
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/prometheus/procfs"
@@ -14,7 +15,8 @@ type CPU struct {
 }
 
 type collector struct {
-	r Repository
+	r     Repository
+	mount string
 }
 
 type Collector interface {
@@ -22,17 +24,24 @@ type Collector interface {
 }
 
 func NewCPUCollector(repo Repository) collector {
-	return collector{r: repo}
+	return collector{r: repo, mount: "/proc"}
 }
 
 func NewCPUCollectorWithoutRepo() collector {
-	return collector{}
+	return collector{mount: "/proc"}
+}
+
+func newTestCollector(mp string) collector {
+	wd, _ := os.Getwd()
+	mountpoint := wd + "/testdata/" + mp
+	return collector{mount: mountpoint}
 }
 
 func (c collector) Collect() (CPU, error) {
 	result := CPU{}
 
-	fs, err := procfs.NewDefaultFS()
+	//fs, err := procfs.NewDefaultFS()
+	fs, err := procfs.NewFS(c.mount)
 	if err != nil {
 		fmt.Printf("Cannot locate proc mount %v", err.Error())
 		return result, err

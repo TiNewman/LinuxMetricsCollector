@@ -13,4 +13,5 @@ database:
 
 test: 
 	./ttar -C collector/pkg/process/ -x -f process.ttar && cd collector/pkg/process && go test -v
+	cd collector/pkg/cpu && go test -v
 

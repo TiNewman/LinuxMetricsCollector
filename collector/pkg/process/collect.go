@@ -52,7 +52,7 @@ func (c collector) Collect() ([]Process, error) {
 	}
 
 	// collect data from the configured mount point
-	// this differs from /proc when testing
+	// (collector/pkg/process/testdata when testing and /proc when in production)
 	fs, err := procfs.NewFS(c.mount)
 	if err != nil {
 		fmt.Printf("Cannot locate proc mount %v", err.Error())
