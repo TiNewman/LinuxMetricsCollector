@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"runtime"
 	"time"
 
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/collecting"
@@ -35,11 +34,11 @@ func wsEndpoint(collector collecting.Service) func(http.ResponseWriter, *http.Re
 		if err != nil {
 			fmt.Println("Error upgrading connection: ", err.Error())
 		}
-		fmt.Println("Client Connected!")
+		// fmt.Println("Client Connected!")
 		writeChan := make(chan string)
 		go reader(ws, writeChan)
 		writer(ws, writeChan, collector)
-		fmt.Printf("go routines: %v\n", runtime.NumGoroutine())
+		// fmt.Printf("go routines: %v\n", runtime.NumGoroutine())
 	}
 }
 
@@ -57,7 +56,7 @@ func reader(conn *websocket.Conn, writeChan chan string) {
 				case websocket.CloseNormalClosure,
 					websocket.CloseGoingAway,
 					websocket.CloseNoStatusReceived:
-					fmt.Println("Connection closed by client")
+					// fmt.Println("Connection closed by client")
 					writeChan <- fmt.Sprint("stop")
 					conn.Close()
 					return
@@ -68,13 +67,13 @@ func reader(conn *websocket.Conn, writeChan chan string) {
 			}
 		}
 
-		fmt.Println("Message Received: ", string(p))
+		// fmt.Println("Message Received: ", string(p))
 		var req clientreq
 		err = json.Unmarshal(p, &req)
 		if err != nil {
 			fmt.Printf("Error Decoding JSON Request: %v\n", err.Error())
 		}
-		fmt.Printf("%+v\n", req)
+		// fmt.Printf("%+v\n", req)
 
 		writeChan <- string(req.Request)
 
@@ -102,10 +101,10 @@ func writer(conn *websocket.Conn, c chan string, collector collecting.Service) {
 				sendCPUInfo(conn, data.CPU)
 			}
 			if m == "stop" {
-				fmt.Println("Stopping message stream...")
+				// fmt.Println("Stopping message stream...")
 				publish = false
 			}
-			fmt.Printf("writer received message: %v\n", m)
+			// fmt.Printf("writer received message: %v\n", m)
 			lastWrite = now
 		default:
 			if publish && !lastWrite.IsZero() && now.Sub(lastWrite).Seconds() > 5 {

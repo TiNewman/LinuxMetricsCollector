@@ -1,7 +1,6 @@
 package process
 
 import (
-	"fmt"
 	"os"
 	"os/user"
 	"time"
@@ -47,7 +46,7 @@ func (c collector) Collect() ([]Process, error) {
 	processList := []Process{}
 	currentUser, err := user.Current()
 	if err != nil {
-		fmt.Printf("Cannot determine current user: %v\n", err.Error())
+		// fmt.Printf("Cannot determine current user: %v\n", err.Error())
 		return processList, err
 	}
 
@@ -55,12 +54,12 @@ func (c collector) Collect() ([]Process, error) {
 	// (collector/pkg/process/testdata when testing and /proc when in production)
 	fs, err := procfs.NewFS(c.mount)
 	if err != nil {
-		fmt.Printf("Cannot locate proc mount %v", err.Error())
+		// fmt.Printf("Cannot locate proc mount %v", err.Error())
 		return processList, err
 	}
 	p, err := fs.AllProcs()
 	if err != nil {
-		fmt.Printf("Could not get all processes: %v\n", err)
+		// fmt.Printf("Could not get all processes: %v\n", err)
 		return processList, err
 	}
 
@@ -70,7 +69,7 @@ func (c collector) Collect() ([]Process, error) {
 		// filter by UID ( get processes for current user only )
 		procStatus, err := proc.NewStatus()
 		if err != nil {
-			fmt.Printf("Could not get uids of process: %v\n", err.Error())
+			// fmt.Printf("Could not get uids of process: %v\n", err.Error())
 			return processList, err
 		}
 		uids := procStatus.UIDs
@@ -81,7 +80,7 @@ func (c collector) Collect() ([]Process, error) {
 		procstat, err := proc.Stat()
 
 		if err != nil {
-			fmt.Printf("Could not get process status: %v\n", err.Error())
+			// fmt.Printf("Could not get process status: %v\n", err.Error())
 			return processList, err
 		}
 
@@ -107,7 +106,7 @@ func (c collector) Collect() ([]Process, error) {
 
 		var readTotal uint64
 		if err != nil {
-			fmt.Printf("Could not get IO metrics for process %v: %v\n", pname, err)
+			// fmt.Printf("Could not get IO metrics for process %v: %v\n", pname, err)
 			//return
 			// set a negative value to signify N/A?
 			readTotal = 0
@@ -118,7 +117,7 @@ func (c collector) Collect() ([]Process, error) {
 		// calculate the CPU Utilization
 		unixstarttime, err := procstat.StartTime()
 		if err != nil {
-			fmt.Printf("Could not get start time of process: %v\n", err.Error())
+			// fmt.Printf("Could not get start time of process: %v\n", err.Error())
 			return processList, err
 		}
 

@@ -14,3 +14,4 @@ database:
 test: 
 	./ttar -C collector/pkg/process/ -x -f process.ttar && cd collector/pkg/process && go test -v
 	./ttar -C collector/pkg/cpu/ -x -f cpu.ttar && cd collector/pkg/cpu && go test -v
+	cd collector/pkg/http/websocket && go test -v -p 1

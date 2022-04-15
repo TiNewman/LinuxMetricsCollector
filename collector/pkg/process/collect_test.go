@@ -2,7 +2,6 @@ package process
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"testing"
 )
@@ -48,7 +47,7 @@ func TestCollectError(t *testing.T) {
 			collector := newTestCollector(tc.name)
 			_, e := collector.Collect()
 			if e != nil {
-				fmt.Println(e.Error())
+				// fmt.Println(e.Error())
 				_, ok := e.(*os.PathError)
 				if !ok {
 					t.Errorf("Test: %v; Unexpected error: %v; Expected os.PathError\n", tc.name, e.Error())
