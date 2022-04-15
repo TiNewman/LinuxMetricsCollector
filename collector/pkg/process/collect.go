@@ -36,7 +36,7 @@ func NewProcessCollectorWithoutRepo() collector {
 	return collector{mount: "/proc"}
 }
 
-func NewTestCollector() collector {
+func newTestCollector() collector {
 	wd, _ := os.Getwd()
 	mountpoint := wd + "/testdata"
 	return collector{mount: mountpoint}

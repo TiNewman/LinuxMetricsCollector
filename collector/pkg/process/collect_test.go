@@ -6,7 +6,7 @@ import (
 
 func TestCollect(t *testing.T) {
 	numProcs := 4
-	collector := NewTestCollector()
+	collector := newTestCollector()
 
 	list, err := collector.Collect()
 	if err != nil {
