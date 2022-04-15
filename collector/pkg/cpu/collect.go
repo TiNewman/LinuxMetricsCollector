@@ -1,7 +1,6 @@
 package cpu
 
 import (
-	"fmt"
 	"os"
 	"time"
 
@@ -43,13 +42,13 @@ func (c collector) Collect() (CPU, error) {
 	//fs, err := procfs.NewDefaultFS()
 	fs, err := procfs.NewFS(c.mount)
 	if err != nil {
-		fmt.Printf("Cannot locate proc mount %v", err.Error())
+		// fmt.Printf("Cannot locate proc mount %v", err.Error())
 		return result, err
 	}
 
 	info, err := fs.CPUInfo()
 	if err != nil {
-		fmt.Printf("Could not get CPU info: %v\n", err)
+		// fmt.Printf("Could not get CPU info: %v\n", err)
 		return result, err
 	}
 	// fmt.Printf("%v\n", len(info))
@@ -59,19 +58,19 @@ func (c collector) Collect() (CPU, error) {
 
 	startStat, err := fs.Stat()
 	if err != nil {
-		fmt.Printf("Could not get CPU stat: %v\n", err)
+		// fmt.Printf("Could not get CPU stat: %v\n", err)
 		return result, err
 	}
-	fmt.Printf("start: %+v\n", startStat.CPUTotal)
+	// fmt.Printf("start: %+v\n", startStat.CPUTotal)
 
 	time.Sleep(time.Second)
 
 	endStat, err := fs.Stat()
 	if err != nil {
-		fmt.Printf("Could not get CPU stat: %v\n", err)
+		// fmt.Printf("Could not get CPU stat: %v\n", err)
 		return result, err
 	}
-	fmt.Printf("end: %+v\n", endStat.CPUTotal)
+	// fmt.Printf("end: %+v\n", endStat.CPUTotal)
 	// fmt.Printf("%+v\n", stat)
 
 	totalUsage := calculateUsage(startStat.CPUTotal, endStat.CPUTotal)
@@ -86,7 +85,7 @@ func (c collector) Collect() (CPU, error) {
 		}
 	*/
 
-	fmt.Printf("%+v\n", result)
+	// fmt.Printf("%+v\n", result)
 
 	return result, nil
 }

@@ -17,13 +17,15 @@ func TestCollect(t *testing.T) {
 	}
 }
 
+type CPUUtilizationCase struct {
+	name          string
+	cpuTime       float64
+	executionTime float64
+	expected      float64
+}
+
 func TestCalcCPUUtilization(t *testing.T) {
-	ts := []struct {
-		name          string
-		cpuTime       float64
-		executionTime float64
-		expected      float64
-	}{
+	ts := []CPUUtilizationCase{
 		{name: "full utilization", cpuTime: 450.6, executionTime: 450.6, expected: float64(100)},
 		{name: "execution zero", cpuTime: 450.6, executionTime: 0, expected: float64(0)},
 		{name: "cpu zero", cpuTime: 0, executionTime: 2043.56, expected: float64(0)},

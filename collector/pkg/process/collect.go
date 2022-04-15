@@ -139,7 +139,7 @@ func (c collector) Collect() ([]Process, error) {
 		processList = append(processList, nextprocess)
 
 	}
-	fmt.Printf("Processes in list: %v\n", len(processList))
+	// fmt.Printf("Processes in list: %v\n", len(processList))
 	return processList, nil
 
 }
