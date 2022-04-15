@@ -1,6 +1,7 @@
 package cpu
 
 import (
+	"math"
 	"os"
 	"time"
 
@@ -101,6 +102,10 @@ func calculateUsage(start procfs.CPUStat, end procfs.CPUStat) float32 {
 	total := active + idleDiff
 
 	usage := (active / total) * 100
+
+	if math.IsNaN(usage) {
+		return 0
+	}
 
 	return float32(usage)
 }

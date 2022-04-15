@@ -67,33 +67,45 @@ func TestCalculateUsage(t *testing.T) {
 
 	ts := []UsageCase{
 		{
-			name:     "case1",
+			name:     "valid1",
 			start:    procfs.CPUStat{User: 108.01, Nice: 0.27, System: 46.68, Idle: 5671.43, Iowait: 2.68, IRQ: 34.18, SoftIRQ: 4.02, Steal: 0, Guest: 0, GuestNice: 0},
 			end:      procfs.CPUStat{User: 108.09, Nice: 0.27, System: 46.71, Idle: 5679.27, Iowait: 2.68, IRQ: 34.23, SoftIRQ: 4.02, Steal: 0, Guest: 0, GuestNice: 0},
 			expected: 1.3836478,
 		},
 		{
-			name:     "case2",
+			name:     "valid2",
 			start:    procfs.CPUStat{User: 108.44, Nice: 0.27, System: 46.9, Idle: 5710.67, Iowait: 2.68, IRQ: 34.31, SoftIRQ: 4.04, Steal: 0, Guest: 0, GuestNice: 0},
 			end:      procfs.CPUStat{User: 108.51, Nice: 0.27, System: 46.92, Idle: 5718.56, Iowait: 2.68, IRQ: 34.32, SoftIRQ: 4.05, Steal: 0, Guest: 0, GuestNice: 0},
 			expected: 1.1278195,
 		},
 		{
-			name:     "case3",
+			name:     "valid3",
 			start:    procfs.CPUStat{User: 108.97, Nice: 0.27, System: 47.08, Idle: 5749.96, Iowait: 2.68, IRQ: 34.36, SoftIRQ: 4.06, Steal: 0, Guest: 0, GuestNice: 0},
 			end:      procfs.CPUStat{User: 109, Nice: 0.27, System: 47.09, Idle: 5757.9, Iowait: 2.68, IRQ: 34.36, SoftIRQ: 4.07, Steal: 0, Guest: 0, GuestNice: 0},
 			expected: 0.5012531,
 		},
 		{
-			name:     "case4",
+			name:     "valid4",
 			start:    procfs.CPUStat{User: 109.39, Nice: 0.27, System: 47.27, Idle: 5789.35, Iowait: 2.69, IRQ: 34.4, SoftIRQ: 4.08, Steal: 0, Guest: 0, GuestNice: 0},
 			end:      procfs.CPUStat{User: 109.41, Nice: 0.27, System: 47.28, Idle: 5797.32, Iowait: 2.69, IRQ: 34.41, SoftIRQ: 4.09, Steal: 0, Guest: 0, GuestNice: 0},
 			expected: 0.375,
 		},
 		{
-			name:     "case5",
+			name:     "valid5",
 			start:    procfs.CPUStat{User: 110.17, Nice: 0.27, System: 47.68, Idle: 5827.77, Iowait: 2.69, IRQ: 34.8, SoftIRQ: 4.12, Steal: 0, Guest: 0, GuestNice: 0},
 			end:      procfs.CPUStat{User: 110.22, Nice: 0.27, System: 47.76, Idle: 5835.43, Iowait: 2.69, IRQ: 34.99, SoftIRQ: 4.12, Steal: 0, Guest: 0, GuestNice: 0},
+			expected: 1.6688062,
+		},
+		{
+			name:     "all zero",
+			start:    procfs.CPUStat{User: 0, Nice: 0, System: 0, Idle: 0, Iowait: 0, IRQ: 0, SoftIRQ: 0, Steal: 0, Guest: 0, GuestNice: 0},
+			end:      procfs.CPUStat{User: 0, Nice: 0, System: 0, Idle: 0, Iowait: 0, IRQ: 0, SoftIRQ: 0, Steal: 0, Guest: 0, GuestNice: 0},
+			expected: 0,
+		},
+		{
+			name:     "swap start end",
+			start:    procfs.CPUStat{User: 110.22, Nice: 0.27, System: 47.76, Idle: 5835.43, Iowait: 2.69, IRQ: 34.99, SoftIRQ: 4.12, Steal: 0, Guest: 0, GuestNice: 0},
+			end:      procfs.CPUStat{User: 110.17, Nice: 0.27, System: 47.68, Idle: 5827.77, Iowait: 2.69, IRQ: 34.8, SoftIRQ: 4.12, Steal: 0, Guest: 0, GuestNice: 0},
 			expected: 1.6688062,
 		},
 	}
