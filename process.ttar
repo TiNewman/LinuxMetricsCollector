@@ -2,8 +2,192 @@
 Directory: testdata
 Mode: 775
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Directory: testdata/invalid
+Directory: testdata/noio
 Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: testdata/noio/13698
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: testdata/noio/13698/comm
+Lines: 1
+Discord
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: testdata/noio/13698/stat
+Lines: 1
+13698 (Discord) S 1738 1738 1738 0 -1 4194560 294375 15267 70 17 192 160 50 11 20 0 32 0 103590 39451992064 40127 18446744073709551615 94075167715648 94075272986096 140726268919552 0 0 0 0 16781312 18171 0 0 0 17 4 0 0 0 0 0 94075278042400 94075278469656 94075296251904 140726268926448 140726268926465 140726268926465 140726268927975 0
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: testdata/noio/13698/status
+Lines: 57
+Name:	Discord
+Umask:	0022
+State:	S (sleeping)
+Tgid:	13698
+Ngid:	0
+Pid:	13698
+PPid:	1738
+TracerPid:	0
+Uid:	1000	1000	1000	1000
+Gid:	1000	1000	1000	1000
+FDSize:	256
+Groups:	10 1000 
+NStgid:	13698
+NSpid:	13698
+NSpgid:	1738
+NSsid:	1738
+VmPeak:	42495888 kB
+VmSize:	38527336 kB
+VmLck:	      16 kB
+VmPin:	       0 kB
+VmHWM:	  170964 kB
+VmRSS:	  160360 kB
+RssAnon:	   45232 kB
+RssFile:	  115092 kB
+RssShmem:	      36 kB
+VmData:	  354076 kB
+VmStk:	     132 kB
+VmExe:	  102804 kB
+VmLib:	   38836 kB
+VmPTE:	     800 kB
+VmSwap:	       0 kB
+HugetlbPages:	       0 kB
+CoreDumping:	0
+THP_enabled:	1
+Threads:	32
+SigQ:	0/62939
+SigPnd:	0000000000000000
+ShdPnd:	0000000000000000
+SigBlk:	0000000000000000
+SigIgn:	0000000001001000
+SigCgt:	00000001000046fb
+CapInh:	0000000000000000
+CapPrm:	0000000000000000
+CapEff:	0000000000000000
+CapBnd:	000001ffffffffff
+CapAmb:	0000000000000000
+NoNewPrivs:	0
+Seccomp:	0
+Seccomp_filters:	0
+Speculation_Store_Bypass:	thread vulnerable
+SpeculationIndirectBranch:	conditional enabled
+Cpus_allowed:	ff
+Cpus_allowed_list:	0-7
+Mems_allowed:	00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001
+Mems_allowed_list:	0
+voluntary_ctxt_switches:	4316
+nonvoluntary_ctxt_switches:	202
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: testdata/nostat
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: testdata/nostat/12641
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: testdata/nostat/12641/comm
+Lines: 1
+code
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: testdata/nostat/12641/io
+Lines: 7
+rchar: 20849919
+wchar: 17706367
+syscr: 16474
+syscw: 33974
+read_bytes: 1130496
+write_bytes: 18821120
+cancelled_write_bytes: 4096
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: testdata/nostat/12641/status
+Lines: 57
+Name:	code
+Umask:	0002
+State:	S (sleeping)
+Tgid:	12641
+Ngid:	0
+Pid:	12641
+PPid:	1609
+TracerPid:	0
+Uid:	1000	1000	1000	1000
+Gid:	1000	1000	1000	1000
+FDSize:	256
+Groups:	10 1000 
+NStgid:	12641
+NSpid:	12641
+NSpgid:	12641
+NSsid:	12641
+VmPeak:	25702536 kB
+VmSize:	21704856 kB
+VmLck:	      16 kB
+VmPin:	       0 kB
+VmHWM:	  176588 kB
+VmRSS:	  161748 kB
+RssAnon:	   49260 kB
+RssFile:	  112488 kB
+RssShmem:	       0 kB
+VmData:	  357788 kB
+VmStk:	     132 kB
+VmExe:	  103660 kB
+VmLib:	   38744 kB
+VmPTE:	     816 kB
+VmSwap:	       0 kB
+HugetlbPages:	       0 kB
+CoreDumping:	0
+THP_enabled:	1
+Threads:	32
+SigQ:	0/62939
+SigPnd:	0000000000000000
+ShdPnd:	0000000000000000
+SigBlk:	0000000000000000
+SigIgn:	0000000000001000
+SigCgt:	00000001418146ff
+CapInh:	0000000000000000
+CapPrm:	0000000000000000
+CapEff:	0000000000000000
+CapBnd:	000001ffffffffff
+CapAmb:	0000000000000000
+NoNewPrivs:	0
+Seccomp:	0
+Seccomp_filters:	0
+Speculation_Store_Bypass:	thread vulnerable
+SpeculationIndirectBranch:	conditional enabled
+Cpus_allowed:	ff
+Cpus_allowed_list:	0-7
+Mems_allowed:	00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001
+Mems_allowed_list:	0
+voluntary_ctxt_switches:	44312
+nonvoluntary_ctxt_switches:	756
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: testdata/nostatus
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: testdata/nostatus/2422
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: testdata/nostatus/2422/comm
+Lines: 1
+firefox
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: testdata/nostatus/2422/io
+Lines: 7
+rchar: 146746089
+wchar: 32323774
+syscr: 96038
+syscw: 79440
+read_bytes: 268091392
+write_bytes: 80797696
+cancelled_write_bytes: 12480512
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: testdata/nostatus/2422/stat
+Lines: 1
+2422 (firefox) S 1738 1738 1738 0 -1 4194560 268084 5436 8993 0 2040 571 2 1 20 0 103 0 2555 3597156352 88042 18446744073709551615 93887750914048 93887751336509 140731261800752 0 0 0 0 16781312 17663 0 0 0 17 6 0 0 0 0 0 93887751462112 93887751467120 93887762681856 140731261806358 140731261806385 140731261806385 140731261808605 0
+Mode: 664
 # ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Directory: testdata/valid
 Mode: 775

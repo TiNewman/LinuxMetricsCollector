@@ -37,7 +37,11 @@ func TestCollectInvalidMount(t *testing.T) {
 }
 
 func TestCollectError(t *testing.T) {
-	ts := []CollectCase{{name: "nostatus"}}
+	ts := []CollectCase{
+		{name: "nostatus"},
+		{name: "nostat"},
+		{name: "noio"},
+	}
 
 	for _, tc := range ts {
 		t.Run(tc.name, func(t *testing.T) {
