@@ -15,8 +15,6 @@ GO
 
 USE MetricsCollectorDB;
 
-GO
-
 CREATE TABLE CPU (
 	cpuID BIGINT NOT NULL IDENTITY(0,1),
   usage FLOAT NOT NULL,
@@ -43,8 +41,8 @@ CREATE TABLE DISK (
 CREATE TABLE COLLECTOR (
 	collectorID BIGINT NOT NULL IDENTITY(0,1),
 	timeCollected DATETIME2 NOT NULL, -- Pay attention to how the data needs to be formatted here!
-	-- For now this arent used as we are only working with Process.
-  cpuID BIGINT, -- NOT NULL
+	-- For now this arent used as we are only working with Process and CPU.
+	cpuID BIGINT, -- NOT NULL
 	memoryID BIGINT, -- NOT NULL
 	diskID BIGINT, -- NOT NULL
 
@@ -67,6 +65,61 @@ CREATE TABLE PROCESS (
 
 	CONSTRAINT pk_process_processID_collectorID_PID PRIMARY KEY (processID, collectorID, PID),
 	CONSTRAINT fk_process_collector_collectorID FOREIGN KEY (collectorID) REFERENCES COLLECTOR(collectorID)
+);
+
+-- HISTORY TABLES
+
+CREATE TABLE CPU_AVERAGE (
+	cpuAverageID BIGINT NOT NULL IDENTITY(0,1),
+	averageUsage FLOAT NOT NULL,
+	
+	CONSTRAINT pk_cpuaverage_cpuaverageID PRIMARY KEY (cpuAverageID)
+);
+
+CREATE TABLE MEMORY_AVERAGE (
+	memoryAverageID BIGINT NOT NULL IDENTITY(0,1),
+	averageUsage FLOAT NOT NULL,
+	averageAvailability FLOAT NOT NULL,
+
+	CONSTRAINT pk_memoryaverage_memoryaverageID PRIMARY KEY (memoryAverageID)
+);
+
+CREATE TABLE DISK_AVERAGE (
+	diskAverageID BIGINT NOT NULL IDENTITY(0,1),
+  averageUsage FLOAT NOT NULL,
+	averageAvailability FLOAT NOT NULL,
+
+	CONSTRAINT pk_diskaverage_diskaverageID PRIMARY KEY (diskAverageID)
+);
+
+CREATE TABLE COLLECTOR_HISTORY (
+	collectorHistoryID BIGINT NOT NULL IDENTITY(0,1),
+	timeCollectedStart DATETIME2 NOT NULL,
+	timeCollectedEnd DATETIME2 NOT NULL,
+	-- For now this arent used as we are only working with Process and CPU.
+	cpuAverageID BIGINT, -- NOT NULL
+	memoryAverageID BIGINT, -- NOT NULL
+	diskAverageID BIGINT, -- NOT NULL
+
+	CONSTRAINT pk_collectorhistory_collectorHistoryID PRIMARY KEY (collectorHistoryID),
+	CONSTRAINT fk_collectorhistory_cpuaverage_averagecpuID FOREIGN KEY (cpuAverageID) REFERENCES CPU_AVERAGE(cpuAverageID),
+	CONSTRAINT fk_collectorhistory_memoryaverage_averagememoryID FOREIGN KEY (memoryAverageID) REFERENCES MEMORY_AVERAGE(memoryAverageID),
+	CONSTRAINT fk_collectorhistory_diskaverage_averagediskID FOREIGN KEY (diskAverageID) REFERENCES DISK_AVERAGE(diskAverageID)
+);
+
+CREATE TABLE PROCESS_HISTORY (
+	processHistoryID BIGINT NOT NULL IDENTITY(0,1),
+	collectorHistoryID BIGINT NOT NULL,
+	PID BIGINT NOT NULL,
+	name VARCHAR(100),
+	status VARCHAR(20) NOT NULL,
+	cpuUsage FLOAT,
+	memoryUsage FLOAT,
+	diskUsage FLOAT,
+	executionTime FLOAT,
+
+	CONSTRAINT pk_processhistory_processhistoryID_collectorhistoryID PRIMARY KEY (processHistoryID, collectorHistoryID),
+	CONSTRAINT fk_processhistory_collectorhistory_collectorhistoryID FOREIGN KEY (collectorHistoryID) REFERENCES COLLECTOR_HISTORY(collectorHistoryID)
 );
 
 GO
