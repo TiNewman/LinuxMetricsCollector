@@ -1,11 +1,9 @@
-/*
-For now I have main left as a comment, as it allows for easy testing.
-As of 3/24/2022, there are custom searches (based on table name) and inserts for
-MEMORY/DISk tables.
-There are fully custom (tableName, column, field) for the PROCESS table.
-CPU has it's own functions as it only holds usage now.
-Use the BULK insert Function to insert everything together.
-*/
+//	For now I have *main* left as a comment, as it allows for easy testing.
+//	As of 3/24/2022, there are custom searches (based on table name) and inserts for
+//	MEMORY/DISk tables.
+//	There are fully custom (tableName, column, field) for the PROCESS table.
+//	CPU has it's own functions as it only holds usage now.
+//	Use the BULK insert Function to insert everything together.
 
 package mssql
 
@@ -42,6 +40,14 @@ type Collector struct {
 	cpuID         int
 	memoryID      int
 	diskID        int
+}
+
+type IncorrectCollector struct {
+	collectorID   int
+	timeCollected time.Time
+	cpuID         int
+	memoryID      sql.NullString
+	diskID        sql.NullString
 }
 
 type IndividualComponent struct {
@@ -631,6 +637,55 @@ func (s *Storage) PutNewSingleComponent(
 }
 */
 
+//  Get newest collector from COLLECTOR table.
+//  Doesn't need anything, just call it to get the newest collector.
+//
+//  Return:
+//  	(Collector) COLLECTOR.
+func (s *Storage) GetCollectorNewest() IncorrectCollector {
+
+	ctx := context.Background()
+
+	// Get newsest Processes, based off collectorID.
+	singleQuery :=
+		fmt.Sprintf("SELECT TOP 1 collectorID, timeCollected, cpuID, memoryID, diskID" +
+			" FROM COLLECTOR ORDER BY timeCollected DESC;")
+
+	// Execute query
+	rows, err := s.DB_CONNECTION.QueryContext(ctx, singleQuery)
+
+	if err != nil {
+
+		log.Fatal(err.Error())
+	}
+
+	defer rows.Close()
+
+	var toReturn IncorrectCollector
+
+	// Iterate through the result set.
+	for rows.Next() {
+
+		//var collectorID, cpuID, memoryID, diskID int
+		var collectorID, cpuID int
+		var memoryID, diskID sql.NullString
+		var timeCollected time.Time
+
+		// Get values from row.
+		err := rows.Scan(&collectorID, &timeCollected, &cpuID, &memoryID, &diskID)
+
+		if err != nil {
+
+			log.Fatal(err.Error())
+		}
+
+		toReturn = IncorrectCollector{collectorID: collectorID, timeCollected: timeCollected,
+			cpuID: cpuID, memoryID: memoryID, diskID: diskID}
+	}
+
+	return toReturn
+}
+
 //  Get newest collector's ID from COLLECTOR table.
 //  Doesn't need anything, just call it to get the newest ID.
 //
@@ -683,8 +738,6 @@ func (s *Storage) GetCollectorIDNewest() int {
 //  	(int) rows inserted.
 //  	(error) any error, this should be 'nil'.
 func (s *Storage) PutNewCollector() (int64, error) {
-
-	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!NEED TO TEST IF the IDs for the 3 tables are the same, as if they arent, then it means that one table was not inserted into.!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 	// These will be used once we get to CPU/MEMORY/DISK tables.
 	var cpuID = s.GetNewestCPUID()
@@ -1002,7 +1055,7 @@ func (s *Storage) PutNewProcess(singleProcess process.Process) (int64, error) {
 
 		if singleCheckProcess == singleProcess {
 
-			fmt.Printf("Inserting the same process, PID: %v\n", singleProcess.PID)
+			fmt.Printf("Tried inserting the same process, PID: %v\n", singleProcess.PID)
 			repeatedProcess = true
 		}
 	}
@@ -1136,6 +1189,10 @@ func main() {
 
 	if err != nil {
 	}
+
+	//newestCollector := database.GetCollectorNewest()
+
+	//fmt.Printf("collector: %v, %v\n", newestCollector.collectorID, newestCollector.timeCollected)
 
 	cpuHolder1 := cpu.CPU{Usage: 10.10}
 
