@@ -1,7 +1,8 @@
 package cpu
 
 import (
-	"fmt"
+	"math"
+	"os"
 	"time"
 
 	"github.com/prometheus/procfs"
@@ -14,49 +15,63 @@ type CPU struct {
 }
 
 type collector struct {
-	r Repository
+	r     Repository
+	mount string
 }
 
 type Collector interface {
-	Collect() CPU
+	Collect() (CPU, error)
 }
 
 func NewCPUCollector(repo Repository) collector {
-	return collector{r: repo}
+	return collector{r: repo, mount: "/proc"}
 }
 
 func NewCPUCollectorWithoutRepo() collector {
-	return collector{}
+	return collector{mount: "/proc"}
 }
 
-func (c collector) Collect() CPU {
+func newTestCollector(mp string) collector {
+	wd, _ := os.Getwd()
+	mountpoint := wd + "/testdata/" + mp
+	return collector{mount: mountpoint}
+}
+
+func (c collector) Collect() (CPU, error) {
 	result := CPU{}
 
-	fs, err := procfs.NewDefaultFS()
+	//fs, err := procfs.NewDefaultFS()
+	fs, err := procfs.NewFS(c.mount)
 	if err != nil {
-		fmt.Printf("Cannot locate proc mount %v", err.Error())
+		// fmt.Printf("Cannot locate proc mount %v", err.Error())
+		return result, err
 	}
 
 	info, err := fs.CPUInfo()
 	if err != nil {
-		fmt.Printf("Could not get CPU info: %v\n", err)
+		// fmt.Printf("Could not get CPU info: %v\n", err)
+		return result, err
 	}
-	fmt.Printf("%v\n", len(info))
-	fmt.Printf("%+v\n", info[0])
+	// fmt.Printf("%v\n", len(info))
+	// fmt.Printf("%+v\n", info[0])
 	cores := info[0].CPUCores
 	model := info[0].ModelName
 
 	startStat, err := fs.Stat()
 	if err != nil {
-		fmt.Printf("Could not get CPU stat: %v\n", err)
+		// fmt.Printf("Could not get CPU stat: %v\n", err)
+		return result, err
 	}
+	// fmt.Printf("start: %+v\n", startStat.CPUTotal)
 
 	time.Sleep(time.Second)
 
 	endStat, err := fs.Stat()
 	if err != nil {
-		fmt.Printf("Could not get CPU stat: %v\n", err)
+		// fmt.Printf("Could not get CPU stat: %v\n", err)
+		return result, err
 	}
+	// fmt.Printf("end: %+v\n", endStat.CPUTotal)
 	// fmt.Printf("%+v\n", stat)
 
 	totalUsage := calculateUsage(startStat.CPUTotal, endStat.CPUTotal)
@@ -71,9 +86,9 @@ func (c collector) Collect() CPU {
 		}
 	*/
 
-	fmt.Printf("%+v\n", result)
+	// fmt.Printf("%+v\n", result)
 
-	return result
+	return result, nil
 }
 
 func calculateUsage(start procfs.CPUStat, end procfs.CPUStat) float32 {
@@ -87,6 +102,10 @@ func calculateUsage(start procfs.CPUStat, end procfs.CPUStat) float32 {
 	total := active + idleDiff
 
 	usage := (active / total) * 100
+
+	if math.IsNaN(usage) {
+		return 0
+	}
 
 	return float32(usage)
 }
