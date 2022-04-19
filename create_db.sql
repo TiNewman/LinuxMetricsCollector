@@ -1,6 +1,6 @@
 /*
 Author: Titan Newman
-Date: 2/28/2022
+Date: 4/19/2022
 
 Creation Script for the MetricsCollectorDB.
 */
@@ -123,3 +123,69 @@ CREATE TABLE PROCESS_HISTORY (
 );
 
 GO
+
+
+-- Stored Procedure for Purging data
+/*
+CREATE PROCEDURE PurgeData
+AS
+
+DECLARE @startDate DATETIME2;
+DECLARE @endDate DATETIME2;
+
+-- Dates in which to store in history collector.
+SET @startDate = (SELECT TOP 1 timeCollected FROM COLLECTOR ORDER BY timeCollected ASC);
+SET @endDate = (SELECT TOP 1 timeCollected FROM COLLECTOR ORDER BY timeCollected DESC);
+
+DECLARE @cpuUsage FLOAT = 0.0;
+DECLARE @diskUsage FLOAT = 0.0;
+DECLARE @memoryUsage FLOAT = 0.0;
+
+DECLARE @diskAvailability FLOAT = 0.0;
+DECLARE @memoryAvailability FLOAT = 0.0;
+
+DECLARE @startingID BIGINT = (SELECT TOP 1 cpuID FROM CPU ORDER BY cpuID ASC);
+DECLARE @endID BIGINT = (SELECT TOP 1 cpuID FROM CPU ORDER BY cpuID DESC);
+
+DECLARE @count FLOAT = (@endID - @startingID);
+
+IF @startingID = 0 
+BEGIN
+	SET @count = @count + 1;
+END
+
+
+IF @startingID = (SELECT TOP 1 diskID FROM DISK ORDER BY diskID ASC) AND (@startingID = (SELECT TOP 1 diskID FROM DISK ORDER BY diskID ASC))
+BEGIN
+
+	WHILE @startingID <= @endID
+	BEGIN
+		-- Usages
+		SET @cpuUsage = @cpuUsage + (SELECT TOP 1 usage FROM CPU WHERE cpuID = @startingID);
+		SET @diskUsage = @diskUsage + (SELECT TOP 1 usage FROM DISK WHERE diskID = @startingID);
+		SET @memoryUsage = @memoryUsage + (SELECT TOP 1 usage FROM MEMORY WHERE memoryID = @startingID);
+		-- Availabilities
+		SET @diskAvailability = @diskAvailability + (SELECT TOP 1 availability FROM DISK WHERE diskID = @startingID);
+		SET @memoryAvailability = @memoryAvailability + (SELECT TOP 1 availability FROM MEMORY WHERE memoryID = @startingID);
+
+		-- Increase ID pointer.
+		SET @startingID = @startingID + 1;
+
+	END
+	
+	-- Getting the average, but dividing by 3 as per day.
+	SET @cpuUsage = (@cpuUsage / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT);
+	SET @diskUsage = (@diskUsage / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT);
+	SET @memoryUsage = (@memoryUsage / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT);
+	SET @diskAvailability = (@diskAvailability / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT);
+	SET @memoryAvailability = (@memoryAvailability / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT);
+
+	SELECT @cpuUsage AS "CPU-USAGE", @diskUsage AS "DISK-USAGE", @memoryUsage AS "MEMORY-USAGE", @diskAvailability AS "DISK-AVA", @memoryAvailability AS "MEMORY-AVA" ;
+
+END
+
+
+SELECT * FROM MEMORY;
+	
+GO;
+*/
