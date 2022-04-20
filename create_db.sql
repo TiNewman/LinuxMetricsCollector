@@ -94,8 +94,8 @@ CREATE TABLE DISK_AVERAGE (
 
 CREATE TABLE COLLECTOR_HISTORY (
 	collectorHistoryID BIGINT NOT NULL IDENTITY(0,1),
-	timeCollectedStart DATETIME2 NOT NULL,
-	timeCollectedEnd DATETIME2 NOT NULL,
+	timeCollectedStart DATE NOT NULL,
+	timeCollectedEnd DATE NOT NULL,
 	-- For now this arent used as we are only working with Process and CPU.
 	cpuAverageID BIGINT, -- NOT NULL
 	memoryAverageID BIGINT, -- NOT NULL
@@ -201,9 +201,25 @@ BEGIN
 	PRINT N'Error: Purge Stored_Procedure_CPU_DISK_MEMORY --> Count for cycling through CPU/DISK/MEMORY was negative.';
 END
 
+-- INSERT into CPU/DISK/MEMORY _AVERAGE tables
+INSERT INTO CPU_AVERAGE VALUES (@cpuUsage);
+DECLARE @insertedCpuID BIGINT = (SELECT cpuAverageID FROM CPU_AVERAGE WHERE cpuAverageID = SCOPE_IDENTITY() AND averageUsage = @cpuUsage);
+INSERT INTO DISK_AVERAGE VALUES (@diskUsage, @diskAvailability);
+DECLARE @insertedDiskID BIGINT = (SELECT diskAverageID FROM DISK_AVERAGE WHERE diskAverageID = SCOPE_IDENTITY() AND averageUsage = @diskUsage AND averageAvailability = @diskAvailability);
+INSERT INTO MEMORY_AVERAGE VALUES (@memoryUsage, @memoryAvailability);
+DECLARE @insertedMemoryID BIGINT = (SELECT memoryAverageID FROM MEMORY_AVERAGE WHERE memoryAverageID = SCOPE_IDENTITY() AND averageUsage = @memoryUsage AND averageAvailability = @memoryAvailability);
+
+
+-- INSERT into COLLECTOR_HISTORY table
+INSERT INTO COLLECTOR_HISTORY VALUES (@startDate, @endDate, @insertedCpuID, @insertedMemoryID, @insertedDiskID);
+
+
+
 
 --SET @startingID = (SELECT TOP 1 processID FROM PROCESS ORDER BY processID ASC);
 --SET @endID = (SELECT TOP 1 cpuID FROM CPU ORDER BY cpuID DESC);
 	
 GO;
+
+
 */
