@@ -145,18 +145,6 @@ func sendCPUInfo(conn *websocket.Conn, cpuList cpu.CPU) {
 	}
 }
 
-func collectAndSendProcessList(conn *websocket.Conn, process process.Collector) {
-	response := make(map[string]interface{})
-
-	processes, _ := process.Collect()
-	response["process_list"] = processes
-
-	err := writeSocketResponse(conn, response)
-	if err != nil {
-		fmt.Printf("Error: %v", err.Error())
-	}
-}
-
 func writeSocketResponse(conn *websocket.Conn, res map[string]interface{}) error {
 	jsonResponse, err := json.Marshal(res)
 	if err != nil {
