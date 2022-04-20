@@ -7,7 +7,8 @@ import (
 )
 
 type Memory struct {
-	Usage float64
+	Usage float64 // amount of ram used as a percentage
+	Size  float64 // total ram in Megagytes
 }
 
 type collector struct {
@@ -44,11 +45,15 @@ func (c collector) Collect() (Memory, error) {
 	}
 
 	total := info.MemTotal
+
+	// convert total from kibibytes to Megabytes
+	kibToMBRatio := float64(0.001024)
+	totalMB := float64(*total) * kibToMBRatio
 	available := info.MemAvailable
 
 	usage := calculateUsage(total, available)
 
-	result = Memory{Usage: usage}
+	result = Memory{Usage: usage, Size: totalMB}
 
 	return result, nil
 }
@@ -57,6 +62,6 @@ func calculateUsage(total *uint64, available *uint64) float64 {
 	ftotal := float64(*total)
 	favailable := float64(*available)
 	used := ftotal - favailable
-	usage := used / ftotal
+	usage := (used / ftotal) * 100
 	return usage
 }
