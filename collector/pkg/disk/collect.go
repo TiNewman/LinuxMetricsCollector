@@ -2,7 +2,9 @@ package disk
 
 import (
 	"fmt"
-	"os/exec"
+	"regexp"
+
+	"github.com/prometheus/procfs"
 )
 
 type Disk struct {
@@ -25,12 +27,25 @@ func NewDiskCollector() collector {
 func (c collector) Collect() ([]Disk, error) {
 	result := []Disk{}
 
-	out, err := exec.Command(c.command).Output()
+	/*
+		out, err := exec.Command(c.command).Output()
+		if err != nil {
+			return result, err
+		}
+
+		fmt.Printf(string(out))
+	*/
+
+	mountInfo, err := procfs.GetMounts()
 	if err != nil {
 		return result, err
 	}
 
-	fmt.Printf(string(out))
+	for _, m := range mountInfo {
+		if found, _ := regexp.MatchString(`/dev.*`, m.Source); found {
+			fmt.Printf("mount info: %+v\n\n", m)
+		}
+	}
 
 	return result, nil
 }
