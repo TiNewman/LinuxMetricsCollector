@@ -127,65 +127,83 @@ GO
 
 -- Stored Procedure for Purging data
 /*
+
 CREATE PROCEDURE PurgeData
 AS
 
-DECLARE @startDate DATETIME2;
-DECLARE @endDate DATETIME2;
+DECLARE @startDate DATE = CONVERT(DATE, (SELECT TOP 1 timeCollected FROM COLLECTOR ORDER BY timeCollected ASC));
+DECLARE @endDate DATE = CONVERT(DATE, (SELECT DATEADD(DD, 3, @startDate)));
 
--- Dates in which to store in history collector.
-SET @startDate = (SELECT TOP 1 timeCollected FROM COLLECTOR ORDER BY timeCollected ASC);
-SET @endDate = (SELECT TOP 1 timeCollected FROM COLLECTOR ORDER BY timeCollected DESC);
+--SELECT @startDate AS "Start time", @endDate AS "NEWTIME";
+--SELECT timeCollected FROM COLLECTOR ORDER BY timeCollected ASC;
+DECLARE @endCollectorID BIGINT = (SELECT TOP 1 collectorID FROM COLLECTOR WHERE CONVERT(DATE, timeCollected) = @endDate ORDER BY timeCollected DESC);
 
 DECLARE @cpuUsage FLOAT = 0.0;
 DECLARE @diskUsage FLOAT = 0.0;
 DECLARE @memoryUsage FLOAT = 0.0;
-
 DECLARE @diskAvailability FLOAT = 0.0;
 DECLARE @memoryAvailability FLOAT = 0.0;
 
 DECLARE @startingID BIGINT = (SELECT TOP 1 cpuID FROM CPU ORDER BY cpuID ASC);
-DECLARE @endID BIGINT = (SELECT TOP 1 cpuID FROM CPU ORDER BY cpuID DESC);
+DECLARE @endID BIGINT = (SELECT TOP 1 cpuID FROM CPU WHERE cpuID IN (SELECT cpuID FROM COLLECTOR WHERE collectorID = @endCollectorID) ORDER BY cpuID DESC);
 
 DECLARE @count FLOAT = (@endID - @startingID);
 
-IF @startingID = 0 
-BEGIN
-	SET @count = @count + 1;
-END
-
-
-IF @startingID = (SELECT TOP 1 diskID FROM DISK ORDER BY diskID ASC) AND (@startingID = (SELECT TOP 1 diskID FROM DISK ORDER BY diskID ASC))
+IF @count >= 1
 BEGIN
 
-	WHILE @startingID <= @endID
+	IF @startingID = 0 
 	BEGIN
-		-- Usages
-		SET @cpuUsage = @cpuUsage + (SELECT TOP 1 usage FROM CPU WHERE cpuID = @startingID);
-		SET @diskUsage = @diskUsage + (SELECT TOP 1 usage FROM DISK WHERE diskID = @startingID);
-		SET @memoryUsage = @memoryUsage + (SELECT TOP 1 usage FROM MEMORY WHERE memoryID = @startingID);
-		-- Availabilities
-		SET @diskAvailability = @diskAvailability + (SELECT TOP 1 availability FROM DISK WHERE diskID = @startingID);
-		SET @memoryAvailability = @memoryAvailability + (SELECT TOP 1 availability FROM MEMORY WHERE memoryID = @startingID);
+		SET @count = @count + 1;
+	END
 
-		-- Increase ID pointer.
-		SET @startingID = @startingID + 1;
+
+	IF @startingID = (SELECT TOP 1 diskID FROM DISK ORDER BY diskID ASC) AND (@startingID = (SELECT TOP 1 memoryID FROM MEMORY ORDER BY memoryID ASC)) 
+	BEGIN
+
+		WHILE @startingID <= @endID
+		BEGIN
+			-- Usages
+			SET @cpuUsage = @cpuUsage + (SELECT TOP 1 usage FROM CPU WHERE cpuID = @startingID);
+			SET @diskUsage = @diskUsage + (SELECT TOP 1 usage FROM DISK WHERE diskID = @startingID);
+			--SELECT TOP 1 usage FROM MEMORY WHERE memoryID = @startingID;
+			SET @memoryUsage = @memoryUsage + (SELECT TOP 1 usage FROM MEMORY WHERE memoryID = @startingID);
+			-- Availabilities
+			SET @diskAvailability = @diskAvailability + (SELECT TOP 1 availability FROM DISK WHERE diskID = @startingID);
+			--SELECT TOP 1 availability FROM MEMORY WHERE memoryID = @startingID;
+			SET @memoryAvailability = @memoryAvailability + (SELECT TOP 1 availability FROM MEMORY WHERE memoryID = @startingID);
+
+			-- Increase ID pointer.
+			SET @startingID = @startingID + 1;
+		END
+	
+		-- Getting the average, but dividing by 3 as per day.
+		SET @cpuUsage = CAST(ROUND((@cpuUsage / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT), 2) AS NUMERIC(36,2));
+		SET @diskUsage = CAST(ROUND((@diskUsage / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT), 2) AS NUMERIC(36,2));
+		SET @memoryUsage = CAST(ROUND((@memoryUsage / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT), 2) AS NUMERIC(36,2));
+		SET @diskAvailability = CAST(ROUND((@diskAvailability / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT), 2) AS NUMERIC(36,2));
+		SET @memoryAvailability = CAST(ROUND((@memoryAvailability / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT), 2) AS NUMERIC(36,2));
+
+		SELECT @cpuUsage AS "CPU-USAGE", @diskUsage AS "DISK-USAGE", @memoryUsage AS "MEMORY-USAGE", @diskAvailability AS "DISK-AVA", @memoryAvailability AS "MEMORY-AVA" ;
 
 	END
-	
-	-- Getting the average, but dividing by 3 as per day.
-	SET @cpuUsage = (@cpuUsage / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT);
-	SET @diskUsage = (@diskUsage / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT);
-	SET @memoryUsage = (@memoryUsage / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT);
-	SET @diskAvailability = (@diskAvailability / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT);
-	SET @memoryAvailability = (@memoryAvailability / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT);
 
-	SELECT @cpuUsage AS "CPU-USAGE", @diskUsage AS "DISK-USAGE", @memoryUsage AS "MEMORY-USAGE", @diskAvailability AS "DISK-AVA", @memoryAvailability AS "MEMORY-AVA" ;
+	ELSE
+	BEGIN
 
+		PRINT N'Error: Purge Stored_Procedure_CPU_DISK_MEMORY --> Inconsistent data.';
+	END
+END
+
+ELSE
+BEGIN
+
+	PRINT N'Error: Purge Stored_Procedure_CPU_DISK_MEMORY --> Count for cycling through CPU/DISK/MEMORY was negative.';
 END
 
 
-SELECT * FROM MEMORY;
+--SET @startingID = (SELECT TOP 1 processID FROM PROCESS ORDER BY processID ASC);
+--SET @endID = (SELECT TOP 1 cpuID FROM CPU ORDER BY cpuID DESC);
 	
 GO;
 */
