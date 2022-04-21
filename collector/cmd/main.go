@@ -30,7 +30,11 @@ func main() {
 	cpuCollector := cpu.NewCPUCollectorWithoutRepo()
 	memCollector := memory.NewMemoryCollector()
 	diskCollector := disk.NewDiskCollector()
-	collectingService := collecting.NewService(collecting.WithProcessCollector(pcollector), collecting.WithCPUCollector(cpuCollector), collecting.WithMemCollector(memCollector), collecting.WithDiskCollector(diskCollector))
+	collectingService := collecting.NewService(
+		collecting.WithProcessCollector(pcollector),
+		collecting.WithCPUCollector(cpuCollector),
+		collecting.WithMemCollector(memCollector),
+		collecting.WithDiskCollector(diskCollector))
 	// collectingService := collecting.NewServiceWithoutRepo(pcollector, cpuCollector)
 	// collectingService := collecting.NewService(pcollector, cpuCollector, s)
 
