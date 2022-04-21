@@ -1124,9 +1124,8 @@ func (s *Storage) BulkInsert(totalMetrics collecting.Metrics) bool {
 			" -- Bulk Insert Function.\n")
 			errorHappened = true
 		}
-	*/
 
-	/*
+
 		rowsAffected, err = s.PutNewSingleComponent(totalMetrics.DISK)
 		if err != nil {
 
