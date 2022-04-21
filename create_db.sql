@@ -25,7 +25,7 @@ CREATE TABLE CPU (
 CREATE TABLE MEMORY (
 	memoryID BIGINT NOT NULL IDENTITY(0,1),
   usage FLOAT NOT NULL,
-	availability FLOAT NOT NULL,
+	size FLOAT NOT NULL,
 
 	CONSTRAINT pk_memory_memoryID PRIMARY KEY (memoryID)
 );
@@ -33,7 +33,7 @@ CREATE TABLE MEMORY (
 CREATE TABLE DISK (
 	diskID BIGINT NOT NULL IDENTITY(0,1),
   usage FLOAT NOT NULL,
-	availability FLOAT NOT NULL,
+	size FLOAT NOT NULL,
 
 	CONSTRAINT pk_disk_diskID PRIMARY KEY (diskID)
 );
@@ -79,7 +79,7 @@ CREATE TABLE CPU_AVERAGE (
 CREATE TABLE MEMORY_AVERAGE (
 	memoryAverageID BIGINT NOT NULL IDENTITY(0,1),
 	averageUsage FLOAT NOT NULL,
-	averageAvailability FLOAT NOT NULL,
+	averageSize FLOAT NOT NULL,
 
 	CONSTRAINT pk_memoryaverage_memoryaverageID PRIMARY KEY (memoryAverageID)
 );
@@ -87,7 +87,7 @@ CREATE TABLE MEMORY_AVERAGE (
 CREATE TABLE DISK_AVERAGE (
 	diskAverageID BIGINT NOT NULL IDENTITY(0,1),
   averageUsage FLOAT NOT NULL,
-	averageAvailability FLOAT NOT NULL,
+	averageSize FLOAT NOT NULL,
 
 	CONSTRAINT pk_diskaverage_diskaverageID PRIMARY KEY (diskAverageID)
 );
@@ -141,8 +141,8 @@ DECLARE @endCollectorID BIGINT = (SELECT TOP 1 collectorID FROM COLLECTOR WHERE 
 DECLARE @cpuUsage FLOAT = 0.0;
 DECLARE @diskUsage FLOAT = 0.0;
 DECLARE @memoryUsage FLOAT = 0.0;
-DECLARE @diskAvailability FLOAT = 0.0;
-DECLARE @memoryAvailability FLOAT = 0.0;
+DECLARE @diskSize FLOAT = 0.0;
+DECLARE @memorySize FLOAT = 0.0;
 
 DECLARE @startingID BIGINT = (SELECT TOP 1 cpuID FROM CPU ORDER BY cpuID ASC);
 DECLARE @endID BIGINT = (SELECT TOP 1 cpuID FROM CPU WHERE cpuID IN (SELECT cpuID FROM COLLECTOR WHERE collectorID = @endCollectorID) ORDER BY cpuID DESC);
@@ -169,9 +169,9 @@ BEGIN
 			--SELECT TOP 1 usage FROM MEMORY WHERE memoryID = @startingID;
 			SET @memoryUsage = @memoryUsage + (SELECT TOP 1 usage FROM MEMORY WHERE memoryID = @startingID);
 			-- Availabilities
-			SET @diskAvailability = @diskAvailability + (SELECT TOP 1 availability FROM DISK WHERE diskID = @startingID);
+			SET @diskSize = @diskSize + (SELECT TOP 1 size FROM DISK WHERE diskID = @startingID);
 			--SELECT TOP 1 availability FROM MEMORY WHERE memoryID = @startingID;
-			SET @memoryAvailability = @memoryAvailability + (SELECT TOP 1 availability FROM MEMORY WHERE memoryID = @startingID);
+			SET @memorySize = @memorySize + (SELECT TOP 1 size FROM MEMORY WHERE memoryID = @startingID);
 
 			-- Increase ID pointer.
 			SET @startingID = @startingID + 1;
@@ -181,10 +181,10 @@ BEGIN
 		SET @cpuUsage = CAST(ROUND((@cpuUsage / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT), 2) AS NUMERIC(36,2));
 		SET @diskUsage = CAST(ROUND((@diskUsage / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT), 2) AS NUMERIC(36,2));
 		SET @memoryUsage = CAST(ROUND((@memoryUsage / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT), 2) AS NUMERIC(36,2));
-		SET @diskAvailability = CAST(ROUND((@diskAvailability / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT), 2) AS NUMERIC(36,2));
-		SET @memoryAvailability = CAST(ROUND((@memoryAvailability / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT), 2) AS NUMERIC(36,2));
+		SET @diskSize = CAST(ROUND((@diskSize / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT), 2) AS NUMERIC(36,2));
+		SET @memorySize = CAST(ROUND((@memorySize / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT), 2) AS NUMERIC(36,2));
 
-		SELECT @cpuUsage AS "CPU-USAGE", @diskUsage AS "DISK-USAGE", @memoryUsage AS "MEMORY-USAGE", @diskAvailability AS "DISK-AVA", @memoryAvailability AS "MEMORY-AVA" ;
+		SELECT @cpuUsage AS "CPU-USAGE", @diskUsage AS "DISK-USAGE", @memoryUsage AS "MEMORY-USAGE", @diskSize AS "DISK-AVA", @memorySize AS "MEMORY-AVA" ;
 
 	END
 
@@ -213,14 +213,16 @@ DECLARE @insertedMemoryID BIGINT = (SELECT memoryAverageID FROM MEMORY_AVERAGE W
 -- INSERT into COLLECTOR_HISTORY table
 INSERT INTO COLLECTOR_HISTORY VALUES (@startDate, @endDate, @insertedCpuID, @insertedMemoryID, @insertedDiskID);
 
-SELECT * FROM COLLECTOR_HISTORY;
-SELECT * FROM CPU_AVERAGE;
-SELECT * FROM DISK_AVERAGE;
-SELECT * FROM MEMORY_AVERAGE;
+
+-- PROCCESS -> PROCESS_HISTORY
+
+
 
 
 --SET @startingID = (SELECT TOP 1 processID FROM PROCESS ORDER BY processID ASC);
 --SET @endID = (SELECT TOP 1 cpuID FROM CPU ORDER BY cpuID DESC);
 	
 GO;
+
+
 */
