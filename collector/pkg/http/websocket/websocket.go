@@ -8,6 +8,8 @@ import (
 
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/collecting"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/cpu"
+	"github.com/TiNewman/LinuxMetricsCollector/pkg/disk"
+	"github.com/TiNewman/LinuxMetricsCollector/pkg/memory"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/process"
 	"github.com/gorilla/websocket"
 )
@@ -100,6 +102,18 @@ func writer(conn *websocket.Conn, c chan string, collector collecting.Service) {
 				data := collector.Collect()
 				sendCPUInfo(conn, data.CPU)
 			}
+			if m == "memory" {
+				publish = true
+				metric = "memory"
+				data := collector.Collect()
+				sendMemInfo(conn, data.Memory)
+			}
+			if m == "disk" {
+				publish = true
+				metric = "disk"
+				data := collector.Collect()
+				sendDiskInfo(conn, data.Disk)
+			}
 			if m == "stop" {
 				// fmt.Println("Stopping message stream...")
 				publish = false
@@ -115,6 +129,12 @@ func writer(conn *websocket.Conn, c chan string, collector collecting.Service) {
 				case "cpu":
 					data := collector.Collect()
 					sendCPUInfo(conn, data.CPU)
+				case "memory":
+					data := collector.Collect()
+					sendMemInfo(conn, data.Memory)
+				case "disk":
+					data := collector.Collect()
+					sendDiskInfo(conn, data.Disk)
 				}
 				lastWrite = now
 			}
@@ -145,11 +165,21 @@ func sendCPUInfo(conn *websocket.Conn, cpuList cpu.CPU) {
 	}
 }
 
-func collectAndSendProcessList(conn *websocket.Conn, process process.Collector) {
+func sendMemInfo(conn *websocket.Conn, mem memory.Memory) {
 	response := make(map[string]interface{})
 
-	processes, _ := process.Collect()
-	response["process_list"] = processes
+	response["memory"] = mem
+
+	err := writeSocketResponse(conn, response)
+	if err != nil {
+		fmt.Printf("Error: %v", err.Error())
+	}
+}
+
+func sendDiskInfo(conn *websocket.Conn, disks []disk.Disk) {
+	response := make(map[string]interface{})
+
+	response["disk"] = disks
 
 	err := writeSocketResponse(conn, response)
 	if err != nil {

@@ -4,6 +4,8 @@ import (
 	"fmt"
 
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/cpu"
+	"github.com/TiNewman/LinuxMetricsCollector/pkg/disk"
+	"github.com/TiNewman/LinuxMetricsCollector/pkg/memory"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/process"
 )
 
@@ -15,19 +17,65 @@ type service struct {
 	r Repository
 	p process.Collector
 	c cpu.Collector
+	m memory.Collector
+	d disk.Collector
 }
 
 type Metrics struct {
 	Processes []process.Process
 	CPU       cpu.CPU
+	Memory    memory.Memory
+	Disk      []disk.Disk
 }
 
 type Repository interface {
 	BulkInsert(Metrics) bool
 }
 
+/*
 func NewService(proc process.Collector, cpu cpu.Collector, repo Repository) service {
 	return service{p: proc, c: cpu, r: repo}
+}
+*/
+
+type ServiceOption func(*service)
+
+func WithProcessCollector(proc process.Collector) ServiceOption {
+	return func(s *service) {
+		s.p = proc
+	}
+}
+
+func WithCPUCollector(cpu cpu.Collector) ServiceOption {
+	return func(s *service) {
+		s.c = cpu
+	}
+}
+
+func WithMemCollector(mem memory.Collector) ServiceOption {
+	return func(s *service) {
+		s.m = mem
+	}
+}
+
+func WithDiskCollector(disk disk.Collector) ServiceOption {
+	return func(s *service) {
+		s.d = disk
+	}
+}
+
+func WithRepository(repo Repository) ServiceOption {
+	return func(s *service) {
+		s.r = repo
+	}
+}
+
+func NewService(opts ...ServiceOption) service {
+	var s service
+	for _, opt := range opts {
+		opt(&s)
+	}
+	return s
 }
 
 func NewServiceWithoutRepo(proc process.Collector, cpu cpu.Collector) service {
@@ -35,25 +83,46 @@ func NewServiceWithoutRepo(proc process.Collector, cpu cpu.Collector) service {
 }
 
 func (s service) Collect() Metrics {
-	CPUInfo, err := s.c.Collect()
-	if err != nil {
-		fmt.Printf("Error collecting CPU metrics: %v\n", err)
+	metrics := new(Metrics)
+
+	if s.c != nil {
+		CPUInfo, err := s.c.Collect()
+		if err != nil {
+			fmt.Printf("Error collecting CPU metrics: %v\n", err)
+		}
+		fmt.Printf("CPU Colleted\n")
+		metrics.CPU = CPUInfo
 	}
-	// call cpu database code (remove database injection from cpu collector)?
-	// or return new row id from cpu Collect
 
-	// Old approach
-	//s.r.PutNewCollector()
-
-	processes, err := s.p.Collect()
-	if err != nil {
-		fmt.Printf("Error collecting CPU metrics: %v\n", err)
+	if s.p != nil {
+		processes, err := s.p.Collect()
+		if err != nil {
+			fmt.Printf("Error collecting CPU metrics: %v\n", err)
+		}
+		fmt.Printf("Process list Colleted\n")
+		metrics.Processes = processes
 	}
-	// call process database code (remove database injection from process collector)?
 
-	m := Metrics{CPU: CPUInfo, Processes: processes}
+	if s.m != nil {
+		memInfo, err := s.m.Collect()
+		if err != nil {
+			fmt.Printf("Error collecting RAM metrics: %v\n", err)
+		}
+		fmt.Printf("Memory Info Collected\n")
+		metrics.Memory = memInfo
+	}
 
-	// New approach
+	if s.d != nil {
+		diskInfo, err := s.d.Collect()
+		if err != nil {
+			fmt.Printf("Error collecting disk metrics: %v\n", err)
+		}
+		fmt.Printf("Disk Info Collected\n")
+		metrics.Disk = diskInfo
+	}
+
+	m := *metrics
+
 	if s.r != nil {
 		s.r.BulkInsert(m)
 	}

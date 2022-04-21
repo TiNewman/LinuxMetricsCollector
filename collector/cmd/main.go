@@ -8,7 +8,9 @@ import (
 
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/collecting"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/cpu"
+	"github.com/TiNewman/LinuxMetricsCollector/pkg/disk"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/http/websocket"
+	"github.com/TiNewman/LinuxMetricsCollector/pkg/memory"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/process"
 )
 
@@ -24,19 +26,17 @@ func main() {
 	*/
 
 	// initialize collectors
-
-	// without persistent storage
 	pcollector := process.NewProcessCollectorWithoutRepo()
 	cpuCollector := cpu.NewCPUCollectorWithoutRepo()
-	collectingService := collecting.NewServiceWithoutRepo(pcollector, cpuCollector)
+	memCollector := memory.NewMemoryCollector()
+	diskCollector := disk.NewDiskCollector()
+	collectingService := collecting.NewService(
+		collecting.WithProcessCollector(pcollector),
+		collecting.WithCPUCollector(cpuCollector),
+		collecting.WithMemCollector(memCollector),
+		collecting.WithDiskCollector(diskCollector))
+	// collectingService := collecting.NewServiceWithoutRepo(pcollector, cpuCollector)
 	// collectingService := collecting.NewService(pcollector, cpuCollector, s)
-
-	// with persistent storage
-	/*
-		pcollector := process.NewProcessCollector(s)
-		cpuCollector := cpu.NewCPUCollector(s)
-		collectingService := collecting.NewService(pcollector, cpuCollector, s)
-	*/
 
 	// serve endpoints
 	fmt.Println("Starting Service")
