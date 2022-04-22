@@ -57,15 +57,15 @@ const Index = () => {
 
   return (
      <div>
-       <div className="float-left pt-5">
+       <div className="float-left mt-10 pt-10 pl-56">
          <h1 className={styles.h1}> Process List </h1>
          <Table data={process_list} column={column}/>
        </div>
        <Link href="/cpu">
-         <div className="float-left pt-5 pl-10">
+         <div className="float-left mt-10 pt-10 pl-10">
            <h1 className={styles.h1}> CPU Usage </h1>
            <div className="block p-5 shadow-lg shadow-primary hover:bg-primary">
-             <div className="radial-progress text-primary" style={{"--value":cpuData[0].Usage, "--size":"12rem"}}>{cpuData[0].Usage}%</div>
+             <div className="radial-progress text-primary hover:text-base-100" style={{"--value":cpuData[0].Usage, "--size":"12rem"}}>{cpuData[0].Usage}%</div>
            </div>
          </div>
        </Link>
