@@ -27,12 +27,12 @@ const cpuView = props => {
     socket.onmessage = (e) => {
       console.log("Received Message!: " + e.data)
       var processJSON = JSON.parse(e.data)// might need to be e.data
-      console.log(processJSON.Usage)
+      console.log("Usage JSON:", processJSON.cpu.Usage)
       if(dataArray.length == 10){
         dataArray.shift()
         categoriesArray.shift()
       }
-      dataArray.push(incoming[0].Usage)
+      dataArray.push(processJSON.cpu.Usage)
 
       //get current time
       var timestampInMilliseconds = Date.now();
