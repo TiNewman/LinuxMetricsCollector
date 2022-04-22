@@ -18,6 +18,7 @@ const Index = () => {
    //use this to store the process list stuff
    //const [process_list, setProcessList] = useState([])
    //const [cpuData, setCPUData] = useState([])
+   //const [diskData, setDiskData] = useState([])
 
    //useEffect(() => socketInitializer(), [])
 
@@ -54,6 +55,7 @@ const Index = () => {
      ]
 
    const cpuData = [{Usage:37.7905493}]
+   const diskData = [{Usage:67.7905493}]
 
   return (
      <div>
@@ -62,13 +64,21 @@ const Index = () => {
          <Table data={process_list} column={column}/>
        </div>
        <Link href="/cpu">
-         <div className="float-left mt-10 pt-10 pl-10">
+         <div className="float-left mt-10 pt-10 pl-6">
            <h1 className={styles.h1}> CPU Usage </h1>
            <div className="block p-5 shadow-lg shadow-primary hover:bg-primary">
              <div className="radial-progress text-primary hover:text-base-100" style={{"--value":cpuData[0].Usage, "--size":"12rem"}}>{cpuData[0].Usage}%</div>
            </div>
          </div>
        </Link>
+       <Link href="/disk">
+         <div className="float-left mt-10 pt-10 pl-10">
+           <h1 className={styles.h1}> Disk Usage </h1>
+           <div className="block p-5 shadow-lg shadow-primary hover:bg-primary">
+             <div className="radial-progress text-primary hover:text-base-100" style={{"--value":diskData[0].Usage, "--size":"12rem"}}>{diskData[0].Usage}%</div>
+           </div>
+         </div>
+      </Link>
      </div>
   )
 }

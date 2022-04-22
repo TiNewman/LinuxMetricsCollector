@@ -10,6 +10,8 @@ const NavBar = () => (
               <li className="hover:bg-primary hover:text-neutral"><Link href="/">Dashboard</Link></li>
               <li className="hover:bg-primary hover:text-neutral"><Link href="/process_list">Process List</Link></li>
               <li className="hover:bg-primary hover:text-neutral"><Link href="/cpu">CPU</Link></li>
+              <li className="hover:bg-primary hover:text-neutral"><Link href="/disk">Disk</Link></li>
+              <li className="hover:bg-primary hover:text-neutral"><Link href="/memory">RAM</Link></li>
             </ul>
           </div>
         </div>
