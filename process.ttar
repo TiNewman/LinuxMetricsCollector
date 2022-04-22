@@ -1,0 +1,554 @@
+# Archive created by ttar -C collector/pkg/process/ -c -f /home/james/github.com/LinuxMetricsCollector/process.ttar testdata/
+Directory: testdata
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: testdata/noio
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: testdata/noio/13698
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: testdata/noio/13698/comm
+Lines: 1
+Discord
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: testdata/noio/13698/stat
+Lines: 1
+13698 (Discord) S 1738 1738 1738 0 -1 4194560 294375 15267 70 17 192 160 50 11 20 0 32 0 103590 39451992064 40127 18446744073709551615 94075167715648 94075272986096 140726268919552 0 0 0 0 16781312 18171 0 0 0 17 4 0 0 0 0 0 94075278042400 94075278469656 94075296251904 140726268926448 140726268926465 140726268926465 140726268927975 0
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: testdata/noio/13698/status
+Lines: 57
+Name:	Discord
+Umask:	0022
+State:	S (sleeping)
+Tgid:	13698
+Ngid:	0
+Pid:	13698
+PPid:	1738
+TracerPid:	0
+Uid:	1000	1000	1000	1000
+Gid:	1000	1000	1000	1000
+FDSize:	256
+Groups:	10 1000 
+NStgid:	13698
+NSpid:	13698
+NSpgid:	1738
+NSsid:	1738
+VmPeak:	42495888 kB
+VmSize:	38527336 kB
+VmLck:	      16 kB
+VmPin:	       0 kB
+VmHWM:	  170964 kB
+VmRSS:	  160360 kB
+RssAnon:	   45232 kB
+RssFile:	  115092 kB
+RssShmem:	      36 kB
+VmData:	  354076 kB
+VmStk:	     132 kB
+VmExe:	  102804 kB
+VmLib:	   38836 kB
+VmPTE:	     800 kB
+VmSwap:	       0 kB
+HugetlbPages:	       0 kB
+CoreDumping:	0
+THP_enabled:	1
+Threads:	32
+SigQ:	0/62939
+SigPnd:	0000000000000000
+ShdPnd:	0000000000000000
+SigBlk:	0000000000000000
+SigIgn:	0000000001001000
+SigCgt:	00000001000046fb
+CapInh:	0000000000000000
+CapPrm:	0000000000000000
+CapEff:	0000000000000000
+CapBnd:	000001ffffffffff
+CapAmb:	0000000000000000
+NoNewPrivs:	0
+Seccomp:	0
+Seccomp_filters:	0
+Speculation_Store_Bypass:	thread vulnerable
+SpeculationIndirectBranch:	conditional enabled
+Cpus_allowed:	ff
+Cpus_allowed_list:	0-7
+Mems_allowed:	00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001
+Mems_allowed_list:	0
+voluntary_ctxt_switches:	4316
+nonvoluntary_ctxt_switches:	202
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: testdata/nostat
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: testdata/nostat/12641
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: testdata/nostat/12641/comm
+Lines: 1
+code
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: testdata/nostat/12641/io
+Lines: 7
+rchar: 20849919
+wchar: 17706367
+syscr: 16474
+syscw: 33974
+read_bytes: 1130496
+write_bytes: 18821120
+cancelled_write_bytes: 4096
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: testdata/nostat/12641/status
+Lines: 57
+Name:	code
+Umask:	0002
+State:	S (sleeping)
+Tgid:	12641
+Ngid:	0
+Pid:	12641
+PPid:	1609
+TracerPid:	0
+Uid:	1000	1000	1000	1000
+Gid:	1000	1000	1000	1000
+FDSize:	256
+Groups:	10 1000 
+NStgid:	12641
+NSpid:	12641
+NSpgid:	12641
+NSsid:	12641
+VmPeak:	25702536 kB
+VmSize:	21704856 kB
+VmLck:	      16 kB
+VmPin:	       0 kB
+VmHWM:	  176588 kB
+VmRSS:	  161748 kB
+RssAnon:	   49260 kB
+RssFile:	  112488 kB
+RssShmem:	       0 kB
+VmData:	  357788 kB
+VmStk:	     132 kB
+VmExe:	  103660 kB
+VmLib:	   38744 kB
+VmPTE:	     816 kB
+VmSwap:	       0 kB
+HugetlbPages:	       0 kB
+CoreDumping:	0
+THP_enabled:	1
+Threads:	32
+SigQ:	0/62939
+SigPnd:	0000000000000000
+ShdPnd:	0000000000000000
+SigBlk:	0000000000000000
+SigIgn:	0000000000001000
+SigCgt:	00000001418146ff
+CapInh:	0000000000000000
+CapPrm:	0000000000000000
+CapEff:	0000000000000000
+CapBnd:	000001ffffffffff
+CapAmb:	0000000000000000
+NoNewPrivs:	0
+Seccomp:	0
+Seccomp_filters:	0
+Speculation_Store_Bypass:	thread vulnerable
+SpeculationIndirectBranch:	conditional enabled
+Cpus_allowed:	ff
+Cpus_allowed_list:	0-7
+Mems_allowed:	00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001
+Mems_allowed_list:	0
+voluntary_ctxt_switches:	44312
+nonvoluntary_ctxt_switches:	756
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: testdata/nostatus
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: testdata/nostatus/2422
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: testdata/nostatus/2422/comm
+Lines: 1
+firefox
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: testdata/nostatus/2422/io
+Lines: 7
+rchar: 146746089
+wchar: 32323774
+syscr: 96038
+syscw: 79440
+read_bytes: 268091392
+write_bytes: 80797696
+cancelled_write_bytes: 12480512
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: testdata/nostatus/2422/stat
+Lines: 1
+2422 (firefox) S 1738 1738 1738 0 -1 4194560 268084 5436 8993 0 2040 571 2 1 20 0 103 0 2555 3597156352 88042 18446744073709551615 93887750914048 93887751336509 140731261800752 0 0 0 0 16781312 17663 0 0 0 17 6 0 0 0 0 0 93887751462112 93887751467120 93887762681856 140731261806358 140731261806385 140731261806385 140731261808605 0
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: testdata/valid
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: testdata/valid/12641
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: testdata/valid/12641/comm
+Lines: 1
+code
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: testdata/valid/12641/io
+Lines: 7
+rchar: 20849919
+wchar: 17706367
+syscr: 16474
+syscw: 33974
+read_bytes: 1130496
+write_bytes: 18821120
+cancelled_write_bytes: 4096
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: testdata/valid/12641/stat
+Lines: 1
+12641 (code) S 1609 12641 12641 0 -1 4194560 107715 132 1 0 451 195 0 0 20 0 32 0 23579 22225772544 41063 18446744073709551615 94172053288064 94172159431584 140734569776336 0 0 0 0 4096 1098991359 0 0 0 17 5 0 0 0 0 0 94172164577536 94172165001128 94172185333760 140734569779893 140734569779916 140734569779916 140734569783267 0
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: testdata/valid/12641/status
+Lines: 57
+Name:	code
+Umask:	0002
+State:	S (sleeping)
+Tgid:	12641
+Ngid:	0
+Pid:	12641
+PPid:	1609
+TracerPid:	0
+Uid:	1000	1000	1000	1000
+Gid:	1000	1000	1000	1000
+FDSize:	256
+Groups:	10 1000 
+NStgid:	12641
+NSpid:	12641
+NSpgid:	12641
+NSsid:	12641
+VmPeak:	25702536 kB
+VmSize:	21704856 kB
+VmLck:	      16 kB
+VmPin:	       0 kB
+VmHWM:	  176588 kB
+VmRSS:	  161748 kB
+RssAnon:	   49260 kB
+RssFile:	  112488 kB
+RssShmem:	       0 kB
+VmData:	  357788 kB
+VmStk:	     132 kB
+VmExe:	  103660 kB
+VmLib:	   38744 kB
+VmPTE:	     816 kB
+VmSwap:	       0 kB
+HugetlbPages:	       0 kB
+CoreDumping:	0
+THP_enabled:	1
+Threads:	32
+SigQ:	0/62939
+SigPnd:	0000000000000000
+ShdPnd:	0000000000000000
+SigBlk:	0000000000000000
+SigIgn:	0000000000001000
+SigCgt:	00000001418146ff
+CapInh:	0000000000000000
+CapPrm:	0000000000000000
+CapEff:	0000000000000000
+CapBnd:	000001ffffffffff
+CapAmb:	0000000000000000
+NoNewPrivs:	0
+Seccomp:	0
+Seccomp_filters:	0
+Speculation_Store_Bypass:	thread vulnerable
+SpeculationIndirectBranch:	conditional enabled
+Cpus_allowed:	ff
+Cpus_allowed_list:	0-7
+Mems_allowed:	00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001
+Mems_allowed_list:	0
+voluntary_ctxt_switches:	44312
+nonvoluntary_ctxt_switches:	756
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: testdata/valid/13698
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: testdata/valid/13698/comm
+Lines: 1
+Discord
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: testdata/valid/13698/io
+Lines: 7
+rchar: 38077458
+wchar: 9365922
+syscr: 43075
+syscw: 7926
+read_bytes: 119676928
+write_bytes: 9478144
+cancelled_write_bytes: 0
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: testdata/valid/13698/stat
+Lines: 1
+13698 (Discord) S 1738 1738 1738 0 -1 4194560 294375 15267 70 17 192 160 50 11 20 0 32 0 103590 39451992064 40127 18446744073709551615 94075167715648 94075272986096 140726268919552 0 0 0 0 16781312 18171 0 0 0 17 4 0 0 0 0 0 94075278042400 94075278469656 94075296251904 140726268926448 140726268926465 140726268926465 140726268927975 0
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: testdata/valid/13698/status
+Lines: 57
+Name:	Discord
+Umask:	0022
+State:	S (sleeping)
+Tgid:	13698
+Ngid:	0
+Pid:	13698
+PPid:	1738
+TracerPid:	0
+Uid:	1000	1000	1000	1000
+Gid:	1000	1000	1000	1000
+FDSize:	256
+Groups:	10 1000 
+NStgid:	13698
+NSpid:	13698
+NSpgid:	1738
+NSsid:	1738
+VmPeak:	42495888 kB
+VmSize:	38527336 kB
+VmLck:	      16 kB
+VmPin:	       0 kB
+VmHWM:	  170964 kB
+VmRSS:	  160360 kB
+RssAnon:	   45232 kB
+RssFile:	  115092 kB
+RssShmem:	      36 kB
+VmData:	  354076 kB
+VmStk:	     132 kB
+VmExe:	  102804 kB
+VmLib:	   38836 kB
+VmPTE:	     800 kB
+VmSwap:	       0 kB
+HugetlbPages:	       0 kB
+CoreDumping:	0
+THP_enabled:	1
+Threads:	32
+SigQ:	0/62939
+SigPnd:	0000000000000000
+ShdPnd:	0000000000000000
+SigBlk:	0000000000000000
+SigIgn:	0000000001001000
+SigCgt:	00000001000046fb
+CapInh:	0000000000000000
+CapPrm:	0000000000000000
+CapEff:	0000000000000000
+CapBnd:	000001ffffffffff
+CapAmb:	0000000000000000
+NoNewPrivs:	0
+Seccomp:	0
+Seccomp_filters:	0
+Speculation_Store_Bypass:	thread vulnerable
+SpeculationIndirectBranch:	conditional enabled
+Cpus_allowed:	ff
+Cpus_allowed_list:	0-7
+Mems_allowed:	00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001
+Mems_allowed_list:	0
+voluntary_ctxt_switches:	4316
+nonvoluntary_ctxt_switches:	202
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: testdata/valid/13964
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: testdata/valid/13964/comm
+Lines: 1
+azuredatastudio
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: testdata/valid/13964/io
+Lines: 7
+rchar: 23528230
+wchar: 4604086
+syscr: 4267
+syscw: 2056
+read_bytes: 114593792
+write_bytes: 1671168
+cancelled_write_bytes: 0
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: testdata/valid/13964/stat
+Lines: 1
+13964 (azuredatastudio) S 1738 1738 1738 0 -1 4194560 33480 12196 62 0 56 20 9 4 20 0 32 0 104878 39460773888 37288 18446744073709551615 93955747326016 93955852599088 140733404475424 0 0 0 0 16781312 16899 0 0 0 17 0 0 0 0 0 0 93955857654464 93955858081560 93955879518208 140733404477858 140733404477916 140733404477916 140733404479437 0
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: testdata/valid/13964/status
+Lines: 57
+Name:	azuredatastudio
+Umask:	0022
+State:	S (sleeping)
+Tgid:	13964
+Ngid:	0
+Pid:	13964
+PPid:	1738
+TracerPid:	0
+Uid:	1000	1000	1000	1000
+Gid:	1000	1000	1000	1000
+FDSize:	256
+Groups:	10 1000 
+NStgid:	13964
+NSpid:	13964
+NSpgid:	1738
+NSsid:	1738
+VmPeak:	42502772 kB
+VmSize:	38535912 kB
+VmLck:	       0 kB
+VmPin:	       0 kB
+VmHWM:	  158720 kB
+VmRSS:	  149152 kB
+RssAnon:	   39680 kB
+RssFile:	  109472 kB
+RssShmem:	       0 kB
+VmData:	  330888 kB
+VmStk:	     132 kB
+VmExe:	  102808 kB
+VmLib:	   39884 kB
+VmPTE:	     768 kB
+VmSwap:	       0 kB
+HugetlbPages:	       0 kB
+CoreDumping:	0
+THP_enabled:	1
+Threads:	32
+SigQ:	0/62939
+SigPnd:	0000000000000000
+ShdPnd:	0000000000000000
+SigBlk:	0000000000000000
+SigIgn:	0000000081001000
+SigCgt:	0000000100004203
+CapInh:	0000000000000000
+CapPrm:	0000000000000000
+CapEff:	0000000000000000
+CapBnd:	000001ffffffffff
+CapAmb:	0000000000000000
+NoNewPrivs:	0
+Seccomp:	0
+Seccomp_filters:	0
+Speculation_Store_Bypass:	thread vulnerable
+SpeculationIndirectBranch:	conditional enabled
+Cpus_allowed:	ff
+Cpus_allowed_list:	0-7
+Mems_allowed:	00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001
+Mems_allowed_list:	0
+voluntary_ctxt_switches:	1784
+nonvoluntary_ctxt_switches:	140
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Directory: testdata/valid/2422
+Mode: 775
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: testdata/valid/2422/comm
+Lines: 1
+firefox
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: testdata/valid/2422/io
+Lines: 7
+rchar: 146746089
+wchar: 32323774
+syscr: 96038
+syscw: 79440
+read_bytes: 268091392
+write_bytes: 80797696
+cancelled_write_bytes: 12480512
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: testdata/valid/2422/stat
+Lines: 1
+2422 (firefox) S 1738 1738 1738 0 -1 4194560 268084 5436 8993 0 2040 571 2 1 20 0 103 0 2555 3597156352 88042 18446744073709551615 93887750914048 93887751336509 140731261800752 0 0 0 0 16781312 17663 0 0 0 17 6 0 0 0 0 0 93887751462112 93887751467120 93887762681856 140731261806358 140731261806385 140731261806385 140731261808605 0
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: testdata/valid/2422/status
+Lines: 57
+Name:	firefox
+Umask:	0022
+State:	S (sleeping)
+Tgid:	2422
+Ngid:	0
+Pid:	2422
+PPid:	1738
+TracerPid:	0
+Uid:	1000	1000	1000	1000
+Gid:	1000	1000	1000	1000
+FDSize:	256
+Groups:	10 1000 
+NStgid:	2422
+NSpid:	2422
+NSpgid:	1738
+NSsid:	1738
+VmPeak:	19781904 kB
+VmSize:	 3556080 kB
+VmLck:	       0 kB
+VmPin:	       0 kB
+VmHWM:	  409996 kB
+VmRSS:	  343752 kB
+RssAnon:	  155476 kB
+RssFile:	  167476 kB
+RssShmem:	   20800 kB
+VmData:	  485552 kB
+VmStk:	     132 kB
+VmExe:	     416 kB
+VmLib:	  174516 kB
+VmPTE:	    2184 kB
+VmSwap:	       0 kB
+HugetlbPages:	       0 kB
+CoreDumping:	0
+THP_enabled:	1
+Threads:	105
+SigQ:	0/62939
+SigPnd:	0000000000000000
+ShdPnd:	0000000000000000
+SigBlk:	0000000000000000
+SigIgn:	0000000081001000
+SigCgt:	0000000f000044ff
+CapInh:	0000000000000000
+CapPrm:	0000000000000000
+CapEff:	0000000000000000
+CapBnd:	000001ffffffffff
+CapAmb:	0000000000000000
+NoNewPrivs:	0
+Seccomp:	0
+Seccomp_filters:	0
+Speculation_Store_Bypass:	thread vulnerable
+SpeculationIndirectBranch:	conditional enabled
+Cpus_allowed:	ff
+Cpus_allowed_list:	0-7
+Mems_allowed:	00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000000,00000001
+Mems_allowed_list:	0
+voluntary_ctxt_switches:	32077
+nonvoluntary_ctxt_switches:	669
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Path: testdata/valid/stat
+Lines: 16
+cpu  29536 55 11139 1424295 1267 6451 1121 0 0 0
+cpu0 3521 4 1395 178481 145 373 160 0 0 0
+cpu1 3736 8 1323 176108 174 2728 174 0 0 0
+cpu2 3833 6 1344 177042 129 1773 123 0 0 0
+cpu3 3620 8 1345 178763 180 248 107 0 0 0
+cpu4 2825 7 1247 179225 114 533 210 0 0 0
+cpu5 4176 2 1690 177710 205 283 121 0 0 0
+cpu6 3914 8 1472 178414 152 253 112 0 0 0
+cpu7 3908 8 1319 178547 164 256 108 0 0 0
+intr 3544351 0 2184 0 0 0 0 0 0 0 26 0 0 135 0 35063 0 14384 0 0 0 0 0 0 0 0 0 0 0 0 0 558797 0 0 0 0 0 0 0 0 0 102 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 6683 35021 1 21 7971 9862 9572 8525 7268 19103 9352 9309 178728 109 112 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 35 12749 305 3630 350 1055 556 1627 2809 1632 5 109 112 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1803 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ctxt 5172181
+btime 1649949243
+processes 16459
+procs_running 1
+procs_blocked 0
+softirq 1757769 196219 213141 7 25911 29 0 8545 702459 272 611186
+Mode: 664
+# ttar - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

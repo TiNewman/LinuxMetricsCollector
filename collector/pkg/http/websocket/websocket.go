@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"runtime"
 	"time"
 
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/collecting"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/cpu"
+	"github.com/TiNewman/LinuxMetricsCollector/pkg/disk"
+	"github.com/TiNewman/LinuxMetricsCollector/pkg/memory"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/process"
 	"github.com/gorilla/websocket"
 )
@@ -35,11 +36,11 @@ func wsEndpoint(collector collecting.Service) func(http.ResponseWriter, *http.Re
 		if err != nil {
 			fmt.Println("Error upgrading connection: ", err.Error())
 		}
-		fmt.Println("Client Connected!")
+		// fmt.Println("Client Connected!")
 		writeChan := make(chan string)
 		go reader(ws, writeChan)
 		writer(ws, writeChan, collector)
-		fmt.Printf("go routines: %v\n", runtime.NumGoroutine())
+		// fmt.Printf("go routines: %v\n", runtime.NumGoroutine())
 	}
 }
 
@@ -57,7 +58,7 @@ func reader(conn *websocket.Conn, writeChan chan string) {
 				case websocket.CloseNormalClosure,
 					websocket.CloseGoingAway,
 					websocket.CloseNoStatusReceived:
-					fmt.Println("Connection closed by client")
+					// fmt.Println("Connection closed by client")
 					writeChan <- fmt.Sprint("stop")
 					conn.Close()
 					return
@@ -68,13 +69,13 @@ func reader(conn *websocket.Conn, writeChan chan string) {
 			}
 		}
 
-		fmt.Println("Message Received: ", string(p))
+		// fmt.Println("Message Received: ", string(p))
 		var req clientreq
 		err = json.Unmarshal(p, &req)
 		if err != nil {
 			fmt.Printf("Error Decoding JSON Request: %v\n", err.Error())
 		}
-		fmt.Printf("%+v\n", req)
+		// fmt.Printf("%+v\n", req)
 
 		writeChan <- string(req.Request)
 
@@ -101,14 +102,26 @@ func writer(conn *websocket.Conn, c chan string, collector collecting.Service) {
 				data := collector.Collect()
 				sendCPUInfo(conn, data.CPU)
 			}
+			if m == "memory" {
+				publish = true
+				metric = "memory"
+				data := collector.Collect()
+				sendMemInfo(conn, data.Memory)
+			}
+			if m == "disk" {
+				publish = true
+				metric = "disk"
+				data := collector.Collect()
+				sendDiskInfo(conn, data.Disk)
+			}
 			if m == "stop" {
-				fmt.Println("Stopping message stream...")
+				// fmt.Println("Stopping message stream...")
 				publish = false
 			}
-			fmt.Printf("writer received message: %v\n", m)
+			// fmt.Printf("writer received message: %v\n", m)
 			lastWrite = now
 		default:
-			if publish && !lastWrite.IsZero() && now.Sub(lastWrite).Seconds() > 30 {
+			if publish && !lastWrite.IsZero() && now.Sub(lastWrite).Seconds() > 5 {
 				switch metric {
 				case "process_list":
 					data := collector.Collect()
@@ -116,6 +129,12 @@ func writer(conn *websocket.Conn, c chan string, collector collecting.Service) {
 				case "cpu":
 					data := collector.Collect()
 					sendCPUInfo(conn, data.CPU)
+				case "memory":
+					data := collector.Collect()
+					sendMemInfo(conn, data.Memory)
+				case "disk":
+					data := collector.Collect()
+					sendDiskInfo(conn, data.Disk)
 				}
 				lastWrite = now
 			}
@@ -146,11 +165,21 @@ func sendCPUInfo(conn *websocket.Conn, cpuList cpu.CPU) {
 	}
 }
 
-func collectAndSendProcessList(conn *websocket.Conn, process process.Collector) {
+func sendMemInfo(conn *websocket.Conn, mem memory.Memory) {
 	response := make(map[string]interface{})
 
-	processes := process.Collect()
-	response["process_list"] = processes
+	response["memory"] = mem
+
+	err := writeSocketResponse(conn, response)
+	if err != nil {
+		fmt.Printf("Error: %v", err.Error())
+	}
+}
+
+func sendDiskInfo(conn *websocket.Conn, disks []disk.Disk) {
+	response := make(map[string]interface{})
+
+	response["disk"] = disks
 
 	err := writeSocketResponse(conn, response)
 	if err != nil {
