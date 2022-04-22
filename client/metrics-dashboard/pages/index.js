@@ -44,9 +44,10 @@ const Index = () => {
      };
    }*/
 
-     const response = {"process_list":[{"PID":1611,"Name":"systemd"},{"PID":1616,"Name":"(sd-pam)"},{"PID":1635,"Name":"gnome-keyring-d"},{"PID":1649,"Name":"gdm-wayland-ses"},{"PID":1652,"Name":"dbus-broker-lau"},{"PID":1654,"Name":"dbus-broker"},{"PID":1656,"Name":"gnome-session-b"}]}
-     const process_list = response.process_list
-     //console.log(process_list)
+   /** THIS IS THE MANUAL TEST DATA FOR CLIENT WEBSOCKETS
+   const response = {"process_list":[{"PID":1611,"Name":"systemd"},{"PID":1616,"Name":"(sd-pam)"},{"PID":1635,"Name":"gnome-keyring-d"},{"PID":1649,"Name":"gdm-wayland-ses"},{"PID":1652,"Name":"dbus-broker-lau"},{"PID":1654,"Name":"dbus-broker"},{"PID":1656,"Name":"gnome-session-b"}]}
+   const process_list = response.process_list
+   //console.log(process_list)
 
 
    const column = [
@@ -56,6 +57,7 @@ const Index = () => {
 
    const cpuData = [{Usage:37.7905493}]
    const diskData = [{Usage:67.7905493}]
+  **/
 
   return (
      <div>

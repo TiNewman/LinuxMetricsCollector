@@ -137,6 +137,7 @@ const cpuView = props => {
     };
   } */
 
+  /** THIS IS THE MANUAL TEST DATA FOR CLIENT WEBSOCKETS
   const [options, setOptions] = useState({
       chart: {
         id: 'line-chart',
@@ -234,8 +235,8 @@ const cpuView = props => {
           data: [7.7905493, 4.123711, 5.1546392, 5.050505, 12.244898, 4.1666665, 4.0816326, 7.7905493, 4.123711, 5.1546392],
         },
     ]);
+ */
 
-  //<div className="radial-progress text-primary ml-8" style={{"--value":data[0].Usage}}>{data[0].Usage}%</div>
   return (
     <div>
       <h1 className={processListStyles.h1}> CPU </h1>

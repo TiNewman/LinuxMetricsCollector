@@ -32,7 +32,9 @@ const processListView = props => {
     };
   }*/
 
+  /** THIS IS THE MANUAL TEST DATA FOR CLIENT WEBSOCKETS
   const diskData = [{Usage:67.7905493}]
+  */
 
   return (
     <div>
