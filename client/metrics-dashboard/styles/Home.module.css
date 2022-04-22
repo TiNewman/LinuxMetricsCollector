@@ -31,9 +31,11 @@
 .h1 {
   flex: 1;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  justify-content: left;
+  align-items: left;
   padding-top: 1.5%;
+  padding-left: 30%;
+  padding-bottom: 10px;
   font-size: 20px;
 }
 

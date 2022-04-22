@@ -1,5 +1,6 @@
 import Head from 'next/head'
 import Image from 'next/image'
+import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import io from 'socket.io-client'
 import styles from '../styles/Home.module.css'
@@ -13,17 +14,20 @@ import Layout from "../components/Layout";
 let socket
 
 const Index = () => {
-  /*
+
    //use this to store the process list stuff
-   const [process_list, setProcessList] = useState([])
+   //const [process_list, setProcessList] = useState([])
+   //const [cpuData, setCPUData] = useState([])
 
-   useEffect(() => socketInitializer(), [])
+   //useEffect(() => socketInitializer(), [])
 
-   const socketInitializer = async () => {
+   /*const socketInitializer = async () => {
      const socket = new WebSocket("ws://localhost:8080/ws");
 
      socket.onopen = () => {
-       socket.send(JSON.stringify({"request": "process_list"}))
+       console.log("Request being sent")
+       //socket.send(JSON.stringify({"request": "process_list"}))
+       socket.send(JSON.stringify({"request": "all"}))
      };
 
      socket.onmessage = (e) => {
@@ -37,11 +41,11 @@ const Index = () => {
        socket.send(JSON.stringify({"request": "stop"}))
        socket.close()
      };
-   }
-  */
+   }*/
+
      const response = {"process_list":[{"PID":1611,"Name":"systemd"},{"PID":1616,"Name":"(sd-pam)"},{"PID":1635,"Name":"gnome-keyring-d"},{"PID":1649,"Name":"gdm-wayland-ses"},{"PID":1652,"Name":"dbus-broker-lau"},{"PID":1654,"Name":"dbus-broker"},{"PID":1656,"Name":"gnome-session-b"}]}
      const process_list = response.process_list
-     console.log(process_list)
+     //console.log(process_list)
 
 
    const column = [
@@ -49,10 +53,22 @@ const Index = () => {
        { heading: 'Name', value:'Name' },
      ]
 
+   const cpuData = [{Usage:37.7905493}]
+
   return (
      <div>
-       <h1 className={styles.h1}> Process List </h1>
-       <Table data={process_list} column={column}/>
+       <div className="float-left pt-5">
+         <h1 className={styles.h1}> Process List </h1>
+         <Table data={process_list} column={column}/>
+       </div>
+       <Link href="/cpu">
+         <div className="float-left pt-5 pl-10">
+           <h1 className={styles.h1}> CPU Usage </h1>
+           <div className="block p-5 shadow-lg shadow-primary hover:bg-primary">
+             <div className="radial-progress text-primary" style={{"--value":cpuData[0].Usage, "--size":"12rem"}}>{cpuData[0].Usage}%</div>
+           </div>
+         </div>
+       </Link>
      </div>
   )
 }

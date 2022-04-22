@@ -12,7 +12,7 @@ let categoriesArray = []
 
 const cpuView = props => {
   //use this to store the CPU data
-  const [options, setOptions] = useState({})
+ /* const [options, setOptions] = useState({})
   const [series, setSeries] = useState([])
 
   useEffect(() => socketInitializer(), [])
@@ -45,12 +45,85 @@ const cpuView = props => {
         chart: {
           id: 'line-chart',
         },
+        markers: {
+          size: 0,
+          colors: ['#0D5090'],
+        },
+        stroke: {
+          colors: ['#BFAFFF'],
+        },
         xaxis: {
           categories: categoriesArray,
+          labels: {
+            show: true,
+            align: 'right',
+            minWidth: 0,
+            maxWidth: 160,
+            style: {
+              colors: ['#0D5090', '#FFA207', '#0D5090', '#FFA207', '#0D5090', '#FFA207', '#0D5090','#FFA207','#0D5090','#FFA207'],
+              fontSize: '14px',
+              fontFamily: 'Helvetica, Arial, sans-serif',
+              fontWeight: 400,
+            },
+            offsetX: 0,
+            offsetY: 0,
+            rotate: 0,
+            },
+            title: {
+              text: 'TimeStamp',
+              rotate: -90,
+              offsetX: 0,
+              offsetY: 0,
+              style: {
+                color: 'white',
+                fontSize: '14px',
+                fontFamily: 'Helvetica, Arial, sans-serif',
+                fontWeight: 600,
+              },
+            }
+          }
         },
-      })
-      setSeries([{
-        name: 'CPU Percentage Used',
+          yaxis: {
+            show: true,
+            showAlways: true,
+            showForNullSeries: true,
+            seriesName: 'CPU Percentage Used',
+            logBase: 10,
+            tickAmount: 5,
+            min: 0,
+            max: 100,
+            labels: {
+              show: true,
+              align: 'right',
+              minWidth: 0,
+              maxWidth: 160,
+              style: {
+                colors: ['#FFA207', '#0D5090'],
+                fontSize: '14px',
+                fontFamily: 'Helvetica, Arial, sans-serif',
+                fontWeight: 400,
+              },
+              offsetX: 0,
+              offsetY: 0,
+              rotate: 0,
+            },
+            title: {
+              text: 'CPU Percentage Used',
+              rotate: -90,
+              offsetX: 0,
+              offsetY: 0,
+              style: {
+                color: 'white',
+                fontSize: '14px',
+                fontFamily: 'Helvetica, Arial, sans-serif',
+                fontWeight: 600,
+              },
+            }
+          },
+        })
+      setSeries([
+        {
+          name: 'CPU Percentage Used',
           data: dataArray,
         },
       ])
@@ -62,12 +135,19 @@ const cpuView = props => {
       socket.send(JSON.stringify({"request": "stop"}))
       socket.close()
     };
-  }
+  } */
 
-  /*const [options, setOptions] = useState({
+  const [options, setOptions] = useState({
       chart: {
         id: 'line-chart',
       },
+      markers: {
+          size: 0,
+          colors: ['#0D5090'],
+      },
+     stroke: {
+       colors: ['#BFAFFF'],
+     },
       xaxis: {
         categories: [
           '8:23:00',
@@ -81,7 +161,71 @@ const cpuView = props => {
           '8:27:00',
           '8:27:30',
         ],
+        labels: {
+          show: true,
+          align: 'right',
+          minWidth: 0,
+          maxWidth: 160,
+          style: {
+            colors: ['#0D5090', '#FFA207', '#0D5090', '#FFA207', '#0D5090', '#FFA207', '#0D5090','#FFA207','#0D5090','#FFA207'],
+            fontSize: '14px',
+            fontFamily: 'Helvetica, Arial, sans-serif',
+            fontWeight: 400,
+          },
+          offsetX: 0,
+          offsetY: 0,
+          rotate: 0,
+        },
+        title: {
+          text: 'TimeStamp',
+          rotate: -90,
+          offsetX: 0,
+          offsetY: 0,
+          style: {
+            color: 'white',
+            fontSize: '14px',
+            fontFamily: 'Helvetica, Arial, sans-serif',
+            fontWeight: 600,
+          },
+        }
       },
+       yaxis: {
+            show: true,
+            showAlways: true,
+            showForNullSeries: true,
+            seriesName: 'CPU Percentage Used',
+            logBase: 10,
+            tickAmount: 5,
+            min: 0,
+            max: 100,
+            labels: {
+                show: true,
+                align: 'right',
+                minWidth: 0,
+                maxWidth: 160,
+                style: {
+                    colors: ['#FFA207', '#0D5090'],
+                    fontSize: '14px',
+                    fontFamily: 'Helvetica, Arial, sans-serif',
+                    fontWeight: 400,
+                },
+                offsetX: 0,
+                offsetY: 0,
+                rotate: 0,
+            },
+            title: {
+                text: 'CPU Percentage Used',
+                rotate: -90,
+                offsetX: 0,
+                offsetY: 0,
+                style: {
+                    color: 'white',
+                    fontSize: '14px',
+                    fontFamily: 'Helvetica, Arial, sans-serif',
+                    fontWeight: 600,
+                },
+            }
+        },
     });
 
     const [series, setSeries] = useState([
@@ -89,53 +233,13 @@ const cpuView = props => {
           name: 'CPU Percentage Used',
           data: [7.7905493, 4.123711, 5.1546392, 5.050505, 12.244898, 4.1666665, 4.0816326, 7.7905493, 4.123711, 5.1546392],
         },
-    ]); */
-
-
-  //const incoming = [{Usage:7.7905493}, {Usage:4.123711}, {Usage:5.1546392}, {Usage:5.050505}, {Usage:12.244898}, {Usage:4.1666665}, {Usage:4.0816326}, {Usage:13.131313}, {Usage:13.265306}, {Usage:5.1546392}, {Usage:4.123711}]
-  //var dataArray = []
-  //var categoriesArray = []
-
-  /*for (i = 0; i < 11; i++) {
-    if(dataArray.length == 10){
-      dataArray.shift()
-      categoriesArray.shift()
-    }
-    incoming.shift() //won't need this
-    //console.log(incoming[0].Usage)
-    dataArray.push(incoming[0].Usage)
-
-    //get current time
-    var timestampInMilliseconds = Date.now();
-    var timestampInSeconds = Date.now() / 1000; // A float value; not an integer.
-        timestampInSeconds = Math.floor(Date.now() / 1000); // Floor it to get the seconds.
-        timestampInSeconds = Date.now() / 1000 | 0; // Also you can do floor it like this.
-        //timestampInSeconds = Math.round(Date.now() / 1000);
-    var time = new Date(timestampInSeconds).toISOString().substr(11, 8);
-    categoriesArray.push(time)
-
-    setOptions({
-                 chart: {
-                   id: 'line-chart',
-                 },
-                 xaxis: {
-                   categories: categoriesArray,
-                 },
-               })
-
-    setSeries([{
-                 name: 'CPU Percentage Used',
-                 data: dataArray,
-               },
-              ])
-    console.log(i)
-  }*/
+    ]);
 
   //<div className="radial-progress text-primary ml-8" style={{"--value":data[0].Usage}}>{data[0].Usage}%</div>
   return (
     <div>
       <h1 className={processListStyles.h1}> CPU </h1>
-      <div className='chart w-3/6 pt-7 mx-auto'>
+      <div className='chart w-3/6 pt-7 mx-auto block p-2 shadow-lg shadow-primary'>
             <Chart options={options} series={series} type='line'/>
       </div>
     </div>
