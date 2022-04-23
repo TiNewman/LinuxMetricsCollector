@@ -12,7 +12,7 @@ let categoriesArray = []
 
 const memoryView = props => {
   //use this to store the CPU data
- /* const [options, setOptions] = useState({})
+  const [options, setOptions] = useState({})
   const [series, setSeries] = useState([])
 
   useEffect(() => socketInitializer(), [])
@@ -21,18 +21,18 @@ const memoryView = props => {
     const socket = new WebSocket("ws://localhost:8080/ws");
 
     socket.onopen = () => {
-      socket.send(JSON.stringify({"request": "cpu"}))
+      socket.send(JSON.stringify({"request": "memory"}))
     };
 
     socket.onmessage = (e) => {
       console.log("Received Message!: " + e.data)
       var processJSON = JSON.parse(e.data)// might need to be e.data
-      console.log("Usage JSON:", processJSON.ram.Usage)
+      console.log("Usage JSON:", processJSON.memory.Usage)
       if(dataArray.length == 10){
         dataArray.shift()
         categoriesArray.shift()
       }
-      dataArray.push(processJSON.ram.Usage)
+      dataArray.push(processJSON.memory.Usage)
 
       //get current time
       var timestampInMilliseconds = Date.now();
@@ -81,8 +81,7 @@ const memoryView = props => {
                 fontWeight: 600,
               },
             }
-          }
-        },
+          },
           yaxis: {
             show: true,
             showAlways: true,
@@ -135,9 +134,9 @@ const memoryView = props => {
       socket.send(JSON.stringify({"request": "stop"}))
       socket.close()
     };
-  } */
+  }
 
-  /** THIS IS THE MANUAL TEST DATA FOR CLIENT WEBSOCKETS */
+  /** THIS IS THE MANUAL TEST DATA FOR CLIENT WEBSOCKETS 
   const [options, setOptions] = useState({
       chart: {
         id: 'line-chart',
@@ -235,7 +234,7 @@ const memoryView = props => {
           data: [7.7905493, 4.123711, 5.1546392, 5.050505, 12.244898, 4.1666665, 4.0816326, 7.7905493, 4.123711, 5.1546392],
         },
     ]);
- /**/
+ */
 
   return (
     <div>

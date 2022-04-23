@@ -12,7 +12,7 @@ let categoriesArray = []
 
 const cpuView = props => {
   //use this to store the CPU data
- /* const [options, setOptions] = useState({})
+  const [options, setOptions] = useState({})
   const [series, setSeries] = useState([])
 
   useEffect(() => socketInitializer(), [])
@@ -81,8 +81,7 @@ const cpuView = props => {
                 fontWeight: 600,
               },
             }
-          }
-        },
+          },
           yaxis: {
             show: true,
             showAlways: true,
@@ -135,9 +134,9 @@ const cpuView = props => {
       socket.send(JSON.stringify({"request": "stop"}))
       socket.close()
     };
-  } */
+  }
 
-  /** THIS IS THE MANUAL TEST DATA FOR CLIENT WEBSOCKETS */
+  /** THIS IS THE MANUAL TEST DATA FOR CLIENT WEBSOCKETS 
   const [options, setOptions] = useState({
       chart: {
         id: 'line-chart',
@@ -235,7 +234,7 @@ const cpuView = props => {
           data: [7.7905493, 4.123711, 5.1546392, 5.050505, 12.244898, 4.1666665, 4.0816326, 7.7905493, 4.123711, 5.1546392],
         },
     ]);
- /**/
+ */
 
   return (
     <div>
