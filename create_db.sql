@@ -1,6 +1,6 @@
 /*
 Author: Titan Newman
-Date: 2/28/2022
+Date: 4/19/2022
 
 Creation Script for the MetricsCollectorDB.
 */
@@ -15,8 +15,6 @@ GO
 
 USE MetricsCollectorDB;
 
-GO
-
 CREATE TABLE CPU (
 	cpuID BIGINT NOT NULL IDENTITY(0,1),
   usage FLOAT NOT NULL,
@@ -27,7 +25,7 @@ CREATE TABLE CPU (
 CREATE TABLE MEMORY (
 	memoryID BIGINT NOT NULL IDENTITY(0,1),
   usage FLOAT NOT NULL,
-	availability FLOAT NOT NULL,
+	size FLOAT NOT NULL,
 
 	CONSTRAINT pk_memory_memoryID PRIMARY KEY (memoryID)
 );
@@ -35,7 +33,7 @@ CREATE TABLE MEMORY (
 CREATE TABLE DISK (
 	diskID BIGINT NOT NULL IDENTITY(0,1),
   usage FLOAT NOT NULL,
-	availability FLOAT NOT NULL,
+	size FLOAT NOT NULL,
 
 	CONSTRAINT pk_disk_diskID PRIMARY KEY (diskID)
 );
@@ -43,8 +41,8 @@ CREATE TABLE DISK (
 CREATE TABLE COLLECTOR (
 	collectorID BIGINT NOT NULL IDENTITY(0,1),
 	timeCollected DATETIME2 NOT NULL, -- Pay attention to how the data needs to be formatted here!
-	-- For now this arent used as we are only working with Process.
-  cpuID BIGINT, -- NOT NULL
+	-- For now this arent used as we are only working with Process and CPU.
+	cpuID BIGINT, -- NOT NULL
 	memoryID BIGINT, -- NOT NULL
 	diskID BIGINT, -- NOT NULL
 
@@ -69,4 +67,161 @@ CREATE TABLE PROCESS (
 	CONSTRAINT fk_process_collector_collectorID FOREIGN KEY (collectorID) REFERENCES COLLECTOR(collectorID)
 );
 
+-- HISTORY TABLES
+
+CREATE TABLE CPU_AVERAGE (
+	cpuAverageID BIGINT NOT NULL IDENTITY(0,1),
+	averageUsage FLOAT NOT NULL,
+	
+	CONSTRAINT pk_cpuaverage_cpuaverageID PRIMARY KEY (cpuAverageID)
+);
+
+CREATE TABLE MEMORY_AVERAGE (
+	memoryAverageID BIGINT NOT NULL IDENTITY(0,1),
+	averageUsage FLOAT NOT NULL,
+	averageSize FLOAT NOT NULL,
+
+	CONSTRAINT pk_memoryaverage_memoryaverageID PRIMARY KEY (memoryAverageID)
+);
+
+CREATE TABLE DISK_AVERAGE (
+	diskAverageID BIGINT NOT NULL IDENTITY(0,1),
+  averageUsage FLOAT NOT NULL,
+	averageSize FLOAT NOT NULL,
+
+	CONSTRAINT pk_diskaverage_diskaverageID PRIMARY KEY (diskAverageID)
+);
+
+CREATE TABLE COLLECTOR_HISTORY (
+	collectorHistoryID BIGINT NOT NULL IDENTITY(0,1),
+	timeCollectedStart DATE NOT NULL,
+	timeCollectedEnd DATE NOT NULL,
+	-- For now this arent used as we are only working with Process and CPU.
+	cpuAverageID BIGINT, -- NOT NULL
+	memoryAverageID BIGINT, -- NOT NULL
+	diskAverageID BIGINT, -- NOT NULL
+
+	CONSTRAINT pk_collectorhistory_collectorHistoryID PRIMARY KEY (collectorHistoryID),
+	CONSTRAINT fk_collectorhistory_cpuaverage_averagecpuID FOREIGN KEY (cpuAverageID) REFERENCES CPU_AVERAGE(cpuAverageID),
+	CONSTRAINT fk_collectorhistory_memoryaverage_averagememoryID FOREIGN KEY (memoryAverageID) REFERENCES MEMORY_AVERAGE(memoryAverageID),
+	CONSTRAINT fk_collectorhistory_diskaverage_averagediskID FOREIGN KEY (diskAverageID) REFERENCES DISK_AVERAGE(diskAverageID)
+);
+
+CREATE TABLE PROCESS_HISTORY (
+	processHistoryID BIGINT NOT NULL IDENTITY(0,1),
+	collectorHistoryID BIGINT NOT NULL,
+	PID BIGINT NOT NULL,
+	name VARCHAR(100),
+	status VARCHAR(20) NOT NULL,
+	cpuUsage FLOAT,
+	memoryUsage FLOAT,
+	diskUsage FLOAT,
+	executionTime FLOAT,
+
+	CONSTRAINT pk_processhistory_processhistoryID_collectorhistoryID PRIMARY KEY (processHistoryID, collectorHistoryID),
+	CONSTRAINT fk_processhistory_collectorhistory_collectorhistoryID FOREIGN KEY (collectorHistoryID) REFERENCES COLLECTOR_HISTORY(collectorHistoryID)
+);
+
 GO
+
+
+-- Stored Procedure for Purging data
+/*
+
+CREATE PROCEDURE PurgeData
+AS
+
+DECLARE @startDate DATE = CONVERT(DATE, (SELECT TOP 1 timeCollected FROM COLLECTOR ORDER BY timeCollected ASC));
+DECLARE @endDate DATE = CONVERT(DATE, (SELECT DATEADD(DD, 3, @startDate)));
+
+--SELECT @startDate AS "Start time", @endDate AS "NEWTIME";
+--SELECT timeCollected FROM COLLECTOR ORDER BY timeCollected ASC;
+DECLARE @endCollectorID BIGINT = (SELECT TOP 1 collectorID FROM COLLECTOR WHERE CONVERT(DATE, timeCollected) = @endDate ORDER BY timeCollected DESC);
+
+DECLARE @cpuUsage FLOAT = 0.0;
+DECLARE @diskUsage FLOAT = 0.0;
+DECLARE @memoryUsage FLOAT = 0.0;
+DECLARE @diskSize FLOAT = 0.0;
+DECLARE @memorySize FLOAT = 0.0;
+
+DECLARE @startingID BIGINT = (SELECT TOP 1 cpuID FROM CPU ORDER BY cpuID ASC);
+DECLARE @endID BIGINT = (SELECT TOP 1 cpuID FROM CPU WHERE cpuID IN (SELECT cpuID FROM COLLECTOR WHERE collectorID = @endCollectorID) ORDER BY cpuID DESC);
+
+DECLARE @count FLOAT = (@endID - @startingID);
+
+IF @count >= 1
+BEGIN
+
+	IF @startingID = 0 
+	BEGIN
+		SET @count = @count + 1;
+	END
+
+
+	IF @startingID = (SELECT TOP 1 diskID FROM DISK ORDER BY diskID ASC) AND (@startingID = (SELECT TOP 1 memoryID FROM MEMORY ORDER BY memoryID ASC)) 
+	BEGIN
+
+		WHILE @startingID <= @endID
+		BEGIN
+			-- Usages
+			SET @cpuUsage = @cpuUsage + (SELECT TOP 1 usage FROM CPU WHERE cpuID = @startingID);
+			SET @diskUsage = @diskUsage + (SELECT TOP 1 usage FROM DISK WHERE diskID = @startingID);
+			--SELECT TOP 1 usage FROM MEMORY WHERE memoryID = @startingID;
+			SET @memoryUsage = @memoryUsage + (SELECT TOP 1 usage FROM MEMORY WHERE memoryID = @startingID);
+			-- Availabilities
+			SET @diskSize = @diskSize + (SELECT TOP 1 size FROM DISK WHERE diskID = @startingID);
+			--SELECT TOP 1 availability FROM MEMORY WHERE memoryID = @startingID;
+			SET @memorySize = @memorySize + (SELECT TOP 1 size FROM MEMORY WHERE memoryID = @startingID);
+
+			-- Increase ID pointer.
+			SET @startingID = @startingID + 1;
+		END
+	
+		-- Getting the average, but dividing by 3 as per day.
+		SET @cpuUsage = CAST(ROUND((@cpuUsage / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT), 2) AS NUMERIC(36,2));
+		SET @diskUsage = CAST(ROUND((@diskUsage / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT), 2) AS NUMERIC(36,2));
+		SET @memoryUsage = CAST(ROUND((@memoryUsage / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT), 2) AS NUMERIC(36,2));
+		SET @diskSize = CAST(ROUND((@diskSize / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT), 2) AS NUMERIC(36,2));
+		SET @memorySize = CAST(ROUND((@memorySize / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT), 2) AS NUMERIC(36,2));
+
+		SELECT @cpuUsage AS "CPU-USAGE", @diskUsage AS "DISK-USAGE", @memoryUsage AS "MEMORY-USAGE", @diskSize AS "DISK-AVA", @memorySize AS "MEMORY-AVA" ;
+
+	END
+
+	ELSE
+	BEGIN
+
+		PRINT N'Error: Purge Stored_Procedure_CPU_DISK_MEMORY --> Inconsistent data.';
+	END
+END
+
+ELSE
+BEGIN
+
+	PRINT N'Error: Purge Stored_Procedure_CPU_DISK_MEMORY --> Count for cycling through CPU/DISK/MEMORY was negative.';
+END
+
+-- INSERT into CPU/DISK/MEMORY _AVERAGE tables
+INSERT INTO CPU_AVERAGE VALUES (@cpuUsage);
+DECLARE @insertedCpuID BIGINT = (SELECT cpuAverageID FROM CPU_AVERAGE WHERE cpuAverageID = SCOPE_IDENTITY() AND averageUsage = @cpuUsage);
+INSERT INTO DISK_AVERAGE VALUES (@diskUsage, @diskUsage);
+DECLARE @insertedDiskID BIGINT = (SELECT diskAverageID FROM DISK_AVERAGE WHERE diskAverageID = SCOPE_IDENTITY() AND averageUsage = @diskUsage AND averageSize = @diskSize);
+INSERT INTO MEMORY_AVERAGE VALUES (@memoryUsage, @memoryUsage);
+DECLARE @insertedMemoryID BIGINT = (SELECT memoryAverageID FROM MEMORY_AVERAGE WHERE memoryAverageID = SCOPE_IDENTITY() AND averageUsage = @memoryUsage AND averageSize = @memorySize);
+
+
+-- INSERT into COLLECTOR_HISTORY table
+INSERT INTO COLLECTOR_HISTORY VALUES (@startDate, @endDate, @insertedCpuID, @insertedMemoryID, @insertedDiskID);
+
+
+-- PROCCESS -> PROCESS_HISTORY
+
+
+
+
+--SET @startingID = (SELECT TOP 1 processID FROM PROCESS ORDER BY processID ASC);
+--SET @endID = (SELECT TOP 1 cpuID FROM CPU ORDER BY cpuID DESC);
+	
+GO;
+
+*/
