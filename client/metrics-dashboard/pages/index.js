@@ -19,6 +19,7 @@ const Index = () => {
    //const [process_list, setProcessList] = useState([])
    //const [cpuData, setCPUData] = useState([])
    //const [diskData, setDiskData] = useState([])
+   //const [ramData, setRAMData] = useState([])
 
    //useEffect(() => socketInitializer(), [])
 
@@ -35,6 +36,9 @@ const Index = () => {
        console.log("Received Message!: " + e.data)
        var processJSON = JSON.parse(e.data)// might need to be e.data
        setProcessList(processJSON.process_list)
+       setCPUData(processJSON.cpu)
+       setDiskData(processJSON.disk)
+       setRAMData(processJSON.mem)
      }
 
      return () => {
@@ -44,7 +48,7 @@ const Index = () => {
      };
    }*/
 
-   /** THIS IS THE MANUAL TEST DATA FOR CLIENT WEBSOCKETS
+   /** THIS IS THE MANUAL TEST DATA FOR CLIENT WEBSOCKETS */
    const response = {"process_list":[{"PID":1611,"Name":"systemd"},{"PID":1616,"Name":"(sd-pam)"},{"PID":1635,"Name":"gnome-keyring-d"},{"PID":1649,"Name":"gdm-wayland-ses"},{"PID":1652,"Name":"dbus-broker-lau"},{"PID":1654,"Name":"dbus-broker"},{"PID":1656,"Name":"gnome-session-b"}]}
    const process_list = response.process_list
    //console.log(process_list)
@@ -57,7 +61,8 @@ const Index = () => {
 
    const cpuData = [{Usage:37.7905493}]
    const diskData = [{Usage:67.7905493}]
-  **/
+   const ramData = [{Usage:13.7905493}]
+  /**/
 
   return (
      <div>
@@ -80,7 +85,15 @@ const Index = () => {
              <div className="radial-progress text-primary hover:text-base-100" style={{"--value":diskData[0].Usage, "--size":"12rem"}}>{diskData[0].Usage}%</div>
            </div>
          </div>
-      </Link>
+       </Link>
+       <Link href="/memory">
+         <div className="float-left mt-10 pt-10 pl-10">
+           <h1 className={styles.h1}> RAM Usage </h1>
+           <div className="block p-5 shadow-lg shadow-primary hover:bg-primary">
+             <div className="radial-progress text-primary hover:text-base-100" style={{"--value":ramData[0].Usage, "--size":"12rem"}}>{ramData[0].Usage}%</div>
+           </div>
+         </div>
+       </Link>
      </div>
   )
 }
