@@ -204,10 +204,10 @@ END
 -- INSERT into CPU/DISK/MEMORY _AVERAGE tables
 INSERT INTO CPU_AVERAGE VALUES (@cpuUsage);
 DECLARE @insertedCpuID BIGINT = (SELECT cpuAverageID FROM CPU_AVERAGE WHERE cpuAverageID = SCOPE_IDENTITY() AND averageUsage = @cpuUsage);
-INSERT INTO DISK_AVERAGE VALUES (@diskUsage, @diskAvailability);
-DECLARE @insertedDiskID BIGINT = (SELECT diskAverageID FROM DISK_AVERAGE WHERE diskAverageID = SCOPE_IDENTITY() AND averageUsage = @diskUsage AND averageAvailability = @diskAvailability);
-INSERT INTO MEMORY_AVERAGE VALUES (@memoryUsage, @memoryAvailability);
-DECLARE @insertedMemoryID BIGINT = (SELECT memoryAverageID FROM MEMORY_AVERAGE WHERE memoryAverageID = SCOPE_IDENTITY() AND averageUsage = @memoryUsage AND averageAvailability = @memoryAvailability);
+INSERT INTO DISK_AVERAGE VALUES (@diskUsage, @diskUsage);
+DECLARE @insertedDiskID BIGINT = (SELECT diskAverageID FROM DISK_AVERAGE WHERE diskAverageID = SCOPE_IDENTITY() AND averageUsage = @diskUsage AND averageSize = @diskSize);
+INSERT INTO MEMORY_AVERAGE VALUES (@memoryUsage, @memoryUsage);
+DECLARE @insertedMemoryID BIGINT = (SELECT memoryAverageID FROM MEMORY_AVERAGE WHERE memoryAverageID = SCOPE_IDENTITY() AND averageUsage = @memoryUsage AND averageSize = @memorySize);
 
 
 -- INSERT into COLLECTOR_HISTORY table
@@ -223,6 +223,5 @@ INSERT INTO COLLECTOR_HISTORY VALUES (@startDate, @endDate, @insertedCpuID, @ins
 --SET @endID = (SELECT TOP 1 cpuID FROM CPU ORDER BY cpuID DESC);
 	
 GO;
-
 
 */

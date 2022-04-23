@@ -19,6 +19,7 @@ import (
 
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/collecting"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/cpu"
+	"github.com/TiNewman/LinuxMetricsCollector/pkg/disk"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/process"
 	_ "github.com/denisenkom/go-mssqldb"
 )
@@ -1126,7 +1127,19 @@ func (s *Storage) BulkInsert(totalMetrics collecting.Metrics) bool {
 		errorHappened = true
 	}
 
-	/*rowsAffected, err = s.PutNewSingleComponent(totalMetrics.DISK)
+	var singleDiskHolder disk.Disk
+
+	for _, singleDisk := range totalMetrics.Disk {
+
+		if singleDisk.MountPoint == "/" {
+
+			singleDiskHolder = singleDisk
+		}
+	}
+
+	diskHolder := IndividualComponent{usage: singleDiskHolder.Usage, size: singleDiskHolder.Size}
+
+	rowsAffected, err = s.PutNewSingleComponent("DISK", diskHolder)
 	if err != nil {
 
 		fmt.Printf("Error in adding in DISK Table"+
@@ -1139,7 +1152,6 @@ func (s *Storage) BulkInsert(totalMetrics collecting.Metrics) bool {
 			" -- Bulk Insert Function.\n")
 		errorHappened = true
 	}
-	*/
 
 	// Insert into Collector
 	rowsAffected, err = s.PutNewCollector()
@@ -1194,6 +1206,12 @@ func main() {
 	//fmt.Printf("collector: %v, %v\n", newestCollector.collectorID, newestCollector.timeCollected)
 
 	cpuHolder1 := cpu.CPU{Usage: 10.10}
+	memoryHolder := memory.Memory{Usage: 10.10, Size: 1000.00}
+
+	diskHolder := []disk.Disk{}
+
+	diskHolder = append(diskHolder, disk.Disk{Name: "NA", MountPoint: "hehehe", Usage: 40.00, Size: 40.00})
+	diskHolder = append(diskHolder, disk.Disk{Name: "/", MountPoint: "/", Usage: 60.00, Size: 1245.67})
 
 	listProcess := []process.Process{}
 
@@ -1202,7 +1220,7 @@ func main() {
 	listProcess = append(listProcess, process.Process{PID: 666, Name: "process2", CPUUtilization: 02.20, RAMUtilization: 22.00, DiskUtilization: 00.22, Status: "failed", ExecutionTime: 22.00})
 	listProcess = append(listProcess, process.Process{PID: 999, Name: "process1", CPUUtilization: 00.00, RAMUtilization: 00.00, DiskUtilization: 00.10, Status: "done", ExecutionTime: 00.00})
 
-	metricsHolder1 := collecting.Metrics{Processes: listProcess, CPU: cpuHolder1}
+	metricsHolder1 := collecting.Metrics{Processes: listProcess, CPU: cpuHolder1, Memory: memoryHolder, Disk: diskHolder}
 
 	database.BulkInsert(metricsHolder1)
 	*/
