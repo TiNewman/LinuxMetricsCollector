@@ -5,7 +5,7 @@ import processListStyles from '../styles/Process_List.module.css'
 
 let socket
 
-const processListView = props => {
+const diskView = props => {
   //use this to store the process list stuff
   //const [diskUsage, setDiskUsage] = useState([])
 
@@ -32,20 +32,20 @@ const processListView = props => {
     };
   }*/
 
-  /** THIS IS THE MANUAL TEST DATA FOR CLIENT WEBSOCKETS
+  /** THIS IS THE MANUAL TEST DATA FOR CLIENT WEBSOCKETS */
   const diskData = [{Usage:67.7905493}]
-  */
+  /**/
 
   return (
     <div>
       <h1 className={processListStyles.h1}> Disk Usage </h1>
-      <div className="overflow-x-center flex flex-col w-1/6 mx-auto">
+      <div className="overflow-x-center flex flex-col w-1/4 mx-auto">
         <div className="block overflow-x-center flex flex-cols mt-5 p-5 shadow-lg shadow-primary">
-          <div className="radial-progress text-primary self-center" style={{"--value":diskData[0].Usage, "--size":"12rem"}}>{diskData[0].Usage}%</div>
+          <div className="radial-progress text-primary self-center" style={{"--value":diskData[0].Usage, "--size":"20rem"}}>{diskData[0].Usage}%</div>
         </div>
       </div>
     </div>
   )
 }
 
-export default processListView;
+export default diskView;
