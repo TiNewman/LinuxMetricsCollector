@@ -13,13 +13,13 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/collecting"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/cpu"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/disk"
+	"github.com/TiNewman/LinuxMetricsCollector/pkg/logger"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/process"
 	_ "github.com/denisenkom/go-mssqldb"
 )
@@ -74,7 +74,7 @@ func NewStorage() (*Storage, error) {
 
 	if err != nil {
 
-		log.Fatal("Error creating connection pool: ", err.Error())
+		logger.Error("Error creating connection pool: " + err.Error())
 		return nil, err
 	}
 
@@ -83,7 +83,7 @@ func NewStorage() (*Storage, error) {
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 		return nil, err
 	}
 
@@ -91,7 +91,7 @@ func NewStorage() (*Storage, error) {
 	s.DB_CONNECTION = DB_CONNECTION
 
 	// Log connection here!
-	fmt.Printf("Connected to DB!\n")
+	logger.Info("Connected to DB!\n")
 	return s, err
 }
 
@@ -101,6 +101,8 @@ func NewStorage() (*Storage, error) {
 func (s *Storage) CloseDBConnection() {
 
 	s.DB_CONNECTION.Close()
+
+	logger.Info("Closed DB connection.")
 }
 
 // ----------------------------- CPU Section Section -----------------------------
@@ -122,7 +124,7 @@ func (s *Storage) GetCPUs() []cpu.CPU {
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	defer rows.Close()
@@ -138,7 +140,7 @@ func (s *Storage) GetCPUs() []cpu.CPU {
 		err := rows.Scan(&usage)
 
 		if err != nil {
-			log.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 
 		singleInput := cpu.CPU{Usage: usage}
@@ -165,7 +167,7 @@ func (s *Storage) GetNewestCPUID() int {
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	defer rows.Close()
@@ -182,7 +184,7 @@ func (s *Storage) GetNewestCPUID() int {
 
 		if err != nil {
 
-			log.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 
 		toReturn = id
@@ -209,7 +211,7 @@ func (s *Storage) GetNewestCPU() cpu.CPU {
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	defer rows.Close()
@@ -226,7 +228,7 @@ func (s *Storage) GetNewestCPU() cpu.CPU {
 
 		if err != nil {
 
-			log.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 
 		toReturn = cpu.CPU{Usage: usage}
@@ -252,7 +254,7 @@ func (s *Storage) GetCPUByID(cpuID int) []cpu.CPU {
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	defer rows.Close()
@@ -269,7 +271,7 @@ func (s *Storage) GetCPUByID(cpuID int) []cpu.CPU {
 
 		if err != nil {
 
-			log.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 
 		singleInput := cpu.CPU{Usage: usage}
@@ -296,7 +298,7 @@ func (s *Storage) PutNewCPU(singleInput cpu.CPU) (int64, error) {
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	return result.RowsAffected()
@@ -321,7 +323,7 @@ func (s *Storage) GetMemories() []IndividualComponent {
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	defer rows.Close()
@@ -338,7 +340,7 @@ func (s *Storage) GetMemories() []IndividualComponent {
 
 		if err != nil {
 
-			log.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 
 		singleInput := IndividualComponent{usage, size}
@@ -367,7 +369,7 @@ func (s *Storage) GetDisks() []IndividualComponent {
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	defer rows.Close()
@@ -384,7 +386,7 @@ func (s *Storage) GetDisks() []IndividualComponent {
 
 		if err != nil {
 
-			log.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 
 		singleInput := IndividualComponent{usage, size}
@@ -416,7 +418,7 @@ func (s *Storage) GetIndivComponents(tableName string) []IndividualComponent {
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	defer rows.Close()
@@ -433,7 +435,7 @@ func (s *Storage) GetIndivComponents(tableName string) []IndividualComponent {
 
 		if err != nil {
 
-			log.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 
 		singleInput := IndividualComponent{usage, size}
@@ -474,7 +476,7 @@ func (s *Storage) GetNewestIndivComponent(tableName string) IndividualComponent 
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	defer rows.Close()
@@ -491,7 +493,7 @@ func (s *Storage) GetNewestIndivComponent(tableName string) IndividualComponent 
 
 		if err != nil {
 
-			log.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 
 		//singleInput := IndividualComponent{usage, size}
@@ -531,7 +533,7 @@ func (s *Storage) GetNewestIndivComponentID(tableName string) int {
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	defer rows.Close()
@@ -548,7 +550,7 @@ func (s *Storage) GetNewestIndivComponentID(tableName string) int {
 
 		if err != nil {
 
-			log.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 
 		//singleInput := IndividualComponent{usage, size}
@@ -579,7 +581,7 @@ func (s *Storage) PutNewSingleComponent(
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	return result.RowsAffected()
@@ -607,7 +609,7 @@ func (s *Storage) PutNewSingleComponent(
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	defer rows.Close()
@@ -627,7 +629,7 @@ func (s *Storage) PutNewSingleComponent(
 
 		if err != nil {
 
-			log.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 
 		singleInput := Collector{collectorID, timeCollected, cpuID, memoryID, diskID}
@@ -657,7 +659,7 @@ func (s *Storage) GetCollectorNewest() IncorrectCollector {
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	defer rows.Close()
@@ -677,7 +679,7 @@ func (s *Storage) GetCollectorNewest() IncorrectCollector {
 
 		if err != nil {
 
-			log.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 
 		toReturn = IncorrectCollector{collectorID: collectorID, timeCollected: timeCollected,
@@ -706,7 +708,7 @@ func (s *Storage) GetCollectorIDNewest() int {
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	defer rows.Close()
@@ -723,7 +725,7 @@ func (s *Storage) GetCollectorIDNewest() int {
 
 		if err != nil {
 
-			log.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 
 		toReturnInt = collectorID
@@ -764,7 +766,7 @@ func (s *Storage) PutNewCollector() (int64, error) {
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	return result.RowsAffected()
@@ -790,7 +792,7 @@ func (s *Storage) GetProcesses() []process.Process {
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	defer rows.Close()
@@ -810,7 +812,7 @@ func (s *Storage) GetProcesses() []process.Process {
 
 		if err != nil {
 
-			log.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 
 		singleInput := process.Process{PID: PID, Name: name,
@@ -844,7 +846,7 @@ func (s *Storage) GetProcessesByNewest() []process.Process {
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	defer rows.Close()
@@ -864,7 +866,7 @@ func (s *Storage) GetProcessesByNewest() []process.Process {
 
 		if err != nil {
 
-			log.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 
 		singleInput := process.Process{PID: PID, Name: name,
@@ -897,7 +899,7 @@ func (s *Storage) GetProcessesByCustomStringField(column string, field string) [
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	defer rows.Close()
@@ -917,7 +919,7 @@ func (s *Storage) GetProcessesByCustomStringField(column string, field string) [
 
 		if err != nil {
 
-			log.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 
 		singleInput := process.Process{PID: PID, Name: name,
@@ -950,7 +952,7 @@ func (s *Storage) GetProcessesByCustomFloatField(column string, field float32) [
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	defer rows.Close()
@@ -970,7 +972,7 @@ func (s *Storage) GetProcessesByCustomFloatField(column string, field float32) [
 
 		if err != nil {
 
-			log.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 
 		singleInput := process.Process{PID: PID, Name: name,
@@ -1003,7 +1005,7 @@ func (s *Storage) GetProcessesByCustomIntField(column string, field int) []proce
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	defer rows.Close()
@@ -1023,7 +1025,7 @@ func (s *Storage) GetProcessesByCustomIntField(column string, field int) []proce
 
 		if err != nil {
 
-			log.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 
 		singleInput := process.Process{PID: PID, Name: name,
@@ -1056,7 +1058,7 @@ func (s *Storage) PutNewProcess(singleProcess process.Process) (int64, error) {
 
 		if singleCheckProcess == singleProcess {
 
-			fmt.Printf("Tried inserting the same process, PID: %v\n", singleProcess.PID)
+			logger.Info("Tried (skipped) inserting the same process, PID: " + string(rune(singleProcess.PID)) + "\n")
 			repeatedProcess = true
 		}
 	}
@@ -1076,7 +1078,7 @@ func (s *Storage) PutNewProcess(singleProcess process.Process) (int64, error) {
 
 		if err != nil {
 
-			log.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 
 		return result.RowsAffected()
@@ -1090,6 +1092,9 @@ func (s *Storage) PutNewProcess(singleProcess process.Process) (int64, error) {
 //  Insert for All the tables
 //  Takes in the Metrics struct, which should hold all the data needed to
 //	be inserted into the database (CPU, MEMORY, DISK, and PROCESS).
+//  Purge stored procedure will be called from here as well.
+// 	The procedure checks if it needs to move/purge data, and if it does it will.
+//  The rest of the insertion will wait for it to complete.
 //
 //  Return:
 //  	(bool) true if an error occurred.
@@ -1097,17 +1102,37 @@ func (s *Storage) BulkInsert(totalMetrics collecting.Metrics) bool {
 
 	errorHappened := false
 
+	// Purge Stored Procedure.
+	/*
+		singleInsert := fmt.Sprintf("EXEC PurgeData;")
+
+		// Execute Insertion
+		result, err := s.DB_CONNECTION.Exec(singleInsert)
+
+		affectedRows, err := result.RowsAffected()
+
+		if err != nil {
+
+			logger.Error("Error PurgeData: " + err.Error())
+		}
+
+		if !(affectedRows >= 1) {
+
+			logger.Error("Error PurgeData.")
+		}
+	*/
+
 	// Insert into CPU/MEMORY/DISK
 	rowsAffected, err := s.PutNewCPU(totalMetrics.CPU)
 
 	if err != nil {
 
-		fmt.Printf("Error in adding in CPU Table -- Bulk Insert Function: %v\n", err)
+		logger.Error("Error in adding in CPU Table -- Bulk Insert Function: " + err.Error())
 		errorHappened = true
 	}
 	if !(rowsAffected >= 1) {
 
-		fmt.Print("Error in adding in CPU Table -- Bulk Insert Function.\n")
+		logger.Error("Error in adding in CPU Table -- Bulk Insert Function.\n")
 		errorHappened = true
 	}
 
@@ -1116,13 +1141,13 @@ func (s *Storage) BulkInsert(totalMetrics collecting.Metrics) bool {
 	rowsAffected, err = s.PutNewSingleComponent("MEMORY", memoryHolder)
 	if err != nil {
 
-		fmt.Printf("Error in adding in MEMORY Table"+
-			" -- Bulk Insert Function: %v\n", err)
+		logger.Error("Error in adding in MEMORY Table" +
+			" -- Bulk Insert Function:" + err.Error())
 		errorHappened = true
 	}
 	if !(rowsAffected >= 1) {
 
-		fmt.Print("Error in adding in MEMORY Table" +
+		logger.Error("Error in adding in MEMORY Table" +
 			" -- Bulk Insert Function.\n")
 		errorHappened = true
 	}
@@ -1142,13 +1167,13 @@ func (s *Storage) BulkInsert(totalMetrics collecting.Metrics) bool {
 	rowsAffected, err = s.PutNewSingleComponent("DISK", diskHolder)
 	if err != nil {
 
-		fmt.Printf("Error in adding in DISK Table"+
-			" -- Bulk Insert Function: %v\n", err)
+		logger.Error("Error in adding in DISK Table" +
+			" -- Bulk Insert Function: " + err.Error())
 		errorHappened = true
 	}
 	if !(rowsAffected >= 1) {
 
-		fmt.Print("Error in adding in DISK Table" +
+		logger.Error("Error in adding in DISK Table" +
 			" -- Bulk Insert Function.\n")
 		errorHappened = true
 	}
@@ -1157,13 +1182,13 @@ func (s *Storage) BulkInsert(totalMetrics collecting.Metrics) bool {
 	rowsAffected, err = s.PutNewCollector()
 	if err != nil {
 
-		fmt.Printf("Error in adding in COLLECTOR Table"+
-			"-- Bulk Insert Function: %v\n", err)
+		logger.Error("Error in adding in COLLECTOR Table" +
+			"-- Bulk Insert Function: " + err.Error())
 		errorHappened = true
 	}
 	if !(rowsAffected >= 1) {
 
-		fmt.Print("Error in adding in COLLECTOR Table" +
+		logger.Error("Error in adding in COLLECTOR Table" +
 			" -- Bulk Insert Function.\n")
 		errorHappened = true
 	}
@@ -1174,16 +1199,22 @@ func (s *Storage) BulkInsert(totalMetrics collecting.Metrics) bool {
 		rowsAffected, err = s.PutNewProcess(singleProcess)
 		if err != nil {
 
-			fmt.Printf("Error in adding in PROCESS Table, iteration: %v"+
-				" -- Bulk Insert Function: %v\n", iteration, err)
+			logger.Error("Error in adding in PROCESS Table, iteration: %v" +
+				" -- Bulk Insert Function, iteration: " + string(rune(iteration)) +
+				", error: " + err.Error())
 			errorHappened = true
 		}
 		if !(rowsAffected >= 1) {
 
-			fmt.Printf("Error in adding in PROCESS Table, iteration: %v"+
-				" -- Bulk Insert Function.\n", iteration)
+			logger.Error("Error in adding in PROCESS Table, iteration: %v" +
+				" -- Bulk Insert Function: " + string(rune(iteration)))
 			errorHappened = true
 		}
+	}
+
+	if !errorHappened {
+
+		logger.Info("BULK insertion completed successfully.")
 	}
 
 	return errorHappened
