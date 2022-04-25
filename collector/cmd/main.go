@@ -3,19 +3,23 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/collecting"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/cpu"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/disk"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/http/websocket"
+	"github.com/TiNewman/LinuxMetricsCollector/pkg/logger"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/memory"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/process"
 )
 
 func main() {
-	fmt.Printf("Linux Metrics Collector\n")
+	// initialize logging
+	logger.Init()
+
+	// fmt.Printf("Linux Metrics Collector\n")
+	logger.Info("Linux Metrics Collector Started")
 
 	// initialize storage
 	/*
@@ -39,7 +43,6 @@ func main() {
 	// collectingService := collecting.NewService(pcollector, cpuCollector, s)
 
 	// serve endpoints
-	fmt.Println("Starting Service")
 	router := websocket.Handler(collectingService)
 	http.ListenAndServe(":8080", router)
 }
