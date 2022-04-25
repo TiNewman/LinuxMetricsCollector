@@ -184,7 +184,7 @@ BEGIN
 		SET @diskSize = CAST(ROUND((@diskSize / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT), 2) AS NUMERIC(36,2));
 		SET @memorySize = CAST(ROUND((@memorySize / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT), 2) AS NUMERIC(36,2));
 
-		SELECT @cpuUsage AS "CPU-USAGE", @diskUsage AS "DISK-USAGE", @memoryUsage AS "MEMORY-USAGE", @diskSize AS "DISK-AVA", @memorySize AS "MEMORY-AVA" ;
+		--SELECT @cpuUsage AS "CPU-USAGE", @diskUsage AS "DISK-USAGE", @memoryUsage AS "MEMORY-USAGE", @diskSize AS "DISK-AVA", @memorySize AS "MEMORY-AVA" ;
 
 	END
 
@@ -203,24 +203,54 @@ END
 
 -- INSERT into CPU/DISK/MEMORY _AVERAGE tables
 INSERT INTO CPU_AVERAGE VALUES (@cpuUsage);
-DECLARE @insertedCpuID BIGINT = (SELECT cpuAverageID FROM CPU_AVERAGE WHERE cpuAverageID = SCOPE_IDENTITY() AND averageUsage = @cpuUsage);
+DECLARE @insertedCpuID BIGINT = (SELECT cpuAverageID FROM CPU_AVERAGE WHERE cpuAverageID = SCOPE_IDENTITY());
 INSERT INTO DISK_AVERAGE VALUES (@diskUsage, @diskUsage);
-DECLARE @insertedDiskID BIGINT = (SELECT diskAverageID FROM DISK_AVERAGE WHERE diskAverageID = SCOPE_IDENTITY() AND averageUsage = @diskUsage AND averageSize = @diskSize);
+DECLARE @insertedDiskID BIGINT = (SELECT diskAverageID FROM DISK_AVERAGE WHERE diskAverageID = SCOPE_IDENTITY());
 INSERT INTO MEMORY_AVERAGE VALUES (@memoryUsage, @memoryUsage);
-DECLARE @insertedMemoryID BIGINT = (SELECT memoryAverageID FROM MEMORY_AVERAGE WHERE memoryAverageID = SCOPE_IDENTITY() AND averageUsage = @memoryUsage AND averageSize = @memorySize);
-
+DECLARE @insertedMemoryID BIGINT = (SELECT memoryAverageID FROM MEMORY_AVERAGE WHERE memoryAverageID = SCOPE_IDENTITY());
 
 -- INSERT into COLLECTOR_HISTORY table
 INSERT INTO COLLECTOR_HISTORY VALUES (@startDate, @endDate, @insertedCpuID, @insertedMemoryID, @insertedDiskID);
+DECLARE @collectorHistoryID BIGINT = (SELECT TOP 1 collectorHistoryID FROM COLLECTOR_HISTORY ORDER BY collectorHistoryID DESC);
 
 
 -- PROCCESS -> PROCESS_HISTORY
+SET @startingID = (SELECT TOP 1 processID FROM PROCESS ORDER BY processID ASC);
+SET @endID = (SELECT TOP 1 processID FROM PROCESS WHERE collectorID = @endCollectorID ORDER BY processID DESC);
 
+SET @count = (@endID - @startingID);
 
+IF @count >= 1
+BEGIN
 
+	IF @startingID = 0 
+	BEGIN
+		SET @count = @count + 1;
+	END
 
---SET @startingID = (SELECT TOP 1 processID FROM PROCESS ORDER BY processID ASC);
---SET @endID = (SELECT TOP 1 cpuID FROM CPU ORDER BY cpuID DESC);
+	WHILE @startingID <= @endID
+		BEGIN
+
+			INSERT INTO PROCESS_HISTORY VALUES (
+			@collectorHistoryID,
+			(SELECT PID FROM PROCESS WHERE processID = @startingID),
+			(SELECT name FROM PROCESS WHERE processID = @startingID),
+			(SELECT status FROM PROCESS WHERE processID = @startingID),
+			(SELECT cpuUsage FROM PROCESS WHERE processID = @startingID),
+			(SELECT memoryUsage FROM PROCESS WHERE processID = @startingID),
+			(SELECT diskUsage FROM PROCESS WHERE processID = @startingID),
+			(SELECT executionTime FROM PROCESS WHERE processID = @startingID)
+			);
+
+			SET @startingID = @startingID + 1;
+		END
+END
+
+ELSE
+BEGIN
+
+	PRINT N'Error: Purge Stored_Procedure_PROCESS --> Count for cycling through PROCESS was negative.';
+END
 	
 GO;
 
