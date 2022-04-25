@@ -10,12 +10,17 @@ import (
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/cpu"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/disk"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/http/websocket"
+	"github.com/TiNewman/LinuxMetricsCollector/pkg/logger"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/memory"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/process"
 )
 
 func main() {
-	fmt.Printf("Linux Metrics Collector\n")
+	// initialize logging
+	logger.Init()
+
+	// fmt.Printf("Linux Metrics Collector\n")
+	logger.Info("Linux Metrics Collector Started")
 
 	// initialize storage
 	/*
