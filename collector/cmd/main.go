@@ -3,7 +3,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/collecting"
@@ -44,7 +43,6 @@ func main() {
 	// collectingService := collecting.NewService(pcollector, cpuCollector, s)
 
 	// serve endpoints
-	fmt.Println("Starting Service")
 	router := websocket.Handler(collectingService)
 	http.ListenAndServe(":8080", router)
 }

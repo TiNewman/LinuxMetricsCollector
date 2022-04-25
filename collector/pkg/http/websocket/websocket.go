@@ -9,6 +9,7 @@ import (
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/collecting"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/cpu"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/disk"
+	"github.com/TiNewman/LinuxMetricsCollector/pkg/logger"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/memory"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/process"
 	"github.com/gorilla/websocket"
@@ -20,7 +21,7 @@ var upgrader = websocket.Upgrader{
 }
 
 func Handler(collector collecting.Service) http.Handler {
-	fmt.Printf("Websocket Handler\n")
+	logger.Debug("Websocket Handler Started")
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/ws", wsEndpoint(collector))
@@ -34,7 +35,8 @@ func wsEndpoint(collector collecting.Service) func(http.ResponseWriter, *http.Re
 
 		ws, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
-			fmt.Println("Error upgrading connection: ", err.Error())
+			// fmt.Println("Error upgrading connection: ", err.Error())
+			logger.Error(fmt.Sprintf("Error upgradiing connection: %s", err.Error()))
 		}
 		// fmt.Println("Client Connected!")
 		writeChan := make(chan string)
@@ -59,21 +61,25 @@ func reader(conn *websocket.Conn, writeChan chan string) {
 					websocket.CloseGoingAway,
 					websocket.CloseNoStatusReceived:
 					// fmt.Println("Connection closed by client")
+					// logger.Info("Connection closed by client")
 					writeChan <- fmt.Sprint("stop")
 					conn.Close()
 					return
 				}
 			} else {
 				fmt.Printf("Error reading message: %v\n", err.Error())
+				// logger.Error(fmt.Sprintf("Error reading message: %v", err.Error()))
 				continue
 			}
 		}
 
 		// fmt.Println("Message Received: ", string(p))
+		// logger.Debug(fmt.Sprintf("Message Received: %s", string(p)))
 		var req clientreq
 		err = json.Unmarshal(p, &req)
 		if err != nil {
 			fmt.Printf("Error Decoding JSON Request: %v\n", err.Error())
+			// logger.Error(fmt.Sprintf("Error Decoding JSON Request: %s\n", err.Error()))
 		}
 		// fmt.Printf("%+v\n", req)
 
@@ -122,9 +128,11 @@ func writer(conn *websocket.Conn, c chan string, collector collecting.Service) {
 			}
 			if m == "stop" {
 				// fmt.Println("Stopping message stream...")
+				logger.Debug(fmt.Sprintf("Stopping message stream..."))
 				publish = false
 			}
 			// fmt.Printf("writer received message: %v\n", m)
+			logger.Debug(fmt.Sprintf("writer received message: %s", m))
 			lastWrite = now
 		default:
 			if publish && !lastWrite.IsZero() && now.Sub(lastWrite).Seconds() > 5 {
@@ -159,7 +167,8 @@ func sendProcessList(conn *websocket.Conn, processes []process.Process) {
 
 	err := writeSocketResponse(conn, response)
 	if err != nil {
-		fmt.Printf("Error: %v", err.Error())
+		// fmt.Printf("Error: %v", err.Error())
+		logger.Error(fmt.Sprintf("Error: %s", err.Error()))
 	}
 }
 
@@ -170,7 +179,8 @@ func sendCPUInfo(conn *websocket.Conn, cpuList cpu.CPU) {
 
 	err := writeSocketResponse(conn, response)
 	if err != nil {
-		fmt.Printf("Error: %v", err.Error())
+		// fmt.Printf("Error: %v", err.Error())
+		logger.Error(fmt.Sprintf("Error: %s", err.Error()))
 	}
 }
 
@@ -181,7 +191,8 @@ func sendMemInfo(conn *websocket.Conn, mem memory.Memory) {
 
 	err := writeSocketResponse(conn, response)
 	if err != nil {
-		fmt.Printf("Error: %v", err.Error())
+		// fmt.Printf("Error: %v", err.Error())
+		logger.Error(fmt.Sprintf("Error: %v", err.Error()))
 	}
 }
 
@@ -192,7 +203,8 @@ func sendDiskInfo(conn *websocket.Conn, disks []disk.Disk) {
 
 	err := writeSocketResponse(conn, response)
 	if err != nil {
-		fmt.Printf("Error: %v", err.Error())
+		// fmt.Printf("Error: %v", err.Error())
+		logger.Error(fmt.Sprintf("Error: %v", err.Error()))
 	}
 }
 
@@ -206,19 +218,20 @@ func sendAllMetrics(conn *websocket.Conn, metrics collecting.Metrics) {
 
 	err := writeSocketResponse(conn, response)
 	if err != nil {
-		fmt.Printf("Error: %v", err.Error())
+		// fmt.Printf("Error: %v", err.Error())
+		logger.Error(fmt.Sprintf("Error: %v", err.Error()))
 	}
 }
 
 func writeSocketResponse(conn *websocket.Conn, res map[string]interface{}) error {
 	jsonResponse, err := json.Marshal(res)
 	if err != nil {
-		fmt.Printf("Cannot Marshal Processes to JSON")
+		// fmt.Printf("Cannot Marshal Processes to JSON")
 		return err
 	}
 	err = conn.WriteMessage(websocket.TextMessage, jsonResponse)
 	if err != nil {
-		fmt.Println("Error writing message: ", err.Error())
+		// fmt.Println("Error writing message: ", err.Error())
 		return err
 	}
 	return nil
