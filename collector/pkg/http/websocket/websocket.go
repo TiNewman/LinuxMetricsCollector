@@ -114,6 +114,12 @@ func writer(conn *websocket.Conn, c chan string, collector collecting.Service) {
 				data := collector.Collect()
 				sendDiskInfo(conn, data.Disk)
 			}
+			if m == "all" {
+				publish = true
+				metric = "all"
+				data := collector.Collect()
+				sendAllMetrics(conn, data)
+			}
 			if m == "stop" {
 				// fmt.Println("Stopping message stream...")
 				publish = false
@@ -135,6 +141,9 @@ func writer(conn *websocket.Conn, c chan string, collector collecting.Service) {
 				case "disk":
 					data := collector.Collect()
 					sendDiskInfo(conn, data.Disk)
+				case "all":
+					data := collector.Collect()
+					sendAllMetrics(conn, data)
 				}
 				lastWrite = now
 			}
@@ -180,6 +189,20 @@ func sendDiskInfo(conn *websocket.Conn, disks []disk.Disk) {
 	response := make(map[string]interface{})
 
 	response["disk"] = disks
+
+	err := writeSocketResponse(conn, response)
+	if err != nil {
+		fmt.Printf("Error: %v", err.Error())
+	}
+}
+
+func sendAllMetrics(conn *websocket.Conn, metrics collecting.Metrics) {
+	response := make(map[string]interface{})
+
+	response["process_list"] = metrics.Processes
+	response["cpu"] = metrics.CPU
+	response["memory"] = metrics.Memory
+	response["disk"] = metrics.Disk
 
 	err := writeSocketResponse(conn, response)
 	if err != nil {

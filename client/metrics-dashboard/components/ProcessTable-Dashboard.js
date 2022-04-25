@@ -3,11 +3,11 @@ import Link from 'next/link'
 
 const ProcessTable = ({ data, column }) => (
   <div>
-     <div className="overflow-x-auto flex flex-col p-5 justify-center table-zebra items-center">
+     <div className="overflow-x-auto flex flex-col pl-5 pr-5 pb-5 table-zebra">
        <Link href="/process_list">
-       <div className="block p-2 shadow-lg shadow-primary hover:bg-primary">
-        <TableScrollbar height="70vh">
-           <table className="table table-fixed-head table-zebra border-4 border-base-100 p-8">
+       <div className="block p-2 shadow-lg shadow-primary hover:bg-primary ">
+        <TableScrollbar height="31vh">
+           <table id="process_table" className="table table-fixed-head table-zebra border-4 border-base-100 p-8">
              <thead>
                <tr className="border-4 border-base-100">
                  {column.map((item, index) => <TableHeadItem key={item.heading} item={item} />)}

@@ -10,7 +10,7 @@ let socket
 let dataArray = []
 let categoriesArray = []
 
-const cpuView = props => {
+const memoryView = props => {
   //use this to store the CPU data
   const [options, setOptions] = useState({})
   const [series, setSeries] = useState([])
@@ -21,18 +21,18 @@ const cpuView = props => {
     const socket = new WebSocket("ws://localhost:8080/ws");
 
     socket.onopen = () => {
-      socket.send(JSON.stringify({"request": "cpu"}))
+      socket.send(JSON.stringify({"request": "memory"}))
     };
 
     socket.onmessage = (e) => {
       console.log("Received Message!: " + e.data)
       var processJSON = JSON.parse(e.data)// might need to be e.data
-      console.log("Usage JSON:", processJSON.cpu.Usage)
+      console.log("Usage JSON:", processJSON.memory.Usage)
       if(dataArray.length == 10){
         dataArray.shift()
         categoriesArray.shift()
       }
-      dataArray.push(processJSON.cpu.Usage)
+      dataArray.push(processJSON.memory.Usage)
 
       //get current time
       var timestampInMilliseconds = Date.now();
@@ -86,7 +86,7 @@ const cpuView = props => {
             show: true,
             showAlways: true,
             showForNullSeries: true,
-            seriesName: 'CPU Percentage Used',
+            seriesName: 'RAM Percentage Used',
             logBase: 10,
             tickAmount: 5,
             min: 0,
@@ -107,7 +107,7 @@ const cpuView = props => {
               rotate: 0,
             },
             title: {
-              text: 'CPU Percentage Used',
+              text: 'RAM Percentage Used',
               rotate: -90,
               offsetX: 0,
               offsetY: 0,
@@ -122,7 +122,7 @@ const cpuView = props => {
         })
       setSeries([
         {
-          name: 'CPU Percentage Used',
+          name: 'RAM Percentage Used',
           data: dataArray,
         },
       ])
@@ -193,7 +193,7 @@ const cpuView = props => {
             show: true,
             showAlways: true,
             showForNullSeries: true,
-            seriesName: 'CPU Percentage Used',
+            seriesName: 'RAM Percentage Used',
             logBase: 10,
             tickAmount: 5,
             min: 0,
@@ -214,7 +214,7 @@ const cpuView = props => {
                 rotate: 0,
             },
             title: {
-                text: 'CPU Percentage Used',
+                text: 'RAM Percentage Used',
                 rotate: -90,
                 offsetX: 0,
                 offsetY: 0,
@@ -230,7 +230,7 @@ const cpuView = props => {
 
     const [series, setSeries] = useState([
         {
-          name: 'CPU Percentage Used',
+          name: 'RAM Percentage Used',
           data: [7.7905493, 4.123711, 5.1546392, 5.050505, 12.244898, 4.1666665, 4.0816326, 7.7905493, 4.123711, 5.1546392],
         },
     ]);
@@ -238,7 +238,7 @@ const cpuView = props => {
 
   return (
     <div>
-      <h1 className={processListStyles.h1}> CPU </h1>
+      <h1 className={processListStyles.h1}> RAM </h1>
       <div className='chart w-3/6 pt-7 mx-auto block p-2 shadow-lg shadow-primary'>
             <Chart options={options} series={series} type='line'/>
       </div>
@@ -246,4 +246,4 @@ const cpuView = props => {
   )
 }
 
-export default cpuView;
+export default memoryView;
