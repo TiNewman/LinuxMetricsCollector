@@ -5,6 +5,7 @@ import (
 
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/cpu"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/disk"
+	"github.com/TiNewman/LinuxMetricsCollector/pkg/logger"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/memory"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/process"
 )
@@ -88,36 +89,44 @@ func (s service) Collect() Metrics {
 	if s.c != nil {
 		CPUInfo, err := s.c.Collect()
 		if err != nil {
-			fmt.Printf("Error collecting CPU metrics: %v\n", err)
+			// fmt.Printf("Error collecting CPU metrics: %v\n", err)
+			logger.Error(fmt.Sprintf("Error collecting CPU metrics: %v", err))
 		}
-		fmt.Printf("CPU Colleted\n")
+		// fmt.Printf("CPU Colleted\n")
+		logger.Debug(fmt.Sprintf("CPU Colleted"))
 		metrics.CPU = CPUInfo
 	}
 
 	if s.p != nil {
 		processes, err := s.p.Collect()
 		if err != nil {
-			fmt.Printf("Error collecting CPU metrics: %v\n", err)
+			// fmt.Printf("Error collecting Process metrics: %v\n", err)
+			logger.Error(fmt.Sprintf("Error collecting Process metrics: %v", err))
 		}
-		fmt.Printf("Process list Colleted\n")
+		// fmt.Printf("Process list Colleted\n")
+		logger.Debug(fmt.Sprintf("Process list Colleted"))
 		metrics.Processes = processes
 	}
 
 	if s.m != nil {
 		memInfo, err := s.m.Collect()
 		if err != nil {
-			fmt.Printf("Error collecting RAM metrics: %v\n", err)
+			// fmt.Printf("Error collecting RAM metrics: %v\n", err)
+			logger.Error(fmt.Sprintf("Error collecting RAM metrics: %v", err))
 		}
-		fmt.Printf("Memory Info Collected\n")
+		// fmt.Printf("Memory Info Collected\n")
+		logger.Debug(fmt.Sprintf("Memory Info Collected"))
 		metrics.Memory = memInfo
 	}
 
 	if s.d != nil {
 		diskInfo, err := s.d.Collect()
 		if err != nil {
-			fmt.Printf("Error collecting disk metrics: %v\n", err)
+			// fmt.Printf("Error collecting disk metrics: %v\n", err)
+			logger.Error(fmt.Sprintf("Error collecting disk metrics: %v", err))
 		}
-		fmt.Printf("Disk Info Collected\n")
+		// fmt.Printf("Disk Info Collected\n")
+		logger.Debug(fmt.Sprintf("Disk Info Collected"))
 		metrics.Disk = diskInfo
 	}
 
