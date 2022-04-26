@@ -12,7 +12,6 @@ import Table from "../components/ProcessTable-Dashboard";
 import Layout from "../components/Layout";
 
 let socket
-
 const Index = () => {
 
    //use this to store the process list stuff
@@ -21,10 +20,17 @@ const Index = () => {
    const [diskData, setDiskData] = useState([])
    const [ramData, setRAMData] = useState([])
 
-   useEffect(() => socketInitializer(), [])
+   useEffect(() => {
+    socket = new WebSocket("ws://localhost:8080/ws");
+    socketInitializer()
+    return () => {
+      console.log("closing socket")
+      socket.send(JSON.stringify({"request": "stop"}))
+      socket.close()
+    };
+   }, [])
 
    const socketInitializer = async () => {
-     const socket = new WebSocket("ws://localhost:8080/ws");
 
      socket.onopen = () => {
        console.log("Request being sent")
