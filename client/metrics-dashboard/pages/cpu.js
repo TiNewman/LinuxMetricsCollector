@@ -34,9 +34,9 @@ const cpuView = props => {
       }
       dataArray.push(processJSON.cpu.Usage.toFixed(2))
 
-      //get current time -- see if this works
-      var timestampInSeconds = Math.floor(Date.now() / 1000);
-      var time = new Date(timestampInSeconds).toISOString().substr(11, 8);
+      //get current time
+      var curtime = new Date()
+      var time = "" + curtime.getHours() + ":" + curtime.getMinutes() + ":" + curtime.getSeconds()
 
       categoriesArray.push(time)
 

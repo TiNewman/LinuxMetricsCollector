@@ -35,8 +35,8 @@ const memoryView = props => {
       dataArray.push(processJSON.memory.Usage.toFixed(2))
 
       //get current time
-      var timestampInSeconds = Math.floor(Date.now() / 1000);
-      var time = new Date(timestampInSeconds).toISOString().substr(11, 8);
+      var curtime = new Date()
+      var time = "" + curtime.getHours() + ":" + curtime.getMinutes() + ":" + curtime.getSeconds()
       categoriesArray.push(time)
 
       setOptions({

@@ -36,9 +36,9 @@ const Index = () => {
        console.log("Received Message!: " + e.data)
        var processJSON = JSON.parse(e.data)// might need to be e.data
        setProcessList(processJSON.process_list)
-       setCPUData(processJSON.cpu)
-       setDiskData(processJSON.disk[0])
-       setRAMData(processJSON.mem)
+       setCPUData([processJSON.cpu])
+       setDiskData([processJSON.disk[0]])
+       setRAMData([processJSON.memory])
      }
 
      return () => {
