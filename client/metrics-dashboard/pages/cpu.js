@@ -235,6 +235,10 @@ const cpuView = props => {
     ]);
  */
 
+ const closeWebsocket = () => {
+    socket.close()
+ }
+
   return (
     <div>
       <h1 className={processListStyles.h1}> CPU </h1>

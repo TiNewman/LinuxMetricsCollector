@@ -49,6 +49,10 @@ const processListView = props => {
     { heading: 'Up Time', value:'ExecutionTime' },
   ]
   /**/
+
+  const closeWebsocket = () => {
+    socket.close()
+  }
   return (
     <div>
       <h1 className={processListStyles.h1}> Process List </h1>

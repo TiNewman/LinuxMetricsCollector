@@ -64,6 +64,9 @@ const Index = () => {
    const ramData = [{Usage:13.7905493}]
   /**/
 
+  const closeWebsocket = () => {
+    socket.close()
+  }
   return (
      <div>
        <div className="float-left mt-10 pt-10 pl-36">
