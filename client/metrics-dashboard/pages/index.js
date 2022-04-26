@@ -60,18 +60,18 @@ const Index = () => {
      ]
 
    const cpuData = [{Usage:37.7905493}]
-   const diskData = [{Usage:67.7905493}]
+   const diskData = [{"Name":"/dev/nvme0n1p3","MountPoint":"/","Usage":2.060362882143396,"Size":510405.902336},{"Name":"/dev/nvme0n1p3","MountPoint":"/home","Usage":2.060362882143396,"Size":510405.902336},{"Name":"/dev/nvme0n1p2","MountPoint":"/boot","Usage":25.681494412006668,"Size":1020.70272},{"Name":"/dev/nvme0n1p1","MountPoint":"/boot/efi","Usage":2.3118672372403726,"Size":627.900416}]
    const ramData = [{Usage:13.7905493}]
   /**/
 
   return (
      <div>
-       <div className="float-left mt-10 pt-10 pl-56">
+       <div className="float-left mt-10 pt-10 pl-36">
          <h1 className={styles.h1}> Process List </h1>
          <Table data={process_list} column={column}/>
        </div>
        <Link href="/cpu">
-         <div className="float-left mt-10 pt-10 pl-6">
+         <div className="float-left mt-10 pt-10 pl-10">
            <h1 className={styles.h1}> CPU Usage </h1>
            <div className="block p-5 shadow-lg shadow-primary hover:bg-primary">
              <div className="radial-progress text-primary hover:text-base-100" style={{"--value":cpuData[0].Usage, "--size":"12rem"}}>{cpuData[0].Usage}%</div>
@@ -79,15 +79,15 @@ const Index = () => {
          </div>
        </Link>
        <Link href="/disk">
-         <div className="float-left mt-10 pt-10 pl-10">
-           <h1 className={styles.h1}> Disk Usage </h1>
+         <div className="float-left mt-10 pt-10 pl-16">
+           <h2 className={styles.h2}>Root Disk: {diskData[0].Name}</h2>
            <div className="block p-5 shadow-lg shadow-primary hover:bg-primary">
              <div className="radial-progress text-primary hover:text-base-100" style={{"--value":diskData[0].Usage, "--size":"12rem"}}>{diskData[0].Usage}%</div>
            </div>
          </div>
        </Link>
        <Link href="/memory">
-         <div className="float-left mt-10 pt-10 pl-10">
+         <div className="float-left mt-10 pt-10 pl-16">
            <h1 className={styles.h1}> RAM Usage </h1>
            <div className="block p-5 shadow-lg shadow-primary hover:bg-primary">
              <div className="radial-progress text-primary hover:text-base-100" style={{"--value":ramData[0].Usage, "--size":"12rem"}}>{ramData[0].Usage}%</div>
