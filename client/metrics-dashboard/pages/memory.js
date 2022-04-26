@@ -32,12 +32,10 @@ const memoryView = props => {
         dataArray.shift()
         categoriesArray.shift()
       }
-      dataArray.push(processJSON.memory.Usage)
+      dataArray.push(processJSON.memory.Usage.toFixed(2))
 
       //get current time
-      var timestampInMilliseconds = Date.now();
-      var timestampInSeconds = Date.now() / 1000; // A float value not an integer.
-          timestampInSeconds = Math.floor(Date.now() / 1000); // Floor it to get the seconds.
+      var timestampInSeconds = Math.floor(Date.now() / 1000);
       var time = new Date(timestampInSeconds).toISOString().substr(11, 8);
       categoriesArray.push(time)
 
@@ -136,7 +134,7 @@ const memoryView = props => {
     };
   }
 
-  /** THIS IS THE MANUAL TEST DATA FOR CLIENT WEBSOCKETS 
+  /** THIS IS THE MANUAL TEST DATA FOR CLIENT WEBSOCKETS
   const [options, setOptions] = useState({
       chart: {
         id: 'line-chart',
