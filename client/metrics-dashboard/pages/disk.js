@@ -7,7 +7,7 @@ let socket
 
 const diskView = props => {
   //use this to store the process list stuff
- /* const [diskUsage, setDiskUsage] = useState([])
+ const [diskUsage, setDiskUsage] = useState([])
 
   useEffect(() => socketInitializer(), [])
 
@@ -31,12 +31,12 @@ const diskView = props => {
       socket.send(JSON.stringify({"request": "stop"}))
       socket.close()
     };
-  } */
+  }
 
-  /** THIS IS THE MANUAL TEST DATA FOR CLIENT WEBSOCKETS */
+  /** THIS IS THE MANUAL TEST DATA FOR CLIENT WEBSOCKETS
   //const diskData = [{Usage:67.7905493}]
   const diskUsage = [{"Name":"/dev/nvme0n1p3","MountPoint":"/","Usage":2.060362882143396,"Size":510405.902336},{"Name":"/dev/nvme0n1p3","MountPoint":"/home","Usage":2.060362882143396,"Size":510405.902336},{"Name":"/dev/nvme0n1p2","MountPoint":"/boot","Usage":25.681494412006668,"Size":1020.70272},{"Name":"/dev/nvme0n1p1","MountPoint":"/boot/efi","Usage":2.3118672372403726,"Size":627.900416}]
-  /**/
+  */
 
   //<div className="radial-progress text-primary self-center" style={{"--value":diskUsage[0].Usage, "--size":"20rem"}}>{diskUsage[0].Usage}%</div>
       /*
@@ -50,6 +50,7 @@ const diskView = props => {
   const closeWebsocket = () => {
     socket.close()
   }
+
   return (
     <div>
       <h1 className={processListStyles.h1}> Disk Usage </h1>
