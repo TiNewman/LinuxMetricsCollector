@@ -1104,7 +1104,7 @@ func (s *Storage) BulkInsert(totalMetrics collecting.Metrics) bool {
 
 	// Purge Stored Procedure.
 	/*
-		singleInsert := fmt.Sprintf("EXEC PurgeData;")
+		singleInsert := fmt.Sprintf("EXEC PRC_PurgeData;")
 
 		// Execute Insertion
 		result, err := s.DB_CONNECTION.Exec(singleInsert)
