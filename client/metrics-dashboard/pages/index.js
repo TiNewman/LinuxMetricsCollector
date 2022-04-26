@@ -37,7 +37,7 @@ const Index = () => {
        var processJSON = JSON.parse(e.data)// might need to be e.data
        setProcessList(processJSON.process_list)
        setCPUData(processJSON.cpu)
-       setDiskData(processJSON.disk)
+       setDiskData(processJSON.disk[0])
        setRAMData(processJSON.mem)
      }
 
@@ -70,30 +70,36 @@ const Index = () => {
          <h1 className={styles.h1}> Process List </h1>
          <Table data={process_list} column={column}/>
        </div>
+       {cpuData.map((item, index) =>
        <Link href="/cpu" onClick={closeWebsocket}>
          <div className="float-left mt-10 pt-10 pl-10">
            <h1 className={styles.h1}> CPU Usage </h1>
            <div className="block p-5 shadow-lg shadow-primary hover:bg-primary">
-             <div className="radial-progress text-primary hover:text-base-100" style={{"--value":cpuData[0].Usage.toFixed(2), "--size":"12rem"}}>{cpuData[0].Usage.toFixed(2)}%</div>
+             <div className="radial-progress text-primary hover:text-base-100" style={{"--value":item.Usage.toFixed(2), "--size":"12rem"}}>{item.Usage.toFixed(2)}%</div>
            </div>
          </div>
        </Link>
+       )}
+      {diskData.map((item, index) =>
        <Link href="/disk" onClick={closeWebsocket}>
          <div className="float-left mt-10 pt-10 pl-16">
-           <h2 className={styles.h2}>Root Disk: {diskData[0].Name}</h2>
+           <h2 className={styles.h2}>Root Disk: {item.Name}</h2>
            <div className="block p-5 shadow-lg shadow-primary hover:bg-primary">
-             <div className="radial-progress text-primary hover:text-base-100" style={{"--value":diskData[0].Usage.toFixed(2), "--size":"12rem"}}>{diskData[0].Usage.toFixed(2)}%</div>
+             <div className="radial-progress text-primary hover:text-base-100" style={{"--value":item.Usage.toFixed(2), "--size":"12rem"}}>{item.Usage.toFixed(2)}%</div>
            </div>
          </div>
        </Link>
+      )}
+       {ramData.map((item, index) =>
        <Link href="/memory" onClick={closeWebsocket}>
          <div className="float-left mt-10 pt-10 pl-16">
            <h1 className={styles.h1}> RAM Usage </h1>
            <div className="block p-5 shadow-lg shadow-primary hover:bg-primary">
-             <div className="radial-progress text-primary hover:text-base-100" style={{"--value":ramData[0].Usage.toFixed(2), "--size":"12rem"}}>{ramData[0].Usage.toFixed(2)}%</div>
+             <div className="radial-progress text-primary hover:text-base-100" style={{"--value":item.Usage.toFixed(2), "--size":"12rem"}}>{item.Usage.toFixed(2)}%</div>
            </div>
          </div>
        </Link>
+      )}
      </div>
   )
 }
