@@ -4,7 +4,7 @@ import Link from 'next/link'
 const ProcessTable = ({ data, column }) => (
   <div>
      <div className="overflow-x-auto flex flex-col pl-5 pr-5 pb-5 table-zebra">
-       <Link href="/process_list">
+       <Link href="/process_list" onClick={closeWebsocket}>
        <div className="block p-2 shadow-lg shadow-primary hover:bg-primary ">
         <TableScrollbar height="31vh">
            <table id="process_table" className="table table-fixed-head table-zebra border-4 border-base-100 p-8">
@@ -32,5 +32,9 @@ const TableRow = ({ item, column }) => (
     })}
   </tr>
 )
+
+const closeWebsocket = () => {
+    socket.close()
+}
 
 export default ProcessTable;
