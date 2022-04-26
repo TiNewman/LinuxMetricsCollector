@@ -54,15 +54,15 @@ const Index = () => {
    //console.log(process_list)
 
 
-   const column = [
-       { heading: 'PID', value: 'PID' },
-       { heading: 'Name', value:'Name' },
-     ]
 
    const cpuData = [{Usage:37.7905493}]
    const diskData = [{"Name":"/dev/nvme0n1p3","MountPoint":"/","Usage":2.060362882143396,"Size":510405.902336},{"Name":"/dev/nvme0n1p3","MountPoint":"/home","Usage":2.060362882143396,"Size":510405.902336},{"Name":"/dev/nvme0n1p2","MountPoint":"/boot","Usage":25.681494412006668,"Size":1020.70272},{"Name":"/dev/nvme0n1p1","MountPoint":"/boot/efi","Usage":2.3118672372403726,"Size":627.900416}]
    const ramData = [{Usage:13.7905493}]
   */
+  const column = [
+      { heading: 'PID', value: 'PID' },
+      { heading: 'Name', value:'Name' },
+    ]
 
   return (
      <div>
