@@ -40,7 +40,7 @@ type History struct {
 
 type Repository interface {
 	BulkInsert(Metrics) bool
-	// cpu history function
+	// GetNewestCPUAVERAGE() History
 	// memory history function
 }
 
@@ -133,7 +133,9 @@ func (s service) Collect() Metrics {
 }
 
 func (s service) CPUHistory() History {
-	return History{}
+	var avg History
+	// avg := s.r.GetNewestCPUAVERAGE()
+	return avg
 }
 
 func (s service) MemoryHistory() History {
