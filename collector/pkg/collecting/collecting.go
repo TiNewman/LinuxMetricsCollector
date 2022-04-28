@@ -85,7 +85,6 @@ func (s service) Collect() Metrics {
 		if err != nil {
 			logger.Error(fmt.Sprintf("Error collecting CPU metrics: %v", err))
 		}
-		logger.Debug(fmt.Sprintf("CPU Colleted"))
 		metrics.CPU = CPUInfo
 	}
 
@@ -94,7 +93,6 @@ func (s service) Collect() Metrics {
 		if err != nil {
 			logger.Error(fmt.Sprintf("Error collecting Process metrics: %v", err))
 		}
-		logger.Debug(fmt.Sprintf("Process list Colleted"))
 		metrics.Processes = processes
 	}
 
@@ -103,7 +101,6 @@ func (s service) Collect() Metrics {
 		if err != nil {
 			logger.Error(fmt.Sprintf("Error collecting RAM metrics: %v", err))
 		}
-		logger.Debug(fmt.Sprintf("Memory Info Collected"))
 		metrics.Memory = memInfo
 	}
 
@@ -112,7 +109,6 @@ func (s service) Collect() Metrics {
 		if err != nil {
 			logger.Error(fmt.Sprintf("Error collecting disk metrics: %v", err))
 		}
-		logger.Debug(fmt.Sprintf("Disk Info Collected"))
 		metrics.Disk = diskInfo
 	}
 
