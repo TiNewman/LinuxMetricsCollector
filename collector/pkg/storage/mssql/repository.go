@@ -7,19 +7,17 @@
 
 package mssql
 
-//package main
-
 import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/collecting"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/cpu"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/disk"
+	"github.com/TiNewman/LinuxMetricsCollector/pkg/logger"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/process"
 	_ "github.com/denisenkom/go-mssqldb"
 )
@@ -41,14 +39,6 @@ type Collector struct {
 	cpuID         int
 	memoryID      int
 	diskID        int
-}
-
-type IncorrectCollector struct {
-	collectorID   int
-	timeCollected time.Time
-	cpuID         int
-	memoryID      sql.NullString
-	diskID        sql.NullString
 }
 
 type IndividualComponent struct {
@@ -74,7 +64,7 @@ func NewStorage() (*Storage, error) {
 
 	if err != nil {
 
-		log.Fatal("Error creating connection pool: ", err.Error())
+		logger.Error("Error creating connection pool: " + err.Error())
 		return nil, err
 	}
 
@@ -83,7 +73,7 @@ func NewStorage() (*Storage, error) {
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 		return nil, err
 	}
 
@@ -91,7 +81,7 @@ func NewStorage() (*Storage, error) {
 	s.DB_CONNECTION = DB_CONNECTION
 
 	// Log connection here!
-	fmt.Printf("Connected to DB!\n")
+	logger.Info("Connected to DB!\n")
 	return s, err
 }
 
@@ -101,6 +91,8 @@ func NewStorage() (*Storage, error) {
 func (s *Storage) CloseDBConnection() {
 
 	s.DB_CONNECTION.Close()
+
+	logger.Info("Closed DB connection.")
 }
 
 // ----------------------------- CPU Section Section -----------------------------
@@ -122,7 +114,7 @@ func (s *Storage) GetCPUs() []cpu.CPU {
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	defer rows.Close()
@@ -138,7 +130,7 @@ func (s *Storage) GetCPUs() []cpu.CPU {
 		err := rows.Scan(&usage)
 
 		if err != nil {
-			log.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 
 		singleInput := cpu.CPU{Usage: usage}
@@ -165,7 +157,7 @@ func (s *Storage) GetNewestCPUID() int {
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	defer rows.Close()
@@ -182,7 +174,7 @@ func (s *Storage) GetNewestCPUID() int {
 
 		if err != nil {
 
-			log.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 
 		toReturn = id
@@ -209,7 +201,7 @@ func (s *Storage) GetNewestCPU() cpu.CPU {
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	defer rows.Close()
@@ -226,7 +218,51 @@ func (s *Storage) GetNewestCPU() cpu.CPU {
 
 		if err != nil {
 
-			log.Fatal(err.Error())
+			logger.Error(err.Error())
+		}
+
+		toReturn = cpu.CPU{Usage: usage}
+	}
+
+	return toReturn
+}
+
+//  Get newest from CPU_AVERAGE
+//  Nothing needs to be passed, just call te function.
+//
+//  Return:
+//  	(cpu.CPU) single from the CPU_AVERAGE table.
+func (s *Storage) GetNewestCPUAVERAGE() cpu.CPU {
+
+	ctx := context.Background()
+
+	// For not we are just getting from the single table!
+	singleQuery := fmt.Sprintf("SELECT averageUsage FROM CPU_AVERAGE WHERE cpuAverageID IN " +
+		"(SELECT TOP 1 cpuAverageID FROM COLLECTOR_HISTORY ORDER BY collectorHistoryID DESC);")
+
+	// Execute query
+	rows, err := s.DB_CONNECTION.QueryContext(ctx, singleQuery)
+
+	if err != nil {
+
+		logger.Error(err.Error())
+	}
+
+	defer rows.Close()
+
+	var toReturn cpu.CPU
+
+	// Iterate through the result set.
+	for rows.Next() {
+
+		var usage float32
+
+		// Get values from row.
+		err := rows.Scan(&usage)
+
+		if err != nil {
+
+			logger.Error(err.Error())
 		}
 
 		toReturn = cpu.CPU{Usage: usage}
@@ -252,7 +288,7 @@ func (s *Storage) GetCPUByID(cpuID int) []cpu.CPU {
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	defer rows.Close()
@@ -269,7 +305,7 @@ func (s *Storage) GetCPUByID(cpuID int) []cpu.CPU {
 
 		if err != nil {
 
-			log.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 
 		singleInput := cpu.CPU{Usage: usage}
@@ -296,127 +332,44 @@ func (s *Storage) PutNewCPU(singleInput cpu.CPU) (int64, error) {
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	return result.RowsAffected()
 }
 
-// ----------------------------- MEMORY Section Section -----------------------------
-
-//  Get all memories from MEMORY Table.
-//  Doesn't need anything, it just cycles through each memory in the table.
-//
-//  Return:
-//  	([]IndividualComponent) all Memories.
-func (s *Storage) GetMemories() []IndividualComponent {
-
-	ctx := context.Background()
-
-	// For not we are just getting from the MEMORY table!
-	singleQuery := fmt.Sprintf("SELECT usage, size FROM MEMORY;")
-
-	// Execute query
-	rows, err := s.DB_CONNECTION.QueryContext(ctx, singleQuery)
-
-	if err != nil {
-
-		log.Fatal(err.Error())
-	}
-
-	defer rows.Close()
-
-	var toReturn []IndividualComponent
-
-	// Iterate through the result set.
-	for rows.Next() {
-
-		var usage, size float64
-
-		// Get values from row.
-		err := rows.Scan(&usage, &size)
-
-		if err != nil {
-
-			log.Fatal(err.Error())
-		}
-
-		singleInput := IndividualComponent{usage, size}
-		toReturn = append(toReturn, singleInput)
-	}
-
-	return toReturn
-}
-
-// ----------------------------- DISK Section Section -----------------------------
-
-//  Get all disks from DISK Table.
-//  Doesn't need anything, it just cycles through each disk in the table.
-//
-//  Return:
-//  	([]IndividualComponent) all disks.
-func (s *Storage) GetDisks() []IndividualComponent {
-
-	ctx := context.Background()
-
-	// For not we are just getting from the DISK table!
-	singleQuery := fmt.Sprintf("SELECT usage, size FROM DISK;")
-
-	// Execute query
-	rows, err := s.DB_CONNECTION.QueryContext(ctx, singleQuery)
-
-	if err != nil {
-
-		log.Fatal(err.Error())
-	}
-
-	defer rows.Close()
-
-	var toReturn []IndividualComponent
-
-	// Iterate through the result set.
-	for rows.Next() {
-
-		var usage, size float64
-
-		// Get values from row.
-		err := rows.Scan(&usage, &size)
-
-		if err != nil {
-
-			log.Fatal(err.Error())
-		}
-
-		singleInput := IndividualComponent{usage, size}
-		toReturn = append(toReturn, singleInput)
-	}
-
-	return toReturn
-}
-
 // ------------------------ INDIVIDUAL COMPONENT Section -----------------------
 
-//  Get all from either MEMORY/DISK.
+//  Get all from either MEMORY/DISK or _AVERAGE's.
 //  You need to give it the name of what table you want to get all from.
-//	You can only use this method for MEMORY/DISK tables!
+//	You can only use this method for MEMORY/DISK and their _AVERAGE tables!
 //
 //  Return:
-//  	([]IndividualComponent) all from one of the 2 tables.
+//  	([]IndividualComponent) all from one of the 4 tables.
 func (s *Storage) GetIndivComponents(tableName string) []IndividualComponent {
 
 	tableName = strings.ToUpper(tableName)
 
 	ctx := context.Background()
 
-	// For not we are just getting from the a selected table!
-	singleQuery := fmt.Sprintf("SELECT usage, size FROM %s;", tableName)
+	var singleQuery string
+
+	if strings.Contains(tableName, "_AVERAGE") {
+
+		// _AVEGAGE tables
+		singleQuery = fmt.Sprintf("SELECT averageUsage, averageSize FROM %s;", tableName)
+	} else {
+
+		// Normal tables
+		singleQuery = fmt.Sprintf("SELECT usage, size FROM %s;", tableName)
+	}
 
 	// Execute query
 	rows, err := s.DB_CONNECTION.QueryContext(ctx, singleQuery)
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	defer rows.Close()
@@ -433,7 +386,7 @@ func (s *Storage) GetIndivComponents(tableName string) []IndividualComponent {
 
 		if err != nil {
 
-			log.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 
 		singleInput := IndividualComponent{usage, size}
@@ -443,38 +396,57 @@ func (s *Storage) GetIndivComponents(tableName string) []IndividualComponent {
 	return toReturn
 }
 
-//  Get newest from either MEMORY/DISK.
+//  Get newest from either MEMORY/DISK and _AVERAGE.
 //  You need to give it the name of what table you want to get all from.
-//	You can only use this method for MEMORY/DISK tables!
+//	You can only use this method for MEMORY/DISK and their _AVERAGE tables!
 //
 //  Return:
-//  	(IndividualComponent) single from one of the 2 tables.
+//  	(IndividualComponent) single from one of the 4 tables.
 func (s *Storage) GetNewestIndivComponent(tableName string) IndividualComponent {
 
 	tableName = strings.ToUpper(tableName)
 	var IdName string
+	var singleQuery string
 
-	if tableName == "MEMORY" {
+	if strings.Contains(tableName, "_AVERAGE") {
 
-		IdName = "memoryID"
+		if tableName == "MEMORY_AVERAGE" {
+
+			IdName = "memoryAverageID"
+		} else {
+
+			IdName = "diskAverageID"
+		}
+
+		// For not we are just getting from the single table!
+		singleQuery = fmt.Sprintf("SELECT averageUsage, averageSize FROM %s WHERE %s IN "+
+			"(SELECT TOP 1 %s FROM COLLECTOR_HISTORY ORDER BY collectorHistoryID DESC);",
+			tableName, IdName, IdName)
+
 	} else {
 
-		IdName = "diskID"
+		if tableName == "MEMORY" {
+
+			IdName = "memoryID"
+		} else {
+
+			IdName = "diskID"
+		}
+
+		// For not we are just getting from the single table!
+		singleQuery = fmt.Sprintf("SELECT usage, size FROM %s WHERE %s IN "+
+			"(SELECT TOP 1 %s FROM COLLECTOR ORDER BY timeCollected DESC);",
+			tableName, IdName, IdName)
 	}
 
 	ctx := context.Background()
-
-	// For not we are just getting from the single table!
-	singleQuery := fmt.Sprintf("SELECT usage, size FROM %s WHERE %s IN "+
-		"(SELECT TOP 1 %s FROM COLLECTOR ORDER BY timeCollected DESC);",
-		tableName, IdName, IdName)
 
 	// Execute query
 	rows, err := s.DB_CONNECTION.QueryContext(ctx, singleQuery)
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	defer rows.Close()
@@ -491,22 +463,21 @@ func (s *Storage) GetNewestIndivComponent(tableName string) IndividualComponent 
 
 		if err != nil {
 
-			log.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 
-		//singleInput := IndividualComponent{usage, size}
 		toReturn = IndividualComponent{usage, size}
 	}
 
 	return toReturn
 }
 
-//  Get newest ID from either MEMORY/DISK.
+//  Get newest ID from either MEMORY/DISK and _AVERAGE.
 //  You need to give it the name of what table you want to get all from.
-//	You can only use this method for MEMORY/DISK tables!
+//	You can only use this method for MEMORY/DISK and their _AVERAGE tables!
 //
 //  Return:
-//  	(int) single ID from one of the 2 tables.
+//  	(int) single ID from one of the 4 tables.
 func (s *Storage) GetNewestIndivComponentID(tableName string) int {
 
 	tableName = strings.ToUpper(tableName)
@@ -515,7 +486,13 @@ func (s *Storage) GetNewestIndivComponentID(tableName string) int {
 	if tableName == "MEMORY" {
 
 		IdName = "memoryID"
-	} else {
+	} else if tableName == "MEMORY_AVERAGE" {
+
+		IdName = "memoryAverageID"
+	} else if tableName == "DISK_AVERAGE" {
+
+		IdName = "diskAverageID"
+	} else if tableName == "DISK" {
 
 		IdName = "diskID"
 	}
@@ -523,7 +500,7 @@ func (s *Storage) GetNewestIndivComponentID(tableName string) int {
 	ctx := context.Background()
 
 	// For not we are just getting from the single table!
-	singleQuery := fmt.Sprintf("SELECT %s FROM %s ORDER BY %s DESC;",
+	singleQuery := fmt.Sprintf("SELECT TOP 1 %s FROM %s ORDER BY %s DESC;",
 		IdName, tableName, IdName)
 
 	// Execute query
@@ -531,7 +508,7 @@ func (s *Storage) GetNewestIndivComponentID(tableName string) int {
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	defer rows.Close()
@@ -548,10 +525,9 @@ func (s *Storage) GetNewestIndivComponentID(tableName string) int {
 
 		if err != nil {
 
-			log.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 
-		//singleInput := IndividualComponent{usage, size}
 		toReturn = id
 	}
 
@@ -579,7 +555,7 @@ func (s *Storage) PutNewSingleComponent(
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	return result.RowsAffected()
@@ -588,31 +564,27 @@ func (s *Storage) PutNewSingleComponent(
 // ----------------------------- COLLECTOR Section -----------------------------
 
 //  Get all Collectors from COLLECTOR Table.
-//  !DONT USE THIS UNTIL WE ACTUALLY GET CPU/MEMORY/DISK tables running.!
 //  Doesn't need anything, it just cycles through each collector in the table.
 //
 //  Return:
 //  	([]Collector) all collectors.
-/*func GetCollectors() []Collector {
-
-	OpenDBConnection()
+func (s *Storage) GetCollectors() []Collector {
 
 	ctx := context.Background()
 
 	// Get all Collectors.
-	singleQuery := fmt.Sprintf("SELECT * FROM COLLECTOR;")
+	singleQuery := fmt.Sprintf("SELECT collectorID, timeCollected, cpuID, " +
+		"memoryID, diskID FROM COLLECTOR;")
 
 	// Execute query
-	rows, err := DB_CONNECTION.QueryContext(ctx, singleQuery)
+	rows, err := s.DB_CONNECTION.QueryContext(ctx, singleQuery)
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	defer rows.Close()
-
-	CloseDBConnection()
 
 	var toReturn []Collector
 
@@ -627,7 +599,7 @@ func (s *Storage) PutNewSingleComponent(
 
 		if err != nil {
 
-			log.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 
 		singleInput := Collector{collectorID, timeCollected, cpuID, memoryID, diskID}
@@ -636,14 +608,13 @@ func (s *Storage) PutNewSingleComponent(
 
 	return toReturn
 }
-*/
 
 //  Get newest collector from COLLECTOR table.
 //  Doesn't need anything, just call it to get the newest collector.
 //
 //  Return:
 //  	(Collector) COLLECTOR.
-func (s *Storage) GetCollectorNewest() IncorrectCollector {
+func (s *Storage) GetCollectorNewest() Collector {
 
 	ctx := context.Background()
 
@@ -657,19 +628,17 @@ func (s *Storage) GetCollectorNewest() IncorrectCollector {
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	defer rows.Close()
 
-	var toReturn IncorrectCollector
+	var toReturn Collector
 
 	// Iterate through the result set.
 	for rows.Next() {
 
-		//var collectorID, cpuID, memoryID, diskID int
-		var collectorID, cpuID int
-		var memoryID, diskID sql.NullString
+		var collectorID, cpuID, memoryID, diskID int
 		var timeCollected time.Time
 
 		// Get values from row.
@@ -677,10 +646,10 @@ func (s *Storage) GetCollectorNewest() IncorrectCollector {
 
 		if err != nil {
 
-			log.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 
-		toReturn = IncorrectCollector{collectorID: collectorID, timeCollected: timeCollected,
+		toReturn = Collector{collectorID: collectorID, timeCollected: timeCollected,
 			cpuID: cpuID, memoryID: memoryID, diskID: diskID}
 	}
 
@@ -699,14 +668,14 @@ func (s *Storage) GetCollectorIDNewest() int {
 	// Get newsest Processes, based off collectorID.
 	singleQuery :=
 		fmt.Sprintf("SELECT TOP 1 collectorID FROM COLLECTOR " +
-			" ORDER BY timeCollected DESC;")
+			"ORDER BY timeCollected DESC;")
 
 	// Execute query
 	rows, err := s.DB_CONNECTION.QueryContext(ctx, singleQuery)
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	defer rows.Close()
@@ -723,7 +692,7 @@ func (s *Storage) GetCollectorIDNewest() int {
 
 		if err != nil {
 
-			log.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 
 		toReturnInt = collectorID
@@ -740,31 +709,22 @@ func (s *Storage) GetCollectorIDNewest() int {
 //  	(error) any error, this should be 'nil'.
 func (s *Storage) PutNewCollector() (int64, error) {
 
-	// These will be used once we get to CPU/MEMORY/DISK tables.
 	var cpuID = s.GetNewestCPUID()
-	// var memoryID = s.GetNewestIndivComponentID('MEMORY')
-	// var diskID = GetNewestIndivComponentID('DISK')
+	var memoryID = s.GetNewestIndivComponentID("MEMORY")
+	var diskID = s.GetNewestIndivComponentID("DISK")
 
 	// Insert into Collector.
-	// For now we only care about creating a timestamp and having a collectorID
-	// for the PROCESS table.
 	// CPU/MEMORY/DISK will be up later.
 	singleInsert :=
-		fmt.Sprintf("INSERT INTO COLLECTOR VALUES (GETDATE(), %v, NULL, NULL);", cpuID)
-
-	/*
-		// This will be used once we actually have to input CPU, etc..
-			singleInsert :=
-				fmt.Sprint("INSERT INTO COLLECT VALUES (GETDATE(), %v, %v, %v);",
-				cpuID, memoryID, diskID)
-	*/
+		fmt.Sprintf("INSERT INTO COLLECTOR VALUES (GETDATE(), %v, %v, %v);",
+			cpuID, memoryID, diskID)
 
 	// Execute Insertion
 	result, err := s.DB_CONNECTION.Exec(singleInsert)
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	return result.RowsAffected()
@@ -790,7 +750,7 @@ func (s *Storage) GetProcesses() []process.Process {
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	defer rows.Close()
@@ -810,7 +770,7 @@ func (s *Storage) GetProcesses() []process.Process {
 
 		if err != nil {
 
-			log.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 
 		singleInput := process.Process{PID: PID, Name: name,
@@ -837,14 +797,15 @@ func (s *Storage) GetProcessesByNewest() []process.Process {
 	singleQuery := fmt.Sprintf("SELECT processID, collectorID, PID, name, status," +
 		" cpuUsage, memoryUsage, diskUsage, executionTime FROM PROCESS" +
 		" WHERE collectorID IN " +
-		"(SELECT TOP 1 collectorID FROM COLLECTOR ORDER BY timeCollected DESC);")
+		"(SELECT TOP 1 collectorID FROM COLLECTOR ORDER BY timeCollected DESC) " +
+		"ORDER BY processID DESC;")
 
 	// Execute query
 	rows, err := s.DB_CONNECTION.QueryContext(ctx, singleQuery)
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	defer rows.Close()
@@ -864,7 +825,7 @@ func (s *Storage) GetProcessesByNewest() []process.Process {
 
 		if err != nil {
 
-			log.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 
 		singleInput := process.Process{PID: PID, Name: name,
@@ -897,7 +858,7 @@ func (s *Storage) GetProcessesByCustomStringField(column string, field string) [
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	defer rows.Close()
@@ -917,7 +878,7 @@ func (s *Storage) GetProcessesByCustomStringField(column string, field string) [
 
 		if err != nil {
 
-			log.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 
 		singleInput := process.Process{PID: PID, Name: name,
@@ -950,7 +911,7 @@ func (s *Storage) GetProcessesByCustomFloatField(column string, field float32) [
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	defer rows.Close()
@@ -970,7 +931,7 @@ func (s *Storage) GetProcessesByCustomFloatField(column string, field float32) [
 
 		if err != nil {
 
-			log.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 
 		singleInput := process.Process{PID: PID, Name: name,
@@ -1003,7 +964,7 @@ func (s *Storage) GetProcessesByCustomIntField(column string, field int) []proce
 
 	if err != nil {
 
-		log.Fatal(err.Error())
+		logger.Error(err.Error())
 	}
 
 	defer rows.Close()
@@ -1023,7 +984,7 @@ func (s *Storage) GetProcessesByCustomIntField(column string, field int) []proce
 
 		if err != nil {
 
-			log.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 
 		singleInput := process.Process{PID: PID, Name: name,
@@ -1056,7 +1017,7 @@ func (s *Storage) PutNewProcess(singleProcess process.Process) (int64, error) {
 
 		if singleCheckProcess == singleProcess {
 
-			fmt.Printf("Tried inserting the same process, PID: %v\n", singleProcess.PID)
+			logger.Info("Tried (skipped) inserting the same process, PID: " + fmt.Sprint(singleProcess.PID))
 			repeatedProcess = true
 		}
 	}
@@ -1076,7 +1037,7 @@ func (s *Storage) PutNewProcess(singleProcess process.Process) (int64, error) {
 
 		if err != nil {
 
-			log.Fatal(err.Error())
+			logger.Error(err.Error())
 		}
 
 		return result.RowsAffected()
@@ -1090,6 +1051,9 @@ func (s *Storage) PutNewProcess(singleProcess process.Process) (int64, error) {
 //  Insert for All the tables
 //  Takes in the Metrics struct, which should hold all the data needed to
 //	be inserted into the database (CPU, MEMORY, DISK, and PROCESS).
+//  Purge stored procedure will be called from here as well.
+// 	The procedure checks if it needs to move/purge data, and if it does it will.
+//  The rest of the insertion will wait for it to complete.
 //
 //  Return:
 //  	(bool) true if an error occurred.
@@ -1097,17 +1061,36 @@ func (s *Storage) BulkInsert(totalMetrics collecting.Metrics) bool {
 
 	errorHappened := false
 
+	// Purge Stored Procedure.
+
+	singleInsert := fmt.Sprintf("EXEC PRC_PurgeData;")
+
+	// Execute Insertion
+	result, err := s.DB_CONNECTION.Exec(singleInsert)
+
+	affectedRows, err := result.RowsAffected()
+
+	if err != nil {
+
+		logger.Error("Error PurgeData: " + err.Error())
+	}
+
+	if !(affectedRows >= 1) {
+
+		logger.Error("Error PurgeData.")
+	}
+
 	// Insert into CPU/MEMORY/DISK
 	rowsAffected, err := s.PutNewCPU(totalMetrics.CPU)
 
 	if err != nil {
 
-		fmt.Printf("Error in adding in CPU Table -- Bulk Insert Function: %v\n", err)
+		logger.Error("Error in adding in CPU Table -- Bulk Insert Function: " + err.Error())
 		errorHappened = true
 	}
 	if !(rowsAffected >= 1) {
 
-		fmt.Print("Error in adding in CPU Table -- Bulk Insert Function.\n")
+		logger.Error("Error in adding in CPU Table -- Bulk Insert Function.\n")
 		errorHappened = true
 	}
 
@@ -1116,13 +1099,13 @@ func (s *Storage) BulkInsert(totalMetrics collecting.Metrics) bool {
 	rowsAffected, err = s.PutNewSingleComponent("MEMORY", memoryHolder)
 	if err != nil {
 
-		fmt.Printf("Error in adding in MEMORY Table"+
-			" -- Bulk Insert Function: %v\n", err)
+		logger.Error("Error in adding in MEMORY Table" +
+			" -- Bulk Insert Function:" + err.Error())
 		errorHappened = true
 	}
 	if !(rowsAffected >= 1) {
 
-		fmt.Print("Error in adding in MEMORY Table" +
+		logger.Error("Error in adding in MEMORY Table" +
 			" -- Bulk Insert Function.\n")
 		errorHappened = true
 	}
@@ -1142,13 +1125,13 @@ func (s *Storage) BulkInsert(totalMetrics collecting.Metrics) bool {
 	rowsAffected, err = s.PutNewSingleComponent("DISK", diskHolder)
 	if err != nil {
 
-		fmt.Printf("Error in adding in DISK Table"+
-			" -- Bulk Insert Function: %v\n", err)
+		logger.Error("Error in adding in DISK Table" +
+			" -- Bulk Insert Function: " + err.Error())
 		errorHappened = true
 	}
 	if !(rowsAffected >= 1) {
 
-		fmt.Print("Error in adding in DISK Table" +
+		logger.Error("Error in adding in DISK Table" +
 			" -- Bulk Insert Function.\n")
 		errorHappened = true
 	}
@@ -1157,13 +1140,13 @@ func (s *Storage) BulkInsert(totalMetrics collecting.Metrics) bool {
 	rowsAffected, err = s.PutNewCollector()
 	if err != nil {
 
-		fmt.Printf("Error in adding in COLLECTOR Table"+
-			"-- Bulk Insert Function: %v\n", err)
+		logger.Error("Error in adding in COLLECTOR Table" +
+			"-- Bulk Insert Function: " + err.Error())
 		errorHappened = true
 	}
 	if !(rowsAffected >= 1) {
 
-		fmt.Print("Error in adding in COLLECTOR Table" +
+		logger.Error("Error in adding in COLLECTOR Table" +
 			" -- Bulk Insert Function.\n")
 		errorHappened = true
 	}
@@ -1174,186 +1157,23 @@ func (s *Storage) BulkInsert(totalMetrics collecting.Metrics) bool {
 		rowsAffected, err = s.PutNewProcess(singleProcess)
 		if err != nil {
 
-			fmt.Printf("Error in adding in PROCESS Table, iteration: %v"+
-				" -- Bulk Insert Function: %v\n", iteration, err)
+			logger.Error("Error in adding in PROCESS Table" +
+				" -- Bulk Insert Function, iteration: " + fmt.Sprint(iteration) +
+				", error: " + err.Error())
 			errorHappened = true
 		}
 		if !(rowsAffected >= 1) {
 
-			fmt.Printf("Error in adding in PROCESS Table, iteration: %v"+
-				" -- Bulk Insert Function.\n", iteration)
+			logger.Error("Error in adding in PROCESS Table" +
+				" -- Bulk Insert Function, iteration: " + fmt.Sprint(iteration))
 			errorHappened = true
 		}
 	}
 
+	if !errorHappened {
+
+		logger.Info("BULK insertion completed successfully.")
+	}
+
 	return errorHappened
-}
-
-// ------------------- Testing Section -------------------
-
-//
-func main() {
-
-	fmt.Printf("Repository Implementation for mssql (Microsoft SQL Server)\n")
-
-	/*var database, err = NewStorage()
-
-	if err != nil {
-	}
-
-	//newestCollector := database.GetCollectorNewest()
-
-	//fmt.Printf("collector: %v, %v\n", newestCollector.collectorID, newestCollector.timeCollected)
-
-	cpuHolder1 := cpu.CPU{Usage: 10.10}
-	memoryHolder := memory.Memory{Usage: 10.10, Size: 1000.00}
-
-	diskHolder := []disk.Disk{}
-
-	diskHolder = append(diskHolder, disk.Disk{Name: "NA", MountPoint: "hehehe", Usage: 40.00, Size: 40.00})
-	diskHolder = append(diskHolder, disk.Disk{Name: "/", MountPoint: "/", Usage: 60.00, Size: 1245.67})
-
-	listProcess := []process.Process{}
-
-	listProcess = append(listProcess, process.Process{PID: 5540, Name: "process0", CPUUtilization: 00.00, RAMUtilization: 00.00, DiskUtilization: 00.00, Status: "done", ExecutionTime: 00.00})
-	listProcess = append(listProcess, process.Process{PID: 999, Name: "process1", CPUUtilization: 01.00, RAMUtilization: 01.00, DiskUtilization: 00.10, Status: "running", ExecutionTime: 01.00})
-	listProcess = append(listProcess, process.Process{PID: 666, Name: "process2", CPUUtilization: 02.20, RAMUtilization: 22.00, DiskUtilization: 00.22, Status: "failed", ExecutionTime: 22.00})
-	listProcess = append(listProcess, process.Process{PID: 999, Name: "process1", CPUUtilization: 00.00, RAMUtilization: 00.00, DiskUtilization: 00.10, Status: "done", ExecutionTime: 00.00})
-
-	metricsHolder1 := collecting.Metrics{Processes: listProcess, CPU: cpuHolder1, Memory: memoryHolder, Disk: diskHolder}
-
-	database.BulkInsert(metricsHolder1)
-	*/
-
-	//database.PutNewProcess(process.Process{PID: 5540, Name: "process0", CPUUtilization: 00.00, RAMUtilization: 00.00, DiskUtilization: 00.00, Status: "done", ExecutionTime: 00.00})
-
-	// To start the connection, call 'databaseConnection'.
-
-	// Test CPUs Get
-	/*var answer []CPU = database.GetCPUs()
-
-	for _, cpu := range answer {
-
-		fmt.Printf("usage: %.2f\n", cpu.usage)
-	}*/
-
-	// Test Newest CPUs Get
-	/*var answer []CPU = database.GetNewestCPU()
-
-	for _, cpu := range answer {
-
-		fmt.Printf("usage: %.2f\n", cpu.usage)
-	}*/
-
-	// Test CPU Get by ID
-	/*var answer []CPU = database.GetCPUByID(1)
-
-	for _, cpu := range answer {
-
-		fmt.Printf("usage: %.2f\n", cpu.usage)
-	}*/
-
-	// Test CPU Put single
-	/*var holderProcess = CPU{usage: 11.11}
-
-	var rowsInsertedCount, error1 = database.PutNewCPU(holderProcess)
-
-	fmt.Printf("rowsInsertedCount: %d ", rowsInsertedCount)
-	fmt.Println(error1)
-	*/
-
-	// Test Processes Get
-	/*var answer []process.Process = database.GetProcesses()
-
-	for _, process := range answer {
-
-		fmt.Printf("PID: %d,  name: %s, status: %s, cpuUsage: %.2f, memoryUsage: %.2f, diskUsage: %.2f, executionTime: %.2f\n",
-			 process.PID, process.Name, process.Status, process.CPUUtilization, process.RAMUtilization, process.DiskUtilization, process.ExecutionTime)
-	}*/
-
-	// Test Processes Get by newest collector == newest processes
-	/*var answer []process.Process = database.GetProcessesByNewest()
-
-	for _, process := range answer {
-
-		fmt.Printf("PID: %d,  name: %s, status: %s, cpuUsage: %.2f, memoryUsage: %.2f, diskUsage: %.2f, executionTime: %.2f\n",
-			process.PID, process.Name, process.Status, process.CPUUtilization, process.RAMUtilization, process.DiskUtilization, process.ExecutionTime)
-	}*/
-
-	// Test Processes Get by custom column and a string filed
-	/*var answer []process.Process = database.GetProcessesByCustomStringField("name", "process2")
-
-	for _, process := range answer {
-
-		fmt.Printf("PID: %d,  name: %s, status: %s, cpuUsage: %.2f, memoryUsage: %.2f, diskUsage: %.2f, executionTime: %.2f\n",
-			process.PID, process.Name, process.Status, process.CPUUtilization, process.RAMUtilization, process.DiskUtilization, process.ExecutionTime)
-	}*/
-
-	// Test Processes Get by custom column and a float filed
-	/*var answer []process.Process = database.GetProcessesByCustomFloatField("diskUsage", 99.99)
-
-	for _, process := range answer {
-
-		fmt.Printf("PID: %d,  name: %s, status: %s, cpuUsage: %.2f, memoryUsage: %.2f, diskUsage: %.2f, executionTime: %.2f\n",
-			process.PID, process.Name, process.Status, process.CPUUtilization, process.RAMUtilization, process.DiskUtilization, process.ExecutionTime)
-	}*/
-
-	// Test Processes Get by custom column and a int filed
-	/*var answer []process.Process = database.GetProcessesByCustomIntField("collectorID", 1)
-	for _, process := range answer {
-
-		fmt.Printf("PID: %d,  name: %s, status: %s, cpuUsage: %.2f, memoryUsage: %.2f, diskUsage: %.2f, executionTime: %.2f\n",
-			process.PID, process.Name, process.Status, process.CPUUtilization, process.RAMUtilization, process.DiskUtilization, process.ExecutionTime)
-	}*/
-
-	// Test Processes Put single
-	/*var holderProcess = process.Process{PID: 5540, Name: "process0", CPUUtilization: 00.00, RAMUtilization: 00.00, DiskUtilization: 00.00, Status: "done", ExecutionTime: 00.00}
-
-	var rowsInsertedCount, error1 = database.PutNewProcess(holderProcess)
-
-	fmt.Printf("rowsInsertedCount: %d ", rowsInsertedCount)
-	fmt.Println(error1)*/
-
-	// Test Collector Put single
-	/*var holderCollector = CollectorInsert{0, 0, 0}
-
-	var rowsInsertedCount, error1 = putNewCollector(holderCollector)
-
-	fmt.Printf("rowsInsertedCount: %d ", rowsInsertedCount)
-	fmt.Println(error1)
-	*/
-
-	// For now I am closing it manually.
-	// Not sure if we want it to stay open......
-
-	// Test Collectors all
-	// Dont run this, as we arent using ints for CPUID etc..
-	/*var answer []Collector = GetCollectors()
-	for _, collector := range answer {
-
-		fmt.Printf("collectorID: %d, time: %t, CPUID: %d,  memoryID: %d, diskID: %d\n",
-			collector.collectorID, collector.timeCollected.Day(), collector.cpuID, collector.memoryID, collector.diskID)
-	}
-	*/
-
-	// Test Get Individual Components
-	/*var answer []IndividualComponent = database.GetIndivComponents("MEMORY")
-
-	for _, singleComponent := range answer {
-
-		fmt.Printf("usage: %.2f, size: %.2f\n",
-			singleComponent.usage, singleComponent.size)
-	}*/
-
-	// Test Get Newest Individual Component
-	/*var answer []IndividualComponent = database.GetNewestIndivComponent("DISK")
-
-	for _, singleComponent := range answer {
-
-		fmt.Printf("usage: %.2f, size: %.2f\n",
-			singleComponent.usage, singleComponent.size)
-	}
-	*/
-
-	fmt.Print("DONE TEST")
 }
