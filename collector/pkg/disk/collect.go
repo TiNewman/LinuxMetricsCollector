@@ -49,5 +49,8 @@ func (c collector) Collect() ([]Disk, error) {
 }
 
 func calculateUsage(free float64, total float64) float64 {
+	if total <= 0 {
+		return 0
+	}
 	return (1 - (free / total)) * 100
 }
