@@ -7,7 +7,7 @@ let socket
 
 const diskView = props => {
   //use this to store the process list stuff
- const [diskUsage, setDiskUsage] = useState([])
+  const [diskUsage, setDiskUsage] = useState([])
 
   useEffect(() => {
       socket = new WebSocket("ws://localhost:8080/ws");
@@ -59,7 +59,7 @@ const diskView = props => {
         {diskUsage.map((item, index) => <div className="overflow-x-center flex flex-col w-1/6 mx-auto ml-24 mt-5 float-left px-4">
           <h2 className={processListStyles.h2}>{item.Name}</h2>
           <div className="block overflow-x-center flex flex-cols mt-5 p-5 shadow-lg shadow-primary">
-            <div className="radial-progress text-primary self-center" style={{"--value":item.Usage.toFixed(2), "--size":"10rem"}}>{item.Usage.toFixed(2)}%</div>
+            <div className="radial-progress text-neutral border-4 border-primary self-center bg-primary " style={{"--value":item.Usage.toFixed(2), "--size":"10rem"}}>{item.Usage.toFixed(2)}%</div>
           </div>
           <p className="pl-8 pt-8">Mount Point: {item.MountPoint}</p>
           <p className="pl-8">Size: {item.Size.toFixed(2)} MB</p>
