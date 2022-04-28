@@ -123,12 +123,12 @@ func writer(conn *websocket.Conn, c chan string, collector collecting.Service) {
 			}
 			if m == "cpu_history" {
 				publish = false
-				data := collector.CPUHistory()
+				data := collector.NewestHistory()
 				sendCPUHistory(conn, data)
 			}
 			if m == "memory_history" {
 				publish = false
-				data := collector.MemoryHistory()
+				data := collector.NewestHistory()
 				sendMemoryHistory(conn, data)
 			}
 			if m == "stop" {

@@ -13,8 +13,7 @@ import (
 
 type Service interface {
 	Collect() Metrics
-	CPUHistory() History
-	MemoryHistory() History
+	NewestHistory() History
 }
 
 type service struct {
@@ -33,15 +32,16 @@ type Metrics struct {
 }
 
 type History struct {
-	start   time.Time
-	end     time.Time
-	average float64
+	Start           time.Time
+	End             time.Time
+	AverageCpuUsage float64
+	AverageMemUsage float64
+	AverageMemSize  float64
 }
 
 type Repository interface {
 	BulkInsert(Metrics) bool
-	// GetNewestCPUAVERAGE() History
-	// memory history function
+	GetNewestHistory() History
 }
 
 type ServiceOption func(*service)
@@ -132,12 +132,8 @@ func (s service) Collect() Metrics {
 	return m
 }
 
-func (s service) CPUHistory() History {
-	var avg History
-	// avg := s.r.GetNewestCPUAVERAGE()
-	return avg
-}
-
-func (s service) MemoryHistory() History {
-	return History{}
+func (s service) NewestHistory() History {
+	var history History
+	history := s.r.GetNewestHistory()
+	return history
 }
