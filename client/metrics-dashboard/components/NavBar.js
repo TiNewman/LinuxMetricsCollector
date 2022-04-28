@@ -12,6 +12,7 @@ const NavBar = () => (
               <li className="hover:bg-primary hover:text-neutral"><Link href="/cpu">CPU</Link></li>
               <li className="hover:bg-primary hover:text-neutral"><Link href="/disk">Disk</Link></li>
               <li className="hover:bg-primary hover:text-neutral"><Link href="/memory">RAM</Link></li>
+              <li className="hover:bg-primary hover:text-neutral"><Link href="/history">Historical Data</Link></li>
             </ul>
           </div>
         </div>
