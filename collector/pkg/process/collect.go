@@ -26,7 +26,7 @@ type Collector interface {
 	Collect() ([]Process, error)
 }
 
-func NewProcessCollectorWithoutRepo() collector {
+func NewDefaultProcessCollector() collector {
 	return collector{mount: "/proc"}
 }
 

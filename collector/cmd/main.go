@@ -29,7 +29,7 @@ func main() {
 	}
 
 	// initialize collectors
-	pcollector := process.NewProcessCollectorWithoutRepo()
+	pcollector := process.NewDefaultProcessCollector()
 	cpuCollector := cpu.NewDefaultCPUCollector()
 	memCollector := memory.NewMemoryCollector()
 	diskCollector := disk.NewDiskCollector()
