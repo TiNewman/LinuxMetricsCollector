@@ -227,6 +227,50 @@ func (s *Storage) GetNewestCPU() cpu.CPU {
 	return toReturn
 }
 
+//  Get newest from CPU_AVERAGE
+//  Nothing needs to be passed, just call te function.
+//
+//  Return:
+//  	(cpu.CPU) single from the CPU_AVERAGE table.
+func (s *Storage) GetNewestCPUAVERAGE() cpu.CPU {
+
+	ctx := context.Background()
+
+	// For not we are just getting from the single table!
+	singleQuery := fmt.Sprintf("SELECT averageUsage FROM CPU_AVERAGE WHERE cpuAverageID IN " +
+		"(SELECT TOP 1 cpuAverageID FROM COLLECTOR_HISTORY ORDER BY collectorHistoryID DESC);")
+
+	// Execute query
+	rows, err := s.DB_CONNECTION.QueryContext(ctx, singleQuery)
+
+	if err != nil {
+
+		logger.Error(err.Error())
+	}
+
+	defer rows.Close()
+
+	var toReturn cpu.CPU
+
+	// Iterate through the result set.
+	for rows.Next() {
+
+		var usage float32
+
+		// Get values from row.
+		err := rows.Scan(&usage)
+
+		if err != nil {
+
+			logger.Error(err.Error())
+		}
+
+		toReturn = cpu.CPU{Usage: usage}
+	}
+
+	return toReturn
+}
+
 //  Get a single CPU from the CPU Table based off it's ID.
 //  Only needs the ID that is being searched for.
 //
