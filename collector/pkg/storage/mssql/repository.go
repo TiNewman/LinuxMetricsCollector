@@ -5,9 +5,9 @@
 //	CPU has it's own functions as it only holds usage now.
 //	Use the BULK insert Function to insert everything together.
 
-package mssql
+//package mssql
 
-// package main
+package main
 
 import (
 	"context"

@@ -3,7 +3,9 @@
 //	Inserting only into CPU/DISK and COLLECTOR tables: Must fail successfully
 //	Inserting only into MEMORY/DISK and COLLECTOR tables: Must fail successfully.
 
-package mssql
+//package mssql
+
+package main
 
 import (
 	"context"
