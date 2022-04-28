@@ -20,7 +20,7 @@ type CollectCase struct {
 }
 
 func TestCollect(t *testing.T) {
-	collector := NewCPUCollectorWithoutRepo()
+	collector := NewDefaultCPUCollector()
 
 	_, err := collector.Collect()
 	if err != nil {

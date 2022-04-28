@@ -15,11 +15,17 @@ const memoryView = props => {
   const [options, setOptions] = useState({})
   const [series, setSeries] = useState([])
 
-  useEffect(() => socketInitializer(), [])
+  useEffect(() => {
+      socket = new WebSocket("ws://localhost:8080/ws");
+      socketInitializer()
+      return () => {
+        console.log("closing socket")
+        socket.send(JSON.stringify({"request": "stop"}))
+        socket.close()
+      };
+     }, [])
 
   const socketInitializer = async () => {
-    const socket = new WebSocket("ws://localhost:8080/ws");
-
     socket.onopen = () => {
       socket.send(JSON.stringify({"request": "memory"}))
     };
@@ -32,13 +38,11 @@ const memoryView = props => {
         dataArray.shift()
         categoriesArray.shift()
       }
-      dataArray.push(processJSON.memory.Usage)
+      dataArray.push(processJSON.memory.Usage.toFixed(2))
 
       //get current time
-      var timestampInMilliseconds = Date.now();
-      var timestampInSeconds = Date.now() / 1000; // A float value not an integer.
-          timestampInSeconds = Math.floor(Date.now() / 1000); // Floor it to get the seconds.
-      var time = new Date(timestampInSeconds).toISOString().substr(11, 8);
+      var curtime = new Date()
+      var time = "" + curtime.getHours() + ":" + curtime.getMinutes() + ":" + curtime.getSeconds()
       categoriesArray.push(time)
 
       setOptions({
@@ -136,7 +140,7 @@ const memoryView = props => {
     };
   }
 
-  /** THIS IS THE MANUAL TEST DATA FOR CLIENT WEBSOCKETS 
+  /** THIS IS THE MANUAL TEST DATA FOR CLIENT WEBSOCKETS
   const [options, setOptions] = useState({
       chart: {
         id: 'line-chart',
