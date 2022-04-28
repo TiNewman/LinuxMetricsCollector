@@ -13,6 +13,8 @@ import (
 
 type Service interface {
 	Collect() Metrics
+	CPUHistory() History
+	MemoryHistory() History
 }
 
 type service struct {
