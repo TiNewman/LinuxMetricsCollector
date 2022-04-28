@@ -19,16 +19,11 @@ type Process struct {
 }
 
 type collector struct {
-	r     Repository
 	mount string
 }
 
 type Collector interface {
 	Collect() ([]Process, error)
-}
-
-func NewProcessCollector(repo Repository) collector {
-	return collector{repo, "/proc"}
 }
 
 func NewProcessCollectorWithoutRepo() collector {
@@ -115,10 +110,6 @@ func (c collector) Collect() ([]Process, error) {
 		cpuUtilization := calcCPUUtilization(cputime, executionTime)
 
 		nextprocess := Process{PID: proc.PID, Name: pname, CPUUtilization: float32(cpuUtilization), RAMUtilization: float32(mem) / 1000000, DiskUtilization: float32(readTotal) / 1000000, Status: status, ExecutionTime: float32(executionTime)}
-
-		if c.r != nil {
-			c.r.PutNewProcess(nextprocess)
-		}
 
 		processList = append(processList, nextprocess)
 
