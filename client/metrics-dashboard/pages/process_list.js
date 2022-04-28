@@ -50,9 +50,6 @@ const processListView = props => {
   ]
   */
 
-  const closeWebsocket = () => {
-    socket.close()
-  }
   return (
     <div>
       <h1 className={processListStyles.h1}> Process List </h1>

@@ -77,7 +77,7 @@ const Index = () => {
          <Table data={process_list} column={column}/>
        </div>
        {cpuData.map((item, index) =>
-       <Link href="/cpu" onClick={closeWebsocket}>
+       <Link href="/cpu">
          <div className="float-left mt-10 pt-10 pl-10">
            <h1 className={styles.h1}> CPU Usage </h1>
            <div className="block p-5 shadow-lg shadow-primary hover:bg-primary">
@@ -87,7 +87,7 @@ const Index = () => {
        </Link>
        )}
       {diskData.map((item, index) =>
-       <Link href="/disk" onClick={closeWebsocket}>
+       <Link href="/disk">
          <div className="float-left mt-10 pt-10 pl-16">
            <h2 className={styles.h2}>Root Disk: {item.Name}</h2>
            <div className="block p-5 shadow-lg shadow-primary hover:bg-primary">
@@ -97,7 +97,7 @@ const Index = () => {
        </Link>
       )}
        {ramData.map((item, index) =>
-       <Link href="/memory" onClick={closeWebsocket}>
+       <Link href="/memory">
          <div className="float-left mt-10 pt-10 pl-16">
            <h1 className={styles.h1}> RAM Usage </h1>
            <div className="block p-5 shadow-lg shadow-primary hover:bg-primary">
@@ -108,10 +108,6 @@ const Index = () => {
       )}
      </div>
   )
-}
-
-const closeWebsocket = () => {
-    socket.close()
 }
 
 export default Index;
