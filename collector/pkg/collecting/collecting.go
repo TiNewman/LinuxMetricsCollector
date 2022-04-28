@@ -134,6 +134,6 @@ func (s service) Collect() Metrics {
 
 func (s service) NewestHistory() History {
 	var history History
-	history := s.r.GetNewestHistory()
+	history = s.r.GetNewestHistory()
 	return history
 }
