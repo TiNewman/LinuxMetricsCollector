@@ -15,11 +15,17 @@ const cpuView = props => {
   const [options, setOptions] = useState({})
   const [series, setSeries] = useState([])
 
-  useEffect(() => socketInitializer(), [])
+  useEffect(() => {
+      socket = new WebSocket("ws://localhost:8080/ws");
+      socketInitializer()
+      return () => {
+        console.log("closing socket")
+        socket.send(JSON.stringify({"request": "stop"}))
+        socket.close()
+      };
+     }, [])
 
   const socketInitializer = async () => {
-    const socket = new WebSocket("ws://localhost:8080/ws");
-
     socket.onopen = () => {
       socket.send(JSON.stringify({"request": "cpu"}))
     };

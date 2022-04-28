@@ -31,7 +31,6 @@ const Index = () => {
    }, [])
 
    const socketInitializer = async () => {
-
      socket.onopen = () => {
        console.log("Request being sent")
        //socket.send(JSON.stringify({"request": "process_list"}))
