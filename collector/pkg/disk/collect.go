@@ -36,15 +36,10 @@ func (c collector) Collect() ([]Disk, error) {
 
 	for _, m := range mountInfo {
 		if found, _ := regexp.MatchString(c.location, m.Source); found {
-			// calculate disk usage and size
-			// then append to the list of disks
 			var stat unix.Statfs_t
-			// fmt.Printf("%v:\n", m.MountPoint)
 			unix.Statfs(m.MountPoint, &stat)
 			usage := calculateUsage(float64(stat.Bfree), float64(stat.Blocks))
-			// fmt.Printf("Used: %v%%\n", usage)
 			size := float64(stat.Blocks*uint64(stat.Bsize)) / 1000000
-			// fmt.Printf("Size: %v\n", size)
 
 			result = append(result, Disk{Name: m.Source, MountPoint: m.MountPoint, Usage: usage, Size: size})
 		}
