@@ -127,9 +127,10 @@ GO
 
 -- Stored Procedure for Purging data
 IF (OBJECT_ID('PRC_PurgeData') IS NOT NULL)
-BEGIN 
+BEGIN
 	DROP PROCEDURE PRC_PurgeData;
 END
+
 GO
 
 CREATE PROCEDURE PRC_PurgeData 
@@ -178,11 +179,6 @@ BEGIN
 				SET @diskSize = @diskSize + (SELECT TOP 1 size FROM DISK WHERE diskID = @startingID);
 				SET @memorySize = @memorySize + (SELECT TOP 1 size FROM MEMORY WHERE memoryID = @startingID);
 
-				-- Delete from tables.
-				--DELETE FROM CPU WHERE cpuID = @startingID;
-				--DELETE FROM DISK WHERE diskID = @startingID;
-				--DELETE FROM MEMORY WHERE memoryID = @startingID;
-
 				-- Increase ID pointer.
 				SET @startingID = @startingID + 1;
 			END
@@ -193,8 +189,6 @@ BEGIN
 			SET @memoryUsage = CAST(ROUND((@memoryUsage / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT), 2) AS NUMERIC(36,2));
 			SET @diskSize = CAST(ROUND((@diskSize / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT), 2) AS NUMERIC(36,2));
 			SET @memorySize = CAST(ROUND((@memorySize / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT), 2) AS NUMERIC(36,2));
-
-			--SELECT @cpuUsage AS "CPU-USAGE", @diskUsage AS "DISK-USAGE", @memoryUsage AS "MEMORY-USAGE", @diskSize AS "DISK-AVA", @memorySize AS "MEMORY-AVA" ;
 
 		END
 
@@ -259,6 +253,11 @@ BEGIN
 	-- PROCCESS -> PROCESS_HISTORY
 	SET @startingID = (SELECT TOP 1 processID FROM PROCESS ORDER BY processID ASC);
 	SET @endID = (SELECT TOP 1 processID FROM PROCESS WHERE collectorID = @endCollectorID ORDER BY processID DESC);
+	
+	IF @endID IS NULL 
+	BEGIN
+		SET @endID = (SELECT TOP 1 processID FROM PROCESS WHERE collectorID < @endCollectorID ORDER BY processID DESC)
+	END 
 
 	SET @count = (@endID - @startingID);
 
@@ -303,7 +302,7 @@ BEGIN
 	ELSE
 	BEGIN
 
-		PRINT N'Error: Purge Stored_Procedure_PROCESS --> Count for cycling through PROCESS was negative.';
+		PRINT N'Purge Stored_Procedure_PROCESS --> Count for cycling through PROCESS was negative.';
 	END
 
 
