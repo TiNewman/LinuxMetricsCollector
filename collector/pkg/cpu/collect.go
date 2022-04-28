@@ -15,16 +15,11 @@ type CPU struct {
 }
 
 type collector struct {
-	r     Repository
 	mount string
 }
 
 type Collector interface {
 	Collect() (CPU, error)
-}
-
-func NewCPUCollector(repo Repository) collector {
-	return collector{r: repo, mount: "/proc"}
 }
 
 func NewCPUCollectorWithoutRepo() collector {
