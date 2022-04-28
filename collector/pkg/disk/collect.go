@@ -4,7 +4,6 @@ import (
 	"regexp"
 
 	"github.com/prometheus/procfs"
-	"golang.org/x/sys/unix"
 )
 
 type Disk struct {
@@ -36,12 +35,12 @@ func (c collector) Collect() ([]Disk, error) {
 
 	for _, m := range mountInfo {
 		if found, _ := regexp.MatchString(c.location, m.Source); found {
-			var stat unix.Statfs_t
-			unix.Statfs(m.MountPoint, &stat)
-			usage := calculateUsage(float64(stat.Bfree), float64(stat.Blocks))
-			size := float64(stat.Blocks*uint64(stat.Bsize)) / 1000000
+			//var stat unix.Statfs_t
+			//unix.Statfs(m.MountPoint, &stat)
+			//usage := calculateUsage(float64(stat.Bfree), float64(stat.Blocks))
+			//size := float64(stat.Blocks*uint64(stat.Bsize)) / 1000000
 
-			result = append(result, Disk{Name: m.Source, MountPoint: m.MountPoint, Usage: usage, Size: size})
+			result = append(result, Disk{Name: m.Source, MountPoint: m.MountPoint, Usage: 0.0, Size: 0.0})
 		}
 	}
 

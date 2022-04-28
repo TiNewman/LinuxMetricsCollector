@@ -1097,6 +1097,61 @@ func (s *Storage) PutNewProcess(singleProcess process.Process) (int64, error) {
 	return 0, err
 }
 
+// ------------------- Latest HISTORY Section -------------------
+
+//  Get History data from COLLECTOR_HISTORY/CPU_AVERAGE/MEMORY_AVERAGE.
+//  Nothing needs to be passed, as the query gets the data needed.
+//
+//  Return:
+//  	(History) single History data structure.
+func (s *Storage) GetNewestHistory() collecting.History {
+
+	ctx := context.Background()
+
+	// Get processes based custom column and float field.
+	singleQuery := fmt.Sprintf("SELECT TOP 1 CL.timeCollectedStart, " +
+		"CL.timeCollectedEnd, CA.averageUsage, MA.averageUsage, MA.averageSize " +
+		"FROM COLLECTOR_HISTORY AS CL, CPU_AVERAGE AS CA, MEMORY_AVERAGE AS MA " +
+		"WHERE CA.cpuAverageID = CL.cpuAverageID AND " +
+		"MA.memoryAverageID = CL.memoryAverageID ORDER BY collectorHistoryID DESC;")
+
+	// Execute query
+	rows, err := s.DB_CONNECTION.QueryContext(ctx, singleQuery)
+
+	if err != nil {
+
+		logger.Error(err.Error())
+	}
+
+	defer rows.Close()
+
+	var toReturn collecting.History
+
+	// Iterate through the result set.
+	for rows.Next() {
+
+		var timeCollectedStart, timeCollectedEnd time.Time
+		var averageCpuUsage, averageMemUsage, averageMemSize float64
+
+		// Get values from row.
+		err := rows.Scan(&timeCollectedStart, &timeCollectedEnd, &averageCpuUsage,
+			&averageMemUsage, &averageMemSize)
+
+		if err != nil {
+
+			logger.Error(err.Error())
+		}
+
+		singleInput := collecting.History{Start: timeCollectedStart, End: timeCollectedEnd,
+			AverageCpuUsage: averageCpuUsage, AverageMemUsage: averageMemUsage,
+			AverageMemSize: averageMemSize}
+
+		toReturn = singleInput
+	}
+
+	return toReturn
+}
+
 // ------------------- BULK INSERT Section -------------------
 
 //  Insert for All the tables

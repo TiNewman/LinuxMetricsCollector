@@ -15,8 +15,8 @@ func Init() {
 	rawJSON := []byte(`{
 		"level": "debug",
 		"encoding": "json",
-		"outputPaths": ["stdout", "/tmp/lmc.log"],
-		"errorOutputPaths": ["stderr", "/tmp/lmc.log"],
+		"outputPaths": ["stdout", "lmc.log"],
+		"errorOutputPaths": ["stderr", "lmc.log"],
 		"encoderConfig": {
 		  "messageKey": "message",
 		  "levelKey": "level",

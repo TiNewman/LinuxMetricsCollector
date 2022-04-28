@@ -40,12 +40,12 @@ func (c collector) Collect() (CPU, error) {
 		return result, err
 	}
 
-	info, err := fs.CPUInfo()
+	//info, err := fs.CPUInfo()
 	if err != nil {
 		return result, err
 	}
-	cores := info[0].CPUCores
-	model := info[0].ModelName
+	cores := 1
+	model := "info[0].ModelName"
 
 	startStat, err := fs.Stat()
 	if err != nil {
