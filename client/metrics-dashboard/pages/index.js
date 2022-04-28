@@ -31,7 +31,6 @@ const Index = () => {
    }, [])
 
    const socketInitializer = async () => {
-
      socket.onopen = () => {
        console.log("Request being sent")
        //socket.send(JSON.stringify({"request": "process_list"}))
@@ -62,7 +61,7 @@ const Index = () => {
 
 
    const cpuData = [{Usage:37.7905493}]
-   const diskData = [{"Name":"/dev/nvme0n1p3","MountPoint":"/","Usage":2.060362882143396,"Size":510405.902336},{"Name":"/dev/nvme0n1p3","MountPoint":"/home","Usage":2.060362882143396,"Size":510405.902336},{"Name":"/dev/nvme0n1p2","MountPoint":"/boot","Usage":25.681494412006668,"Size":1020.70272},{"Name":"/dev/nvme0n1p1","MountPoint":"/boot/efi","Usage":2.3118672372403726,"Size":627.900416}]
+   const diskData = [{"Name":"/dev/nvme0n1p3","MountPoint":"/","Usage":2.060362882143396,"Size":510405.902336}]
    const ramData = [{Usage:13.7905493}]
   */
   const column = [
@@ -77,41 +76,37 @@ const Index = () => {
          <Table data={process_list} column={column}/>
        </div>
        {cpuData.map((item, index) =>
-       <Link href="/cpu" onClick={closeWebsocket}>
+       <Link href="/cpu">
          <div className="float-left mt-10 pt-10 pl-10">
            <h1 className={styles.h1}> CPU Usage </h1>
            <div className="block p-5 shadow-lg shadow-primary hover:bg-primary">
-             <div className="radial-progress text-primary hover:text-base-100" style={{"--value":item.Usage.toFixed(2), "--size":"12rem"}}>{item.Usage.toFixed(2)}%</div>
+             <div className="radial-progress text-neutral border-4 border-primary bg-primary hover:bg-base-100 hover:border-base-100" style={{"--value":item.Usage.toFixed(2), "--size":"12rem"}}>{item.Usage.toFixed(2)}%</div>
            </div>
          </div>
        </Link>
        )}
       {diskData.map((item, index) =>
-       <Link href="/disk" onClick={closeWebsocket}>
+       <Link href="/disk">
          <div className="float-left mt-10 pt-10 pl-16">
            <h2 className={styles.h2}>Root Disk: {item.Name}</h2>
            <div className="block p-5 shadow-lg shadow-primary hover:bg-primary">
-             <div className="radial-progress text-primary hover:text-base-100" style={{"--value":item.Usage.toFixed(2), "--size":"12rem"}}>{item.Usage.toFixed(2)}%</div>
+             <div className="radial-progress text-neutral border-4 border-primary bg-primary hover:bg-base-100 hover:border-base-100 " style={{"--value":item.Usage.toFixed(2), "--size":"12rem"}}>{item.Usage.toFixed(2)}%</div>
            </div>
          </div>
        </Link>
       )}
        {ramData.map((item, index) =>
-       <Link href="/memory" onClick={closeWebsocket}>
+       <Link href="/memory">
          <div className="float-left mt-10 pt-10 pl-16">
            <h1 className={styles.h1}> RAM Usage </h1>
            <div className="block p-5 shadow-lg shadow-primary hover:bg-primary">
-             <div className="radial-progress text-primary hover:text-base-100" style={{"--value":item.Usage.toFixed(2), "--size":"12rem"}}>{item.Usage.toFixed(2)}%</div>
+             <div className="radial-progress text-neutral border-4 border-primary bg-primary hover:bg-base-100 hover:border-base-100" style={{"--value":item.Usage.toFixed(2), "--size":"12rem"}}>{item.Usage.toFixed(2)}%</div>
            </div>
          </div>
        </Link>
       )}
      </div>
   )
-}
-
-const closeWebsocket = () => {
-    socket.close()
 }
 
 export default Index;

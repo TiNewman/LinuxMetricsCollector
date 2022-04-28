@@ -7,11 +7,11 @@ const NavBar = () => (
           <div className="dropdown">
             <label tabIndex="0" className="btn btn-ghost rounded-btn hover:bg-primary hover:text-neutral text-base-100">Linux Metrics Collector</label>
             <ul tabIndex="0" className="menu dropdown-content p-4 shadow-md shadow-accent bg-neutral text-base-100 rounded-box w-52 mt-8">
-              <li className="hover:bg-primary hover:text-neutral"><Link href="/" onClick={closeWebsocket}>Dashboard</Link></li>
-              <li className="hover:bg-primary hover:text-neutral"><Link href="/process_list" onClick={closeWebsocket}>Process List</Link></li>
-              <li className="hover:bg-primary hover:text-neutral"><Link href="/cpu" onClick={closeWebsocket}>CPU</Link></li>
-              <li className="hover:bg-primary hover:text-neutral"><Link href="/disk" onClick={closeWebsocket}>Disk</Link></li>
-              <li className="hover:bg-primary hover:text-neutral"><Link href="/memory" onClick={closeWebsocket}>RAM</Link></li>
+              <li className="hover:bg-primary hover:text-neutral"><Link href="/">Dashboard</Link></li>
+              <li className="hover:bg-primary hover:text-neutral"><Link href="/process_list">Process List</Link></li>
+              <li className="hover:bg-primary hover:text-neutral"><Link href="/cpu">CPU</Link></li>
+              <li className="hover:bg-primary hover:text-neutral"><Link href="/disk">Disk</Link></li>
+              <li className="hover:bg-primary hover:text-neutral"><Link href="/memory">RAM</Link></li>
             </ul>
           </div>
         </div>
@@ -21,7 +21,4 @@ const NavBar = () => (
 </div>
 );
 
-const closeWebsocket = () => {
-    socket.close()
-}
 export default NavBar;
