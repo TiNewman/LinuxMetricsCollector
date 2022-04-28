@@ -46,7 +46,6 @@ func (c collector) Collect() ([]Process, error) {
 	processList := []Process{}
 	currentUser, err := user.Current()
 	if err != nil {
-		// fmt.Printf("Cannot determine current user: %v\n", err.Error())
 		return processList, err
 	}
 
@@ -54,12 +53,10 @@ func (c collector) Collect() ([]Process, error) {
 	// (collector/pkg/process/testdata when testing and /proc when in production)
 	fs, err := procfs.NewFS(c.mount)
 	if err != nil {
-		// fmt.Printf("Cannot locate proc mount %v", err.Error())
 		return processList, err
 	}
 	p, err := fs.AllProcs()
 	if err != nil {
-		// fmt.Printf("Could not get all processes: %v\n", err)
 		return processList, err
 	}
 
@@ -69,7 +66,6 @@ func (c collector) Collect() ([]Process, error) {
 		// filter by UID ( get processes for current user only )
 		procStatus, err := proc.NewStatus()
 		if err != nil {
-			// fmt.Printf("Could not get uids of process: %v\n", err.Error())
 			return processList, err
 		}
 		uids := procStatus.UIDs
@@ -80,20 +76,10 @@ func (c collector) Collect() ([]Process, error) {
 		procstat, err := proc.Stat()
 
 		if err != nil {
-			// fmt.Printf("Could not get process status: %v\n", err.Error())
 			return processList, err
 		}
 
-		// get the process name
 		pname := procstat.Comm
-		/*
-			fmt.Printf("Proc Comm: %v\n", procstat.Comm)
-			pname, err := proc.Comm()
-			if err != nil {
-				fmt.Printf("Could not get process name: %v\n", err.Error())
-				return processList, err
-			}
-		*/
 
 		// process schedule state: running, asleep, etc.
 		status := procstat.State
@@ -106,9 +92,6 @@ func (c collector) Collect() ([]Process, error) {
 
 		var readTotal uint64
 		if err != nil {
-			// fmt.Printf("Could not get IO metrics for process %v: %v\n", pname, err)
-			//return
-			// set a negative value to signify N/A?
 			readTotal = 0
 		} else {
 			readTotal = io.ReadBytes
@@ -117,7 +100,6 @@ func (c collector) Collect() ([]Process, error) {
 		// calculate the CPU Utilization
 		unixstarttime, err := procstat.StartTime()
 		if err != nil {
-			// fmt.Printf("Could not get start time of process: %v\n", err.Error())
 			return processList, err
 		}
 
@@ -138,27 +120,16 @@ func (c collector) Collect() ([]Process, error) {
 			c.r.PutNewProcess(nextprocess)
 		}
 
-		// fmt.Printf("%+v\n", nextprocess)
 		processList = append(processList, nextprocess)
 
 	}
-	// fmt.Printf("Processes in list: %v\n", len(processList))
+
 	return processList, nil
 
 }
 
 // use cpu times to calculate the percent utilization of a given process
 func calcCPUUtilization(cputime float64, executionTime float64) float64 {
-	// total time = utime + stime -> cputime
-	/*
-		sysinfo = &syscall.Sysinfo_t{}
-		err := syscall.Sysinfo(sysinfo)
-	*/
-	// uptime -> sysinfo.Uptime
-	// seconds (how long the process has been running) = uptime - (starttime / hertz) -> uptime - procstat.StartTime() -> time.Now() - procstat.StartTime()
-	// usage = 100 * ((totaltime / hertz) / seconds)
-	// we have cpu time in seconds, not jiffies
-	// -> usage = 100 * (totaltime / seconds)
 	if executionTime <= 0 {
 		return 0
 	}
