@@ -256,7 +256,7 @@ BEGIN
 	
 	IF @endID IS NULL 
 	BEGIN
-		SET @endID = (SELECT TOP 1 processID FROM PROCESS WHERE collectorID < @endCollectorID ORDER BY processID DESC)
+		SET @endID = (SELECT TOP 1 processID FROM PROCESS WHERE collectorID < @endCollectorID ORDER BY processID DESC);
 	END 
 
 	SET @count = (@endID - @startingID);
