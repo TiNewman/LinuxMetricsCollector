@@ -22,7 +22,7 @@ type Collector interface {
 	Collect() (CPU, error)
 }
 
-func NewCPUCollectorWithoutRepo() collector {
+func NewDefaultCPUCollector() collector {
 	return collector{mount: "/proc"}
 }
 

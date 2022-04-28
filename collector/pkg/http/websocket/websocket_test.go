@@ -21,7 +21,7 @@ var interrupt chan os.Signal
 func TestMain(m *testing.M) {
 	// start websocket server
 	pcollector := process.NewProcessCollectorWithoutRepo()
-	cpuCollector := cpu.NewCPUCollectorWithoutRepo()
+	cpuCollector := cpu.NewDefaultCPUCollector()
 	collectingService := collecting.NewServiceWithoutRepo(pcollector, cpuCollector)
 
 	// serve endpoints
