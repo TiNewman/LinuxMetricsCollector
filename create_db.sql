@@ -126,102 +126,244 @@ GO
 
 
 -- Stored Procedure for Purging data
-/*
+IF (OBJECT_ID('PRC_PurgeData') IS NOT NULL)
+BEGIN
+	DROP PROCEDURE PRC_PurgeData;
+END
 
-CREATE PROCEDURE PurgeData
+GO
+
+CREATE PROCEDURE PRC_PurgeData 
 AS
 
 DECLARE @startDate DATE = CONVERT(DATE, (SELECT TOP 1 timeCollected FROM COLLECTOR ORDER BY timeCollected ASC));
 DECLARE @endDate DATE = CONVERT(DATE, (SELECT DATEADD(DD, 3, @startDate)));
+DECLARE @currentDate DATE = CONVERT(DATE, (SELECT TOP 1 timeCollected FROM COLLECTOR ORDER BY timeCollected DESC));
 
---SELECT @startDate AS "Start time", @endDate AS "NEWTIME";
---SELECT timeCollected FROM COLLECTOR ORDER BY timeCollected ASC;
-DECLARE @endCollectorID BIGINT = (SELECT TOP 1 collectorID FROM COLLECTOR WHERE CONVERT(DATE, timeCollected) = @endDate ORDER BY timeCollected DESC);
-
-DECLARE @cpuUsage FLOAT = 0.0;
-DECLARE @diskUsage FLOAT = 0.0;
-DECLARE @memoryUsage FLOAT = 0.0;
-DECLARE @diskSize FLOAT = 0.0;
-DECLARE @memorySize FLOAT = 0.0;
-
-DECLARE @startingID BIGINT = (SELECT TOP 1 cpuID FROM CPU ORDER BY cpuID ASC);
-DECLARE @endID BIGINT = (SELECT TOP 1 cpuID FROM CPU WHERE cpuID IN (SELECT cpuID FROM COLLECTOR WHERE collectorID = @endCollectorID) ORDER BY cpuID DESC);
-
-DECLARE @count FLOAT = (@endID - @startingID);
-
-IF @count >= 1
+-- If we have gone past 3 days, purge the database.
+IF (SELECT DATEDIFF(DAY, @startDate, @currentDate) AS DateDiff) >= 3 
 BEGIN
-
-	IF @startingID = 0 
-	BEGIN
-		SET @count = @count + 1;
-	END
-
-
-	IF @startingID = (SELECT TOP 1 diskID FROM DISK ORDER BY diskID ASC) AND (@startingID = (SELECT TOP 1 memoryID FROM MEMORY ORDER BY memoryID ASC)) 
-	BEGIN
-
-		WHILE @startingID <= @endID
-		BEGIN
-			-- Usages
-			SET @cpuUsage = @cpuUsage + (SELECT TOP 1 usage FROM CPU WHERE cpuID = @startingID);
-			SET @diskUsage = @diskUsage + (SELECT TOP 1 usage FROM DISK WHERE diskID = @startingID);
-			--SELECT TOP 1 usage FROM MEMORY WHERE memoryID = @startingID;
-			SET @memoryUsage = @memoryUsage + (SELECT TOP 1 usage FROM MEMORY WHERE memoryID = @startingID);
-			-- Availabilities
-			SET @diskSize = @diskSize + (SELECT TOP 1 size FROM DISK WHERE diskID = @startingID);
-			--SELECT TOP 1 availability FROM MEMORY WHERE memoryID = @startingID;
-			SET @memorySize = @memorySize + (SELECT TOP 1 size FROM MEMORY WHERE memoryID = @startingID);
-
-			-- Increase ID pointer.
-			SET @startingID = @startingID + 1;
-		END
 	
-		-- Getting the average, but dividing by 3 as per day.
-		SET @cpuUsage = CAST(ROUND((@cpuUsage / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT), 2) AS NUMERIC(36,2));
-		SET @diskUsage = CAST(ROUND((@diskUsage / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT), 2) AS NUMERIC(36,2));
-		SET @memoryUsage = CAST(ROUND((@memoryUsage / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT), 2) AS NUMERIC(36,2));
-		SET @diskSize = CAST(ROUND((@diskSize / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT), 2) AS NUMERIC(36,2));
-		SET @memorySize = CAST(ROUND((@memorySize / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT), 2) AS NUMERIC(36,2));
+	DECLARE @endCollectorID BIGINT = (SELECT TOP 1 collectorID FROM COLLECTOR WHERE CONVERT(DATE, timeCollected) = @endDate ORDER BY timeCollected DESC);
 
-		SELECT @cpuUsage AS "CPU-USAGE", @diskUsage AS "DISK-USAGE", @memoryUsage AS "MEMORY-USAGE", @diskSize AS "DISK-AVA", @memorySize AS "MEMORY-AVA" ;
+	DECLARE @cpuUsage FLOAT = 0.0;
+	DECLARE @diskUsage FLOAT = 0.0;
+	DECLARE @memoryUsage FLOAT = 0.0;
+	DECLARE @diskSize FLOAT = 0.0;
+	DECLARE @memorySize FLOAT = 0.0;
 
+	DECLARE @startingID BIGINT = (SELECT TOP 1 cpuID FROM CPU ORDER BY cpuID ASC);
+	DECLARE @endID BIGINT = (SELECT TOP 1 cpuID FROM CPU WHERE cpuID IN (SELECT cpuID FROM COLLECTOR WHERE collectorID = @endCollectorID) ORDER BY cpuID DESC);
+
+	DECLARE @count FLOAT = (@endID - @startingID);
+
+	IF (@count >= 1)
+	BEGIN
+		
+		IF (@startingID = 0) 
+		BEGIN
+			SET @count = @count + 1;
+		END
+
+
+		IF (@startingID = (SELECT TOP 1 diskID FROM DISK ORDER BY diskID ASC) AND (@startingID = (SELECT TOP 1 memoryID FROM MEMORY ORDER BY memoryID ASC))) 
+		BEGIN
+
+			WHILE (@startingID <= @endID)
+			BEGIN
+				-- Usages
+				SET @cpuUsage = @cpuUsage + (SELECT TOP 1 usage FROM CPU WHERE cpuID = @startingID);
+				SET @diskUsage = @diskUsage + (SELECT TOP 1 usage FROM DISK WHERE diskID = @startingID);
+				SET @memoryUsage = @memoryUsage + (SELECT TOP 1 usage FROM MEMORY WHERE memoryID = @startingID);
+				-- Availabilities
+				SET @diskSize = @diskSize + (SELECT TOP 1 size FROM DISK WHERE diskID = @startingID);
+				SET @memorySize = @memorySize + (SELECT TOP 1 size FROM MEMORY WHERE memoryID = @startingID);
+
+				-- Increase ID pointer.
+				SET @startingID = @startingID + 1;
+			END
+	
+			-- Getting the average, but dividing by 3 as per day.
+			SET @cpuUsage = CAST(ROUND((@cpuUsage / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT), 2) AS NUMERIC(36,2));
+			SET @diskUsage = CAST(ROUND((@diskUsage / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT), 2) AS NUMERIC(36,2));
+			SET @memoryUsage = CAST(ROUND((@memoryUsage / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT), 2) AS NUMERIC(36,2));
+			SET @diskSize = CAST(ROUND((@diskSize / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT), 2) AS NUMERIC(36,2));
+			SET @memorySize = CAST(ROUND((@memorySize / CAST(@count AS FLOAT)) / CAST(3 AS FLOAT), 2) AS NUMERIC(36,2));
+
+		END
+
+		ELSE
+		BEGIN
+
+			PRINT N'Error: Purge Stored_Procedure_CPU_DISK_MEMORY --> Inconsistent data.';
+		END
 	END
 
 	ELSE
 	BEGIN
 
-		PRINT N'Error: Purge Stored_Procedure_CPU_DISK_MEMORY --> Inconsistent data.';
+		PRINT N'Error: Purge Stored_Procedure_CPU_DISK_MEMORY --> Count for cycling through CPU/DISK/MEMORY was negative.';
 	END
-END
 
-ELSE
-BEGIN
+	BEGIN TRANSACTION
 
-	PRINT N'Error: Purge Stored_Procedure_CPU_DISK_MEMORY --> Count for cycling through CPU/DISK/MEMORY was negative.';
-END
-
--- INSERT into CPU/DISK/MEMORY _AVERAGE tables
-INSERT INTO CPU_AVERAGE VALUES (@cpuUsage);
-DECLARE @insertedCpuID BIGINT = (SELECT cpuAverageID FROM CPU_AVERAGE WHERE cpuAverageID = SCOPE_IDENTITY() AND averageUsage = @cpuUsage);
-INSERT INTO DISK_AVERAGE VALUES (@diskUsage, @diskUsage);
-DECLARE @insertedDiskID BIGINT = (SELECT diskAverageID FROM DISK_AVERAGE WHERE diskAverageID = SCOPE_IDENTITY() AND averageUsage = @diskUsage AND averageSize = @diskSize);
-INSERT INTO MEMORY_AVERAGE VALUES (@memoryUsage, @memoryUsage);
-DECLARE @insertedMemoryID BIGINT = (SELECT memoryAverageID FROM MEMORY_AVERAGE WHERE memoryAverageID = SCOPE_IDENTITY() AND averageUsage = @memoryUsage AND averageSize = @memorySize);
-
-
--- INSERT into COLLECTOR_HISTORY table
-INSERT INTO COLLECTOR_HISTORY VALUES (@startDate, @endDate, @insertedCpuID, @insertedMemoryID, @insertedDiskID);
-
-
--- PROCCESS -> PROCESS_HISTORY
-
-
-
-
---SET @startingID = (SELECT TOP 1 processID FROM PROCESS ORDER BY processID ASC);
---SET @endID = (SELECT TOP 1 cpuID FROM CPU ORDER BY cpuID DESC);
+	-- INSERT into CPU/DISK/MEMORY _AVERAGE tables
+	INSERT INTO CPU_AVERAGE VALUES (@cpuUsage);
+	DECLARE @insertedCpuID BIGINT = (SELECT cpuAverageID FROM CPU_AVERAGE WHERE cpuAverageID = SCOPE_IDENTITY());
 	
-GO;
+	IF (@@ERROR <> 0)
+	BEGIN
+		RAISERROR ('Error inserting into CPU_AVERAGE',-1,-1);
+		ROLLBACK TRANSACTION;
+		RETURN;
+	END
 
-*/
+	INSERT INTO DISK_AVERAGE VALUES (@diskUsage, @diskUsage);
+	DECLARE @insertedDiskID BIGINT = (SELECT diskAverageID FROM DISK_AVERAGE WHERE diskAverageID = SCOPE_IDENTITY());
+
+	IF (@@ERROR <> 0)
+	BEGIN
+		RAISERROR ('Error inserting into DISK_AVERAGE',-1,-1);
+		ROLLBACK TRANSACTION;
+		RETURN;
+	END
+	
+	INSERT INTO MEMORY_AVERAGE VALUES (@memoryUsage, @memoryUsage);
+	DECLARE @insertedMemoryID BIGINT = (SELECT memoryAverageID FROM MEMORY_AVERAGE WHERE memoryAverageID = SCOPE_IDENTITY());
+
+	IF (@@ERROR <> 0)
+	BEGIN
+		RAISERROR ('Error inserting into MEMORY_AVERAGE',-1,-1);
+		ROLLBACK TRANSACTION;
+		RETURN;
+	END
+
+
+	-- INSERT into COLLECTOR_HISTORY table
+	INSERT INTO COLLECTOR_HISTORY VALUES (@startDate, @endDate, @insertedCpuID, @insertedMemoryID, @insertedDiskID);
+	DECLARE @collectorHistoryID BIGINT = (SELECT TOP 1 collectorHistoryID FROM COLLECTOR_HISTORY ORDER BY collectorHistoryID DESC);
+
+	IF (@@ERROR <> 0)
+	BEGIN
+		RAISERROR ('Error inserting into COLLECTION_HISTORY',-1,-1);
+		ROLLBACK TRANSACTION;
+		RETURN;
+	END
+
+	-- PROCCESS -> PROCESS_HISTORY
+	SET @startingID = (SELECT TOP 1 processID FROM PROCESS ORDER BY processID ASC);
+	SET @endID = (SELECT TOP 1 processID FROM PROCESS WHERE collectorID = @endCollectorID ORDER BY processID DESC);
+	
+	IF @endID IS NULL 
+	BEGIN
+		SET @endID = (SELECT TOP 1 processID FROM PROCESS WHERE collectorID < @endCollectorID ORDER BY processID DESC)
+	END 
+
+	SET @count = (@endID - @startingID);
+
+	IF (@count >= 1)
+	BEGIN
+
+		IF (@startingID = 0) 
+		BEGIN
+			SET @count = @count + 1;
+		END
+
+		WHILE (@startingID <= @endID)
+		BEGIN
+
+			INSERT INTO PROCESS_HISTORY (collectorHistoryID, PID, name, status, cpuUsage, memoryUsage, diskUsage, executionTime)
+			SELECT @collectorHistoryID, PID, name, status, cpuUsage, memoryUsage, diskUsage, executionTime 
+			FROM PROCESS WHERE processID = @startingID;
+
+			IF (@@ERROR <> 0)
+			BEGIN
+				RAISERROR ('Error inserting into PROCESS_HISTORY',-1,-1);
+				ROLLBACK TRANSACTION;
+				RETURN;
+			END
+
+			-- DELETE from PROCESS
+			DELETE FROM PROCESS WHERE processID = @startingID;
+
+			IF (@@ERROR <> 0)
+			BEGIN
+				RAISERROR ('Error deleting from PROCESS',-1,-1);
+				ROLLBACK TRANSACTION;
+				RETURN;
+			END
+
+			-- Increase ID
+			SET @startingID = @startingID + 1;
+
+		END
+	END
+
+	ELSE
+	BEGIN
+
+		PRINT N'Purge Stored_Procedure_PROCESS --> Count for cycling through PROCESS was negative.';
+	END
+
+
+	-- DELETE from CPU/DISK/MEMORY and COLLECTOR
+
+	DECLARE @startCollectorID BIGINT = (SELECT TOP 1 collectorID FROM COLLECTOR ORDER BY timeCollected ASC);
+
+	DECLARE @cpuIdDelete BIGINT;
+	DECLARE @diskIdDelete BIGINT;
+	DECLARE @memoryIdDelete BIGINT;
+
+	WHILE (@startCollectorID <= @endCollectorID) 
+	BEGIN
+
+		SET @cpuIdDelete = (SELECT cpuID FROM COLLECTOR WHERE collectorID = @startCollectorID);
+		SET @diskIdDelete = (SELECT diskID FROM COLLECTOR WHERE collectorID = @startCollectorID);
+		SET @memoryIdDelete = (SELECT memoryID FROM COLLECTOR WHERE collectorID = @startCollectorID);
+		
+		--DELETE from tables.
+		DELETE FROM COLLECTOR WHERE collectorID = @startCollectorID;
+		IF (@@ERROR <> 0)
+		BEGIN
+			RAISERROR ('Error deleting from COLLECTOR',-1,-1);
+			ROLLBACK TRANSACTION;
+			RETURN;
+		END
+
+		DELETE FROM CPU WHERE cpuID = @cpuIdDelete;
+
+		IF (@@ERROR <> 0)
+		BEGIN
+			RAISERROR ('Error deleting from CPU',-1,-1);
+			ROLLBACK TRANSACTION;
+			RETURN;
+		END
+
+		DELETE FROM DISK WHERE diskID = @diskIdDelete;
+
+		IF (@@ERROR <> 0)
+		BEGIN
+			RAISERROR ('Error deleting from DISK',-1,-1);
+			ROLLBACK TRANSACTION;
+			RETURN;
+		END
+
+		DELETE FROM MEMORY WHERE memoryID = @memoryIdDelete;
+
+		IF (@@ERROR <> 0)
+		BEGIN
+			RAISERROR ('Error deleting from MEMORY',-1,-1);
+			ROLLBACK TRANSACTION;
+			RETURN;
+		END
+
+		-- Increase ID.
+		SET @startCollectorID = @startCollectorID + 1;
+
+	END
+
+	COMMIT TRANSACTION;
+
+END
+	
+GO

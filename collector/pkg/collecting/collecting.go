@@ -2,6 +2,7 @@ package collecting
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/cpu"
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/disk"
@@ -12,6 +13,7 @@ import (
 
 type Service interface {
 	Collect() Metrics
+	NewestHistory() History
 }
 
 type service struct {
@@ -29,8 +31,17 @@ type Metrics struct {
 	Disk      []disk.Disk
 }
 
+type History struct {
+	Start           time.Time
+	End             time.Time
+	AverageCpuUsage float64
+	AverageMemUsage float64
+	AverageMemSize  float64
+}
+
 type Repository interface {
 	BulkInsert(Metrics) bool
+	GetNewestHistory() History
 }
 
 type ServiceOption func(*service)
@@ -119,4 +130,10 @@ func (s service) Collect() Metrics {
 	}
 
 	return m
+}
+
+func (s service) NewestHistory() History {
+	var history History
+	history = s.r.GetNewestHistory()
+	return history
 }
