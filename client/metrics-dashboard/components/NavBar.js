@@ -1,5 +1,10 @@
 import Link from 'next/link'
 
+/**
+ * NavBar
+ *
+ * Navigation bar for the UI. Includes links to all of the pages in a dropdown menu.
+ */
 const NavBar = () => (
 <div className="navbar bg-neutral border-2 border-neutral rounded-box shadow-md shadow-accent">
   <div className="flex-1 px-2 lg:flex-none">
