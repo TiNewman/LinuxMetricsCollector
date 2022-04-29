@@ -1,9 +1,13 @@
-//	For now I have *main* left as a comment, as it allows for easy testing.
-//	As of 3/24/2022, there are custom searches (based on table name) and inserts for
-//	MEMORY/DISk tables.
-//	There are fully custom (tableName, column, field) for the PROCESS table.
-//	CPU has it's own functions as it only holds usage now.
-//	Use the BULK insert Function to insert everything together.
+//	Team: Titan, Jordan, and James
+//	Author: Titan Newman
+//	Date: 4/29/2022
+//	This file contains all the functions related for connecting and using
+//	the database.
+//	This includes CRUD for a DB, where UD (update and delete) are not used,
+//	but are used inside the stored procedure for database purging and averaging.
+//	Their are custom query builders, inserts, and bulk inserts + selects which
+// 	are used to push and collect data from the actual collector.
+// 	Each section is stated, and testing (in its own file) & main() are removed.
 
 package mssql
 
