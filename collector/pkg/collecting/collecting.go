@@ -11,11 +11,17 @@ import (
 	"github.com/TiNewman/LinuxMetricsCollector/pkg/process"
 )
 
+// Service is the interface wrapping the Collect method.
+// Collect returns a new Metrics measurement, holding
+// different system metrics collected from the system.
 type Service interface {
 	Collect() Metrics
 	NewestHistory() History
 }
 
+// service imlements the Service interface,
+// collecting and persisting Metrics using
+// the assigned repository and collectors.
 type service struct {
 	r Repository
 	p process.Collector
@@ -24,6 +30,8 @@ type service struct {
 	d disk.Collector
 }
 
+// Metrics provides metrics data points
+// collected from the system.
 type Metrics struct {
 	Processes []process.Process
 	CPU       cpu.CPU
@@ -39,43 +47,60 @@ type History struct {
 	AverageMemSize  float64
 }
 
+// Repository is the interface wrapping methods to
+// interact with persisten metrics storage.
 type Repository interface {
 	BulkInsert(Metrics) bool
 	GetNewestHistory() History
 }
 
+// ServiceOption is an option that can be used to
+// configure a new collecting service.
 type ServiceOption func(*service)
 
+// WithProcessCollector returns a ServiceOption that
+// assigns the given process Collector to a collecting Service.
 func WithProcessCollector(proc process.Collector) ServiceOption {
 	return func(s *service) {
 		s.p = proc
 	}
 }
 
+// WithCPUCollector returns a ServiceOption that
+// assigns the given cpu Collector to a collecting Service.
 func WithCPUCollector(cpu cpu.Collector) ServiceOption {
 	return func(s *service) {
 		s.c = cpu
 	}
 }
 
+// WithMemCollector returns a ServiceOption that
+// assigns the given memory Collector to a collecting Service.
 func WithMemCollector(mem memory.Collector) ServiceOption {
 	return func(s *service) {
 		s.m = mem
 	}
 }
 
+// WithDiskCollector returns a ServiceOption that
+// assigns the given disk Collector to a collecting Service.
 func WithDiskCollector(disk disk.Collector) ServiceOption {
 	return func(s *service) {
 		s.d = disk
 	}
 }
 
+// WithRepository returns a ServiceOption that
+// assigns the given Repository to a collecting Service.
 func WithRepository(repo Repository) ServiceOption {
 	return func(s *service) {
 		s.r = repo
 	}
 }
 
+// NewService configures a new collecting service with
+// the given ServiceOption parameters and returns
+// the new service.
 func NewService(opts ...ServiceOption) service {
 	var s service
 	for _, opt := range opts {
@@ -88,6 +113,10 @@ func NewServiceWithoutRepo(proc process.Collector, cpu cpu.Collector) service {
 	return service{p: proc, c: cpu}
 }
 
+// Collect collects system metrics using the
+// configured collectors and persists the
+// Metrics if a repository was configured,
+// then returns the collected Metrics.
 func (s service) Collect() Metrics {
 	metrics := new(Metrics)
 

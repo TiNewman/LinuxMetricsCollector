@@ -1,8 +1,13 @@
 /*
+Team: Titan, Jordan, and James 
 Author: Titan Newman
-Date: 4/19/2022
+Date: 4/29/2022
 
 Creation Script for the MetricsCollectorDB.
+This includes tables and a single stored procedure.
+	Stored procedure averages data and moves it to history tables.
+	Runs to insure Atomicity and Consistency for data being moved
+	(uses transactions).
 */
 
 DROP DATABASE IF EXISTS MetricsCollectorDB;
@@ -41,10 +46,9 @@ CREATE TABLE DISK (
 CREATE TABLE COLLECTOR (
 	collectorID BIGINT NOT NULL IDENTITY(0,1),
 	timeCollected DATETIME2 NOT NULL, -- Pay attention to how the data needs to be formatted here!
-	-- For now this arent used as we are only working with Process and CPU.
-	cpuID BIGINT, -- NOT NULL
-	memoryID BIGINT, -- NOT NULL
-	diskID BIGINT, -- NOT NULL
+	cpuID BIGINT NOT NULL,
+	memoryID BIGINT NOT NULL,
+	diskID BIGINT NOT NULL,
 
 	CONSTRAINT pk_collector_collectorID PRIMARY KEY (collectorID),
 	CONSTRAINT fk_collector_cpu_cpuID FOREIGN KEY (cpuID) REFERENCES CPU(cpuID),
@@ -96,10 +100,9 @@ CREATE TABLE COLLECTOR_HISTORY (
 	collectorHistoryID BIGINT NOT NULL IDENTITY(0,1),
 	timeCollectedStart DATE NOT NULL,
 	timeCollectedEnd DATE NOT NULL,
-	-- For now this arent used as we are only working with Process and CPU.
-	cpuAverageID BIGINT, -- NOT NULL
-	memoryAverageID BIGINT, -- NOT NULL
-	diskAverageID BIGINT, -- NOT NULL
+	cpuAverageID BIGINT NOT NULL,
+	memoryAverageID BIGINT NOT NULL,
+	diskAverageID BIGINT NOT NULL,
 
 	CONSTRAINT pk_collectorhistory_collectorHistoryID PRIMARY KEY (collectorHistoryID),
 	CONSTRAINT fk_collectorhistory_cpuaverage_averagecpuID FOREIGN KEY (cpuAverageID) REFERENCES CPU_AVERAGE(cpuAverageID),
@@ -125,7 +128,7 @@ CREATE TABLE PROCESS_HISTORY (
 GO
 
 
--- Stored Procedure for Purging data
+-- Stored Procedure for Purging data + averaging.
 IF (OBJECT_ID('PRC_PurgeData') IS NOT NULL)
 BEGIN
 	DROP PROCEDURE PRC_PurgeData;
@@ -256,7 +259,7 @@ BEGIN
 	
 	IF @endID IS NULL 
 	BEGIN
-		SET @endID = (SELECT TOP 1 processID FROM PROCESS WHERE collectorID < @endCollectorID ORDER BY processID DESC)
+		SET @endID = (SELECT TOP 1 processID FROM PROCESS WHERE collectorID < @endCollectorID ORDER BY processID DESC);
 	END 
 
 	SET @count = (@endID - @startingID);

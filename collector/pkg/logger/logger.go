@@ -8,8 +8,11 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+// mlogger is the global metrics application logger.
 var mlogger *zap.Logger
 
+// Init initializes a logger to be used globally
+// throughout the metrics collector application.
 func Init() {
 	// create global logger instance
 	rawJSON := []byte(`{
@@ -40,14 +43,17 @@ func Init() {
 	defer mlogger.Sync()
 }
 
+// Info logs an info level message.
 func Info(msg string) {
 	mlogger.Info(msg)
 }
 
+// Debug logs a debug level message.
 func Debug(msg string) {
 	mlogger.Debug(msg)
 }
 
+// Error logs a debug level error.
 func Error(err string) {
 	mlogger.Error(err)
 }

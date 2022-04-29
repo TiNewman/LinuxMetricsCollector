@@ -7,6 +7,8 @@ import (
 	"golang.org/x/sys/unix"
 )
 
+// Disk provides information and metrics
+// related to a physical disk.
 type Disk struct {
 	Name       string
 	MountPoint string
@@ -14,18 +16,31 @@ type Disk struct {
 	Size       float64
 }
 
+// collector implements the Collector interface.
 type collector struct {
-	location string // regular expresion matching the directory to search for disk devices
+	// regular expresion matching the directory to search for disk devices
+	location string
 }
 
+// Collector is the interface wrapping the Collect method.
+// Collect returns a new Disk slice, representing current physical disk
+// information and metrics. Collect will return any errors
+// encoutered during the collection process.
 type Collector interface {
 	Collect() ([]Disk, error)
 }
 
+// NewDiskCollector returns a new disk collector.
+// The default collector will search the "/dev"
+// mount point for physical disks.
 func NewDiskCollector() collector {
 	return collector{location: `/dev.*`}
 }
 
+// Collect collects physical disk information and metrics
+// from the system, returning a Disk slice
+// and any errors that occured during the
+// collection process.
 func (c collector) Collect() ([]Disk, error) {
 	result := []Disk{}
 
@@ -48,6 +63,8 @@ func (c collector) Collect() ([]Disk, error) {
 	return result, nil
 }
 
+// calculateUsage calculates and returns the usage of a physical disk as
+// a percentage.
 func calculateUsage(free float64, total float64) float64 {
 	if total <= 0 {
 		return 0

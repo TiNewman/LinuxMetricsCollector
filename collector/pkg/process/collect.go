@@ -8,6 +8,8 @@ import (
 	"github.com/prometheus/procfs"
 )
 
+// Process provides information and
+// metrics relating to a single system process.
 type Process struct {
 	PID             int
 	Name            string
@@ -18,14 +20,22 @@ type Process struct {
 	ExecutionTime   float32
 }
 
+// collector implements the Collector interface.
 type collector struct {
 	mount string
 }
 
+// Collector is the interface wrapping the Collect method.
+// Collect returns a new Process slice, representing current process
+// information and metrics. Collect will return any errors
+// encoutered during the collection process.
 type Collector interface {
 	Collect() ([]Process, error)
 }
 
+// NewDefaultProcessCollector returns a new process collector.
+// The default collector will search the "/proc"
+// mount point for process information and metrics.
 func NewDefaultProcessCollector() collector {
 	return collector{mount: "/proc"}
 }
@@ -36,6 +46,10 @@ func newTestCollector(mp string) collector {
 	return collector{mount: mountpoint}
 }
 
+// Collect collects process information and metrics
+// from the system, returning a Process slice
+// and any errors that occured during the
+// collection process.
 func (c collector) Collect() ([]Process, error) {
 	currentTime := time.Now()
 	processList := []Process{}
@@ -119,7 +133,8 @@ func (c collector) Collect() ([]Process, error) {
 
 }
 
-// use cpu times to calculate the percent utilization of a given process
+// calcCPUUtilization uses cpu time and total execution time to calculate and
+// return the utilization of a given process as a percentage.
 func calcCPUUtilization(cputime float64, executionTime float64) float64 {
 	if executionTime <= 0 {
 		return 0
