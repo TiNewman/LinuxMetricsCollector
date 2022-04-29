@@ -20,6 +20,8 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
+// Handler returns a custom http.Handler that will be
+// used for routing http requests.
 func Handler(collector collecting.Service) http.Handler {
 	logger.Debug("Websocket Handler Started")
 
@@ -29,13 +31,15 @@ func Handler(collector collecting.Service) http.Handler {
 	return mux
 }
 
+// wsEndpoint handles websocket requests for the metrics collection
+// application.
 func wsEndpoint(collector collecting.Service) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 
 		ws, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
-			logger.Error(fmt.Sprintf("Error upgradiing connection: %s", err.Error()))
+			logger.Error(fmt.Sprintf("Error upgrading connection: %s", err.Error()))
 		}
 
 		logger.Debug(fmt.Sprintf("Client Connected!"))
@@ -46,10 +50,16 @@ func wsEndpoint(collector collecting.Service) func(http.ResponseWriter, *http.Re
 	}
 }
 
+// clientreq represents the structure of
+// a websocket request from the client application.
 type clientreq struct {
 	Request string `json:"request"`
 }
 
+// reader reads the incoming websocket requests
+// and handles close messages from the client.
+// If the message is valid, the request will
+// be queued in the write channel.
 func reader(conn *websocket.Conn, writeChan chan string) {
 	for {
 		_, p, err := conn.ReadMessage()
@@ -83,6 +93,9 @@ func reader(conn *websocket.Conn, writeChan chan string) {
 	}
 }
 
+// writer interprets the websocket request messages,
+// starting collection, stopping collection, and
+// sending requested data to the client.
 func writer(conn *websocket.Conn, c chan string, collector collecting.Service) {
 	var lastWrite time.Time
 	publish := false
@@ -153,6 +166,8 @@ func writer(conn *websocket.Conn, c chan string, collector collecting.Service) {
 	}
 }
 
+// sendProcessList encodes a process slice into json
+// and sends it to the client over the websocket connection.
 func sendProcessList(conn *websocket.Conn, processes []process.Process) {
 	response := make(map[string]interface{})
 
@@ -164,6 +179,8 @@ func sendProcessList(conn *websocket.Conn, processes []process.Process) {
 	}
 }
 
+// sendCPUInfo encodes a CPU struct into json
+// and sends it to the client over the websocket connection.
 func sendCPUInfo(conn *websocket.Conn, cpuList cpu.CPU) {
 	response := make(map[string]interface{})
 
@@ -175,6 +192,8 @@ func sendCPUInfo(conn *websocket.Conn, cpuList cpu.CPU) {
 	}
 }
 
+// sendMemInfo encodes a Memory struct into json
+// and sends it to the client over the websocket connection.
 func sendMemInfo(conn *websocket.Conn, mem memory.Memory) {
 	response := make(map[string]interface{})
 
@@ -186,6 +205,8 @@ func sendMemInfo(conn *websocket.Conn, mem memory.Memory) {
 	}
 }
 
+// sendDiskInfo encodes a Disk slice into json
+// and sends it to the client over the websocket connection.
 func sendDiskInfo(conn *websocket.Conn, disks []disk.Disk) {
 	response := make(map[string]interface{})
 
@@ -197,6 +218,8 @@ func sendDiskInfo(conn *websocket.Conn, disks []disk.Disk) {
 	}
 }
 
+// sendAllMetrics encodes a Metrics struct into json
+// and sends it to the client over the websocket connection.
 func sendAllMetrics(conn *websocket.Conn, metrics collecting.Metrics) {
 	response := make(map[string]interface{})
 
@@ -211,6 +234,8 @@ func sendAllMetrics(conn *websocket.Conn, metrics collecting.Metrics) {
 	}
 }
 
+// writeSocketRespose encodes the given map to json and
+// sends the message over the websocket connection.
 func writeSocketResponse(conn *websocket.Conn, res map[string]interface{}) error {
 	jsonResponse, err := json.Marshal(res)
 	if err != nil {
