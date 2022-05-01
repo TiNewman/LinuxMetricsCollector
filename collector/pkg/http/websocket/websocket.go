@@ -134,15 +134,10 @@ func writer(conn *websocket.Conn, c chan string, collector collecting.Service) {
 				data := collector.Collect()
 				sendAllMetrics(conn, data)
 			}
-			if m == "cpu_history" {
+			if m == "history" {
 				publish = false
 				data := collector.NewestHistory()
-				sendCPUHistory(conn, data)
-			}
-			if m == "memory_history" {
-				publish = false
-				data := collector.NewestHistory()
-				sendMemoryHistory(conn, data)
+				sendHistory(conn, data)
 			}
 			if m == "stop" {
 				logger.Debug(fmt.Sprintf("Stopping message stream..."))
@@ -244,21 +239,10 @@ func sendAllMetrics(conn *websocket.Conn, metrics collecting.Metrics) {
 	}
 }
 
-func sendCPUHistory(conn *websocket.Conn, history collecting.History) {
+func sendHistory(conn *websocket.Conn, history collecting.History) {
 	response := make(map[string]interface{})
 
-	response["cpu_history"] = history
-
-	err := writeSocketResponse(conn, response)
-	if err != nil {
-		logger.Error(fmt.Sprintf("Error: %v", err.Error()))
-	}
-}
-
-func sendMemoryHistory(conn *websocket.Conn, history collecting.History) {
-	response := make(map[string]interface{})
-
-	response["memory_history"] = history
+	response["history"] = history
 
 	err := writeSocketResponse(conn, response)
 	if err != nil {

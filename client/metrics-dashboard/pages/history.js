@@ -41,8 +41,8 @@ const historyView = props => {
     socket.onmessage = (e) => {
       console.log("Received Message!: " + e.data)
       var processJSON = JSON.parse(e.data)
-      setCPUHistory([processJSON.cpu]) //might need to adjust based on the message that comes through
-      setRAMHistory([processJSON.memory]) //might need to adjust based on the message that comes through
+      setCPUHistory([processJSON.history]) //might need to adjust based on the message that comes through
+      setRAMHistory([processJSON.history]) //might need to adjust based on the message that comes through
     }
 
     //closes the websocket connection when the browser tab is closed
@@ -64,13 +64,13 @@ const historyView = props => {
     <div>
       <h1 className={styles.h1}> Historical Data </h1>
       {cpuHistory.map((item, index) =>
-        <div className="float-left ml-96 mt-10 pt-10 pl-10">
+        <div className="float-left ml-48 mt-10 pt-10 pl-10">
           <h2 className={styles.h2}> CPU History Average </h2>
           <div className="block p-5 shadow-lg shadow-primary mb-5">
             <div className="radial-progress text-neutral border-4 border-primary bg-primary"
-                 style={{"--value":item.Usage.toFixed(2), "--size":"12rem"}}>{item.Usage.toFixed(2)}%</div>
+                 style={{"--value":item.AverageCpuUsage.toFixed(2), "--size":"12rem"}}>{item.AverageCpuUsage.toFixed(2)}%</div>
           </div>
-          <h2 className={styles.h2}>Time: {item.StartDate} - {item.EndDate}</h2>
+          <h2 className={styles.h2}>Time: {item.Start} - {item.End}</h2>
         </div>
       )}
       {ramHistory.map((item, index) =>
@@ -78,9 +78,9 @@ const historyView = props => {
           <h2 className={styles.h2}> RAM History Average</h2>
           <div className="block p-5 shadow-lg shadow-primary mb-5">
             <div className="radial-progress text-neutral border-4 border-primary bg-primary"
-                 style={{"--value":item.Usage.toFixed(2), "--size":"12rem"}}>{item.Usage.toFixed(2)}%</div>
+                 style={{"--value":item.AverageMemUsage.toFixed(2), "--size":"12rem"}}>{item.AverageMemUsage.toFixed(2)}%</div>
           </div>
-          <h2 className={styles.h2}>Time: {item.StartDate} - {item.EndDate}</h2>
+          <h2 className={styles.h2}>Time: {item.Start} - {item.End}</h2>
         </div>
       )}
     </div>
