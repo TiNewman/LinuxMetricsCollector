@@ -15,7 +15,7 @@ let socket
  */
 const historyView = props => {
   //variables to set and store incoming history data
-  const [cpuHistory, setCPUHistory] = useState([])
+ /* const [cpuHistory, setCPUHistory] = useState([])
   const [ramHistory, setRAMHistory] = useState([])
 
   //initialize Websocket and close the connection when this page is unmounted from the view
@@ -51,12 +51,14 @@ const historyView = props => {
       socket.send(JSON.stringify({"request": "stop"}))
       socket.close()
     };
-  }
+  } */
 
-    /** THIS IS THE MANUAL TEST DATA FOR CLIENT WEBSOCKETS
-    const cpuHistory = [{Usage:37.7905493, StartDate:"04/25/22", EndDate:"04/28/22"}]
-    const ramHistory = [{Usage:13.7905493, StartDate:"04/25/22", EndDate:"04/28/22"}]
-    */
+    /** THIS IS THE MANUAL TEST DATA FOR CLIENT WEBSOCKETS */
+    const cpuHistory = [{AverageCpuUsage:37.7905493, Start:"2022-04-29T00:00:00Z", End:"2022-05-02T00:00:00Z"}]
+    const ramHistory = [{AverageMemUsage:13.7905493, Start:"2022-04-29T00:00:00Z", End:"2022-05-02T00:00:00Z"}]
+    /**/
+    let cpuStartDate = (new Date(cpuHistory[0].Start.replace(/-/g, '\/').replace(/T.+/, '')).toLocaleDateString());
+    console.log(cpuStartDate)
 
   //Maps over cpuHistory and ramHistory and returns html that is injected into app view to avoid crashing before data is
   //received
@@ -64,23 +66,23 @@ const historyView = props => {
     <div>
       <h1 className={styles.h1}> Historical Data </h1>
       {cpuHistory.map((item, index) =>
-        <div className="float-left ml-48 mt-10 pt-10 pl-10">
+        <div className="float-left ml-96 mt-10 pt-10 pl-10">
           <h2 className={styles.h2}> CPU History Average </h2>
           <div className="block p-5 shadow-lg shadow-primary mb-5">
             <div className="radial-progress text-neutral border-4 border-primary bg-primary"
                  style={{"--value":item.AverageCpuUsage.toFixed(2), "--size":"12rem"}}>{item.AverageCpuUsage.toFixed(2)}%</div>
           </div>
-          <h2 className={styles.h2}>Time: {item.Start} - {item.End}</h2>
+          <h2 className={styles.h2}>Time: {(new Date(item.Start.replace(/-/g, '\/').replace(/T.+/, '')).toLocaleDateString())} - {(new Date(item.End.replace(/-/g, '\/').replace(/T.+/, '')).toLocaleDateString())}</h2>
         </div>
       )}
       {ramHistory.map((item, index) =>
-        <div className="float-left mt-10 pt-10 pl-10">
+        <div className="float-left mt-10 mr-96 pt-10 pl-10">
           <h2 className={styles.h2}> RAM History Average</h2>
           <div className="block p-5 shadow-lg shadow-primary mb-5">
             <div className="radial-progress text-neutral border-4 border-primary bg-primary"
                  style={{"--value":item.AverageMemUsage.toFixed(2), "--size":"12rem"}}>{item.AverageMemUsage.toFixed(2)}%</div>
           </div>
-          <h2 className={styles.h2}>Time: {item.Start} - {item.End}</h2>
+          <h2 className={styles.h2}>Time: {(new Date(item.Start.replace(/-/g, '\/').replace(/T.+/, '')).toLocaleDateString())} - {(new Date(item.End.replace(/-/g, '\/').replace(/T.+/, '')).toLocaleDateString())}</h2>
         </div>
       )}
     </div>
