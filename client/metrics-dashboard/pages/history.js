@@ -15,7 +15,7 @@ let socket
  */
 const historyView = props => {
   //variables to set and store incoming history data
- /* const [cpuHistory, setCPUHistory] = useState([])
+  const [cpuHistory, setCPUHistory] = useState([])
   const [ramHistory, setRAMHistory] = useState([])
 
   //initialize Websocket and close the connection when this page is unmounted from the view
@@ -51,14 +51,15 @@ const historyView = props => {
       socket.send(JSON.stringify({"request": "stop"}))
       socket.close()
     };
-  } */
+  }
 
-    /** THIS IS THE MANUAL TEST DATA FOR CLIENT WEBSOCKETS */
+    /** THIS IS THE MANUAL TEST DATA FOR CLIENT WEBSOCKETS 
     const cpuHistory = [{AverageCpuUsage:37.7905493, Start:"2022-04-29T00:00:00Z", End:"2022-05-02T00:00:00Z"}]
     const ramHistory = [{AverageMemUsage:13.7905493, Start:"2022-04-29T00:00:00Z", End:"2022-05-02T00:00:00Z"}]
-    /**/
+
     let cpuStartDate = (new Date(cpuHistory[0].Start.replace(/-/g, '\/').replace(/T.+/, '')).toLocaleDateString());
     console.log(cpuStartDate)
+    */
 
   //Maps over cpuHistory and ramHistory and returns html that is injected into app view to avoid crashing before data is
   //received
